@@ -1,0 +1,13 @@
+/* index.css — intentionally minimal
+   The main design system lives in src/app/styles/globals.css
+   This file is kept to satisfy Vite's default entry, but should not
+   override any design tokens.
+*/
+
+body {
+  margin: 0;
+}
+
+#root {
+  min-height: 100dvh;
+}

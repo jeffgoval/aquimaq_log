@@ -1,0 +1,45 @@
+{
+  "name": "Aquimaq Log",
+  "short_name": "AquimaqLog",
+  "description": "Gestão inteligente de tratores, operadores e serviços agrícolas.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0d1117",
+  "theme_color": "#f59e0b",
+  "lang": "pt-BR",
+  "categories": ["business", "productivity"],
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "url": "/",
+      "description": "Ver painel principal"
+    },
+    {
+      "name": "Tratores",
+      "url": "/tratores",
+      "description": "Gerenciar frota de tratores"
+    },
+    {
+      "name": "Serviços",
+      "url": "/servicos",
+      "description": "Apontar serviços"
+    }
+  ]
+}

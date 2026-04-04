@@ -1,0 +1,71 @@
+import { useForm, Controller, type Resolver } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { AppCurrencyInput } from '@/shared/components/app/app-numeric-input'
+import { useNavigate } from 'react-router-dom'
+import { operatorSchema, type OperatorInput } from '../schemas/operator.schema'
+import { useCreateOperator } from '../hooks/use-operator-queries'
+import { ROUTES } from '@/shared/constants/routes'
+import { AppPageHeader } from '@/shared/components/app/app-page-header'
+import { Link } from 'react-router-dom'
+
+export function OperatorCreatePage() {
+  const navigate = useNavigate()
+  const create = useCreateOperator()
+  const form = useForm<OperatorInput>({
+    resolver: zodResolver(operatorSchema) as Resolver<OperatorInput>,
+    defaultValues: { name: '', default_hour_rate: 0, is_active: true },
+  })
+  const { register, control, formState: { errors } } = form
+
+  const onSubmit = form.handleSubmit(async (v) => { await create.mutateAsync(v); navigate(ROUTES.OPERATORS) })
+
+  return (
+    <div className="max-w-2xl">
+      <AppPageHeader title="Novo Operador" />
+      <form onSubmit={onSubmit} className="space-y-6">
+        <div className="rounded-xl border border-border bg-card p-6 space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="sm:col-span-2">
+              <label className="field-label">Nome *</label>
+              <input {...register('name')} className="field" placeholder="Nome completo" />
+              {errors.name && <p className="field-error">{errors.name.message}</p>}
+            </div>
+            <div>
+              <label className="field-label">Telefone</label>
+              <input {...register('phone')} className="field" placeholder="(11) 99999-9999" />
+            </div>
+            <div>
+              <label className="field-label">Documento (CPF/CNH)</label>
+              <input {...register('document')} className="field" placeholder="000.000.000-00" />
+            </div>
+            <div>
+              <label className="field-label">Taxa por hora</label>
+              <Controller
+                name="default_hour_rate"
+                control={control}
+                render={({ field: { onChange, value } }) => (
+                  <AppCurrencyInput
+                    value={value || ''}
+                    onValueChange={(v) => onChange(v.floatValue ?? 0)}
+                    placeholder="R$ 0,00"
+                  />
+                )}
+              />
+              {errors.default_hour_rate && <p className="field-error">{errors.default_hour_rate.message}</p>}
+            </div>
+          </div>
+          <div>
+            <label className="field-label">Observações</label>
+            <textarea {...register('notes')} rows={3} className="field resize-none" placeholder="..." />
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
+          <button type="submit" disabled={create.isPending} className="gradient-amber text-white font-semibold px-6 py-2.5 rounded-lg hover:opacity-90 disabled:opacity-50 text-sm">
+            {create.isPending ? 'Salvando...' : 'Cadastrar operador'}
+          </button>
+          <Link to={ROUTES.OPERATORS} className="text-sm text-muted-foreground hover:text-foreground transition-colors">Cancelar</Link>
+        </div>
+      </form>
+    </div>
+  )
+}

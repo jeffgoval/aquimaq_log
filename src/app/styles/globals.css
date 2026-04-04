@@ -1,0 +1,165 @@
+/* ============================================================
+   globals.css — Design system for Aquimaq Log
+   ============================================================ */
+
+/* Google Fonts — must be first */
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300..700;1,14..32,300..700&display=swap');
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    /* Dark theme tokens */
+    --background: 222 20% 8%;
+    --foreground: 210 20% 96%;
+
+    --card: 222 20% 11%;
+    --card-foreground: 210 20% 96%;
+
+    --popover: 222 20% 11%;
+    --popover-foreground: 210 20% 96%;
+
+    --primary: 38 92% 50%;        /* Amber — equipment/industrial accent */
+    --primary-foreground: 222 20% 8%;
+
+    --secondary: 222 20% 16%;
+    --secondary-foreground: 210 20% 96%;
+
+    --muted: 222 20% 14%;
+    --muted-foreground: 215 16% 55%;
+
+    --accent: 222 20% 16%;
+    --accent-foreground: 210 20% 96%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 210 20% 96%;
+
+    --border: 222 20% 18%;
+    --input: 222 20% 16%;
+    --ring: 38 92% 50%;
+
+    --radius: 0.5rem;
+
+    /* Status colors */
+    --status-draft: 215 20% 55%;
+    --status-in-progress: 38 92% 50%;
+    --status-completed: 142 71% 45%;
+    --status-cancelled: 0 72% 51%;
+
+    --status-pending: 38 92% 50%;
+    --status-partially-paid: 200 80% 55%;
+    --status-paid: 142 71% 45%;
+    --status-overdue: 0 72% 51%;
+  }
+
+  *,
+  *::before,
+  *::after {
+    border-color: hsl(var(--border));
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* Prevent text size inflation on mobile */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    /* Remove blue flash on tap (iOS/Android) */
+    -webkit-tap-highlight-color: transparent;
+    /* Prevent overscroll bounce on iOS */
+    overscroll-behavior: none;
+  }
+
+  /* Scrollbar styling (desktop only) */
+  @media (min-width: 1024px) {
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: hsl(var(--muted)); }
+    ::-webkit-scrollbar-thumb { background: hsl(var(--border)); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: hsl(var(--muted-foreground)); }
+  }
+}
+
+@layer utilities {
+  .glass {
+    background: hsl(var(--card) / 0.8);
+    backdrop-filter: blur(12px);
+    border: 1px solid hsl(var(--border));
+  }
+
+  .gradient-amber {
+    background: linear-gradient(135deg, hsl(38 92% 50%) 0%, hsl(28 95% 55%) 100%);
+  }
+
+  .gradient-sidebar {
+    background: linear-gradient(180deg, hsl(222 25% 9%) 0%, hsl(222 20% 7%) 100%);
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Safe-area aware padding utilities for PWA/notch devices */
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .pt-safe {
+    padding-top: env(safe-area-inset-top);
+  }
+}
+
+@layer components {
+  /* Form field utilities */
+  .field {
+    width: 100%;
+    border-radius: 0.5rem;
+    border: 1px solid hsl(var(--input));
+    background-color: hsl(var(--input));
+    padding: 0.625rem 0.75rem;   /* slightly taller for touch */
+    font-size: 1rem;              /* 16px — prevents iOS zoom on focus */
+    color: hsl(var(--foreground));
+    outline: none;
+    transition: box-shadow 0.15s;
+    /* Min touch target */
+    min-height: 44px;
+  }
+
+  .field:focus {
+    box-shadow: 0 0 0 2px hsl(var(--ring));
+  }
+
+  .field::placeholder {
+    color: hsl(var(--muted-foreground));
+  }
+
+  .field-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: hsl(var(--foreground));
+    margin-bottom: 0.375rem;
+  }
+
+  .field-error {
+    margin-top: 0.25rem;
+    font-size: 0.75rem;
+    color: hsl(var(--destructive));
+  }
+
+  /* Hide HTML5 number spin-buttons */
+  input[type=number]::-webkit-inner-spin-button,
+  input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+}

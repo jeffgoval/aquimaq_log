@@ -1,0 +1,27 @@
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
+import { queryKeys } from '@/integrations/supabase/query-keys'
+import { worklogRepository } from '../services/worklog.repository'
+import { parseSupabaseError } from '@/shared/lib/errors'
+import type { Inserts } from '@/integrations/supabase/db-types'
+
+type WorklogInsert = Inserts<'service_worklogs'>
+
+export const useWorklogsByService = (serviceId: string) => useQuery({
+  queryKey: queryKeys.worklogsByService(serviceId),
+  queryFn: () => worklogRepository.listByService(serviceId),
+  enabled: !!serviceId,
+})
+
+export function useCreateWorklog(serviceId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (p: Omit<WorklogInsert, 'service_id'>) =>
+      worklogRepository.create({ ...p, service_id: serviceId }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.worklogsByService(serviceId) })
+      toast.success('Apontamento registrado!')
+    },
+    onError: (e: Error) => toast.error(parseSupabaseError(e)),
+  })
+}
