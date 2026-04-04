@@ -55,28 +55,28 @@ export function DashboardPage() {
         </div>
       </div>
 
-      {/* KPI cards section 1 */}
-      <div className="grid grid-cols-2 gap-4 mb-4">
+      {/* KPI cards section 1 (Operational) */}
+      <div className="grid grid-cols-2 gap-3 mb-3 lg:gap-4 lg:mb-4">
         <AppStatCard title="Clientes" value={clients.data?.filter(c => c.is_active).length ?? '…'} icon={Building2} />
-        <AppStatCard title="Serviços em aberto" value={activeServices.length} icon={ClipboardList} description="Aguardando conclusão" />
+        <AppStatCard title="Serviços" value={activeServices.length} icon={ClipboardList} description="Em aberto" />
       </div>
 
-      {/* Financial KPIs */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <AppStatCard title="A receber (pendente)" value={<AppMoney value={totalPending} />} icon={DollarSign} description={`${pendingReceivables.length} parcelas`} />
+      {/* Financial KPIs (Money) */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
+        <AppStatCard title="A receber" value={<AppMoney value={totalPending} />} icon={DollarSign} description={`${pendingReceivables.length} parcelas`} />
         <AppStatCard
           title="Vencido"
           value={<AppMoney value={totalOverdue} />}
           icon={AlertTriangle}
           description={`${overdueReceivables.length} parcelas`}
-          className={overdueReceivables.length > 0 ? 'border-red-400/30' : ''}
+          className={overdueReceivables.length > 0 ? 'border-red-400/20 bg-red-400/5' : ''}
         />
         <AppStatCard 
           title="Contas a pagar" 
           value={<AppMoney value={totalPayables} />} 
           icon={Wallet} 
           description="Dívidas da frota" 
-          className="border-primary/20"
+          className="lg:border-primary/20"
         />
       </div>
 
