@@ -67,37 +67,42 @@ export function ServiceListPage() {
         filtered.length === 0
           ? <AppEmptyState title="Nenhum serviço" action={<Link to={ROUTES.SERVICE_NEW} className="text-primary text-sm hover:underline">Criar serviço</Link>} />
           : (
-            <div className="rounded-xl border border-border overflow-hidden">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-border bg-muted/30">
-                    <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Data</th>
-                    <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Cliente</th>
-                    <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Trator</th>
-                    <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground hidden sm:table-cell">Operador</th>
-                    <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filtered.map(service => (
-                    <tr
-                      key={service.id}
-                      onClick={() => navigate(ROUTES.SERVICE_DETAIL(service.id))}
-                      className="border-b border-border last:border-0 hover:bg-muted/20 transition-colors cursor-pointer"
-                    >
-                      <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">{dayjs(service.service_date).format('DD/MM/YY')}</td>
-                      <td className="px-4 py-3 font-medium">{service.clients?.name || '—'}</td>
-                      <td className="px-4 py-3 text-muted-foreground">{service.tractors?.name || '—'}</td>
-                      <td className="px-4 py-3 text-muted-foreground hidden sm:table-cell">{service.operators?.name || '—'}</td>
-                      <td className="px-4 py-3">
-                        <span className={cn('text-xs font-medium px-2 py-0.5 rounded-full', STATUS_COLORS[service.status])}>
-                          {STATUS_LABELS[service.status]}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {filtered.map(service => (
+                <div
+                  key={service.id}
+                  onClick={() => navigate(ROUTES.SERVICE_DETAIL(service.id))}
+                  className="rounded-xl border border-border bg-card p-4 hover:border-primary/30 transition-all cursor-pointer flex flex-col gap-3 group"
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="min-w-0">
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+                        {dayjs(service.service_date).format('DD [de] MMMM')}
+                      </p>
+                      <h3 className="font-bold text-foreground text-sm truncate mt-0.5">{service.clients?.name || 'Cliente sem nome'}</h3>
+                    </div>
+                    <span className={cn('text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tighter shrink-0', STATUS_COLORS[service.status])}>
+                      {STATUS_LABELS[service.status]}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 py-2 border-y border-border/50">
+                    <div>
+                      <p className="text-[10px] text-muted-foreground uppercase font-medium">Trator</p>
+                      <p className="text-xs font-semibold text-foreground truncate">{service.tractors?.name || '—'}</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] text-muted-foreground uppercase font-medium">Operador</p>
+                      <p className="text-xs font-semibold text-foreground truncate">{service.operators?.name || '—'}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between text-[10px] text-muted-foreground">
+                    <span>Clique para ver detalhes</span>
+                    <Plus className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                </div>
+              ))}
             </div>
           )
       )}

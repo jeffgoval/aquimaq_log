@@ -19,11 +19,11 @@ export function ReceivableListPage() {
 
   return (
     <div>
-      <AppPageHeader title="Contas a Receber" description={`Total pendente: R$ ${totalPending.toFixed(2)}`} />
+      <AppPageHeader title="Contas a Receber" description={`Total pendente: ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalPending)}`} />
 
-      <div className="flex gap-2 mb-4 flex-wrap">
+      <div className="flex gap-2 mb-4 overflow-x-auto pb-2 no-scrollbar scroll-smooth">
         {Object.entries(STATUS_LABELS).map(([k, v]) => (
-          <button key={k} onClick={() => setStatusFilter(k)} className={cn('px-3 py-1.5 rounded-lg text-xs font-medium transition-colors', statusFilter === k ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground hover:text-foreground')}>
+          <button key={k} onClick={() => setStatusFilter(k)} className={cn('px-3 py-1.5 rounded-lg text-[10px] uppercase font-bold transition-all shrink-0 whitespace-nowrap', statusFilter === k ? 'bg-primary text-primary-foreground shadow-sm' : 'bg-secondary text-muted-foreground hover:text-foreground')}>
             {v}
           </button>
         ))}
@@ -33,32 +33,34 @@ export function ReceivableListPage() {
       {isError && <AppErrorState message={error.message} onRetry={refetch} />}
       {!isLoading && !isError && (
         !data?.length ? <AppEmptyState title="Nenhuma parcela encontrada" />
-          : <div className="rounded-xl border border-border overflow-hidden">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-border bg-muted/30">
-                  {['Cliente', 'Descrição', 'Vencimento', 'Valor', 'Pago', 'Status'].map(h => (
-                    <th key={h} className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {data.map(rec => (
-                  <tr key={rec.id} className="border-b border-border last:border-0 hover:bg-muted/10">
-                    <td className="px-4 py-3 font-medium">{rec.clients?.name || '—'}</td>
-                    <td className="px-4 py-3 text-muted-foreground text-xs">{rec.description || `Parcela ${rec.installment_number}/${rec.installment_count}`}</td>
-                    <td className="px-4 py-3 text-muted-foreground">{dayjs(rec.due_date).format('DD/MM/YYYY')}</td>
-                    <td className="px-4 py-3"><AppMoney value={rec.final_amount} size="sm" /></td>
-                    <td className="px-4 py-3"><AppMoney value={rec.paid_amount} size="sm" /></td>
-                    <td className="px-4 py-3">
-                      <span className={cn('text-xs font-medium px-2 py-0.5 rounded-full', STATUS_COLORS[rec.status] ?? 'bg-muted text-muted-foreground')}>
-                        {STATUS_LABELS[rec.status] ?? rec.status}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          : <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            {data.map(rec => (
+              <div key={rec.id} className="rounded-xl border border-border bg-card p-4 flex flex-col gap-3 group">
+                <div className="flex items-start justify-between">
+                  <div className="min-w-0">
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+                      Vence em {dayjs(rec.due_date).format('DD/MM/YYYY')}
+                    </p>
+                    <h3 className="font-bold text-foreground text-sm truncate mt-0.5">{rec.clients?.name || 'Cliente'}</h3>
+                    <p className="text-[10px] text-muted-foreground truncate">{rec.description || `Parcela ${rec.installment_number}/${rec.installment_count}`}</p>
+                  </div>
+                  <span className={cn('text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tighter shrink-0', STATUS_COLORS[rec.status] ?? 'bg-muted text-muted-foreground')}>
+                    {STATUS_LABELS[rec.status] ?? rec.status}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 py-2 border-y border-border/50">
+                  <div>
+                    <p className="text-[10px] text-muted-foreground uppercase font-semibold">Valor Final</p>
+                    <AppMoney value={rec.final_amount} size="sm" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-muted-foreground uppercase font-semibold">Valor Pago</p>
+                    <AppMoney value={rec.paid_amount} size="sm" />
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
       )}
     </div>

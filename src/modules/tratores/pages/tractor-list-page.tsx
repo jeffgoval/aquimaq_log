@@ -66,33 +66,33 @@ export function TractorListPage() {
               }
             />
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {filtered.map((tractor) => (
                 <div
                   key={tractor.id}
-                  className="rounded-xl border border-border bg-card p-5 hover:border-primary/30 transition-colors group cursor-pointer"
+                  className="rounded-xl border border-border bg-card p-4 hover:border-primary/30 transition-all group cursor-pointer flex flex-col gap-3"
                   onClick={() => navigate(ROUTES.TRACTOR_DETAIL(tractor.id))}
                 >
-                  <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">
                       <div className={cn(
-                        'rounded-lg p-2',
+                        'rounded-lg p-1.5',
                         tractor.is_active ? 'bg-primary/10' : 'bg-muted'
                       )}>
                         <Tractor className={cn(
-                          'h-5 w-5',
+                          'h-4 w-4',
                           tractor.is_active ? 'text-primary' : 'text-muted-foreground'
                         )} />
                       </div>
-                      <div>
-                        <h3 className="font-semibold text-foreground text-sm">{tractor.name}</h3>
-                        <p className="text-xs text-muted-foreground">
+                      <div className="min-w-0">
+                        <h3 className="font-bold text-foreground text-sm truncate">{tractor.name}</h3>
+                        <p className="text-[10px] text-muted-foreground truncate uppercase font-medium tracking-tight">
                           {[tractor.brand, tractor.model].filter(Boolean).join(' · ')}
                         </p>
                       </div>
                     </div>
                     <span className={cn(
-                      'text-xs font-medium px-2 py-0.5 rounded-full',
+                      'text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tighter',
                       tractor.is_active
                         ? 'bg-green-400/10 text-green-400'
                         : 'bg-muted text-muted-foreground'
@@ -101,36 +101,26 @@ export function TractorListPage() {
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3 mb-4">
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-2 py-2 border-y border-border/50">
                     <div>
-                      <p className="text-xs text-muted-foreground">Valor de compra</p>
-                      <AppMoney value={tractor.purchase_value} size="sm" />
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground">Custo/hora</p>
+                      <p className="text-[10px] text-muted-foreground uppercase font-semibold">Custo/hora</p>
                       <AppMoney value={tractor.standard_hour_cost ?? 0} size="sm" />
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground">Vida útil</p>
-                      <p className="text-sm font-medium text-foreground">
-                        {tractor.useful_life_hours.toLocaleString('pt-BR')}h
-                      </p>
                     </div>
                     {tractor.plate && (
                       <div>
-                        <p className="text-xs text-muted-foreground">Placa</p>
-                        <p className="text-sm font-medium text-foreground font-mono">{tractor.plate}</p>
+                        <p className="text-[10px] text-muted-foreground uppercase font-semibold">Placa</p>
+                        <p className="text-xs font-bold text-foreground font-mono">{tractor.plate}</p>
                       </div>
                     )}
                   </div>
 
-                  <div className="flex gap-2 pt-3 border-t border-border">
+                  <div className="flex gap-2 pt-1 mt-auto">
                     <Link
                       to={ROUTES.TRACTOR_EDIT(tractor.id)}
                       onClick={(e) => e.stopPropagation()}
-                      className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                      className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors font-medium"
                     >
-                      <Edit className="h-3.5 w-3.5" />
+                      <Edit className="h-3 w-3" />
                       Editar
                     </Link>
                     {tractor.is_active && (
@@ -139,9 +129,9 @@ export function TractorListPage() {
                           e.stopPropagation()
                           if (confirm('Desativar este trator?')) deactivate.mutate(tractor.id)
                         }}
-                        className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-destructive transition-colors ml-auto"
+                        className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-destructive transition-colors ml-auto font-medium"
                       >
-                        <PowerOff className="h-3.5 w-3.5" />
+                        <PowerOff className="h-3 w-3" />
                         Desativar
                       </button>
                     )}

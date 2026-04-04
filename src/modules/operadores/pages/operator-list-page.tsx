@@ -37,28 +37,28 @@ export function OperatorListPage() {
       {!isLoading && !isError && (
         filtered.length === 0
           ? <AppEmptyState title="Nenhum operador encontrado" action={<Link to={ROUTES.OPERATOR_NEW} className="text-primary text-sm hover:underline">Cadastrar operador</Link>} />
-          : <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          : <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             {filtered.map(op => (
               <div key={op.id} onClick={() => navigate(ROUTES.OPERATOR_DETAIL(op.id))}
-                className="rounded-xl border border-border bg-card p-5 hover:border-primary/30 transition-colors cursor-pointer">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="rounded-lg bg-primary/10 p-2.5"><User className="h-5 w-5 text-primary" /></div>
-                  <div>
-                    <h3 className="font-semibold text-foreground text-sm">{op.name}</h3>
-                    <p className="text-xs text-muted-foreground">{op.phone || 'Sem telefone'}</p>
+                className="rounded-xl border border-border bg-card p-4 hover:border-primary/30 transition-all cursor-pointer flex flex-col gap-3 group">
+                <div className="flex items-start gap-3">
+                  <div className="rounded-lg bg-primary/10 p-2 shrink-0"><User className="h-4 w-4 text-primary" /></div>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-bold text-foreground text-sm truncate">{op.name}</h3>
+                    <p className="text-[10px] text-muted-foreground truncate uppercase font-medium tracking-tight">
+                      {op.phone || 'Sem telefone'}
+                    </p>
                   </div>
-                  <span className={cn('ml-auto text-xs font-medium px-2 py-0.5 rounded-full', op.is_active ? 'bg-green-400/10 text-green-400' : 'bg-muted text-muted-foreground')}>
+                  <span className={cn('text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tighter shrink-0', op.is_active ? 'bg-green-400/10 text-green-400' : 'bg-muted text-muted-foreground')}>
                     {op.is_active ? 'Ativo' : 'Inativo'}
                   </span>
                 </div>
-                <div className="flex items-center justify-between text-sm pt-3 border-t border-border">
+                <div className="flex items-center justify-between mt-auto pt-2 border-t border-border/50">
                   <div>
-                    <p className="text-xs text-muted-foreground">Taxa/hora</p>
+                    <p className="text-[10px] text-muted-foreground uppercase font-semibold">Taxa/hora</p>
                     <AppMoney value={op.default_hour_rate} size="sm" />
                   </div>
-                  <Link to={ROUTES.OPERATOR_DETAIL(op.id)} onClick={e => e.stopPropagation()} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors">
-                    <Edit className="h-3.5 w-3.5" />Ver ledger
-                  </Link>
+                  <span className="text-[10px] text-primary font-bold opacity-0 group-hover:opacity-100 transition-opacity uppercase">Ver Ledger</span>
                 </div>
               </div>
             ))}
