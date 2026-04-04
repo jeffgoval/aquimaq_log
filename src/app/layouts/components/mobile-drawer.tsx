@@ -36,7 +36,7 @@ export function MobileDrawer({ open, onClose }: MobileDrawerProps) {
       {/* Backdrop */}
       <div
         className={cn(
-          'lg:hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm transition-opacity duration-300',
+          'lg:hidden fixed inset-0 z-[55] bg-black/60 backdrop-blur-sm transition-opacity duration-300',
           open ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         )}
         onClick={onClose}
@@ -46,10 +46,13 @@ export function MobileDrawer({ open, onClose }: MobileDrawerProps) {
       {/* Drawer panel */}
       <div
         className={cn(
-          'lg:hidden fixed top-0 left-0 bottom-0 z-50 w-72 flex flex-col transition-transform duration-300 ease-in-out',
+          'lg:hidden fixed top-0 left-0 bottom-0 z-[60] w-72 flex flex-col transition-transform duration-300 ease-in-out border-r border-border',
           open ? 'translate-x-0' : '-translate-x-full'
         )}
-        style={{ background: 'linear-gradient(180deg, hsl(222 25% 9%) 0%, hsl(222 20% 7%) 100%)' }}
+        style={{
+          background: 'hsl(var(--card))',
+          paddingTop: 'env(safe-area-inset-top)',
+        }}
         role="dialog"
         aria-modal="true"
         aria-label="Menu de navegação"
