@@ -49,6 +49,8 @@ export type Database = {
           amount: number
           description: string | null
           supplier_name: string | null
+          status: 'pending' | 'paid' | 'cancelled'
+          due_date: string | null
           created_at: string
         }
         Insert: {
@@ -60,6 +62,8 @@ export type Database = {
           amount: number
           description?: string | null
           supplier_name?: string | null
+          status?: 'pending' | 'paid' | 'cancelled'
+          due_date?: string | null
           created_at?: string
         }
         Update: {
@@ -71,6 +75,8 @@ export type Database = {
           amount?: number
           description?: string | null
           supplier_name?: string | null
+          status?: 'pending' | 'paid' | 'cancelled'
+          due_date?: string | null
           created_at?: string
         }
         Relationships: [

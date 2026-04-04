@@ -27,7 +27,7 @@ export function DashboardPage() {
   const totalOverdue = overdueReceivables.reduce((a, r) => a + (r.final_amount - r.paid_amount), 0)
   const activeServices = services.data?.filter(s => s.status === 'draft' || s.status === 'in_progress') ?? []
   
-  const totalExpenses = machineCosts.data?.reduce((a, c) => a + c.amount, 0) ?? 0
+  const totalPayables = machineCosts.data?.filter(c => c.status === 'pending').reduce((a, c) => a + c.amount, 0) ?? 0
 
   return (
     <div>
@@ -72,10 +72,10 @@ export function DashboardPage() {
           className={overdueReceivables.length > 0 ? 'border-red-400/30' : ''}
         />
         <AppStatCard 
-          title="Despesas da frota" 
-          value={<AppMoney value={totalExpenses} />} 
+          title="Contas a pagar" 
+          value={<AppMoney value={totalPayables} />} 
           icon={Wallet} 
-          description="Total registrado" 
+          description="Dívidas da frota" 
           className="border-primary/20"
         />
       </div>
