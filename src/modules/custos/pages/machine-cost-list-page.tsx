@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useMachineCosts, useCreateCost } from '../hooks/use-cost-queries'
 import { useTractorOptions } from '@/modules/tratores/hooks/use-tractor-queries'
@@ -16,7 +16,8 @@ import { AppBadge } from '@/shared/components/app/app-badge'
 import { AppSearchInput } from '@/shared/components/app/app-search-input'
 import { AppDataCard } from '@/shared/components/app/app-data-card'
 import { Plus, Wrench } from 'lucide-react'
-import dayjs from 'dayjs'
+import dayjs from '@/shared/lib/dayjs'
+import { getPreferredTractorId, sortTractorsForSelect } from '@/shared/lib/tractors-select'
 
 const COST_TYPE_LABELS = { fuel: '⛽ Combustível', oil: '🛢️ Óleo', parts: '🔧 Peças', maintenance: '🔩 Manutenção', other: '📋 Outro' }
 
@@ -36,6 +37,17 @@ export function MachineCostListPage() {
     description: '',
     cost_date: dayjs().format('YYYY-MM-DD'),
   })
+
+  const tractorOptionsSorted = useMemo(() => sortTractorsForSelect(tractors.data), [tractors.data])
+
+  useEffect(() => {
+    if (!addDialog.isOpen || !tractorOptionsSorted.length) return
+    setForm((f) => {
+      if (f.tractor_id) return f
+      const id = getPreferredTractorId(tractorOptionsSorted)
+      return id ? { ...f, tractor_id: id } : f
+    })
+  }, [addDialog.isOpen, tractorOptionsSorted])
 
   const filtered = data?.filter((c) => {
     const q = search.toLowerCase()
@@ -104,7 +116,11 @@ export function MachineCostListPage() {
               <label className="field-label">Trator *</label>
               <select value={form.tractor_id} onChange={e => setForm(f => ({ ...f, tractor_id: e.target.value }))} className="field">
                 <option value="">Selecione...</option>
-                {tractors.data?.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+                {tractorOptionsSorted.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.name}
+                  </option>
+                ))}
               </select>
             </div>
             <div>

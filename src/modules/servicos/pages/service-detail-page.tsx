@@ -10,7 +10,7 @@ import { WorklogSection } from '@/modules/apontamentos/components/worklog-sectio
 import { ReceivableSection } from '@/modules/financeiro/components/receivable-section'
 import { cn } from '@/shared/lib/cn'
 import { SERVICE_STATUS_LABELS, SERVICE_STATUS_COLORS } from '@/shared/constants/status'
-import dayjs from 'dayjs'
+import dayjs from '@/shared/lib/dayjs'
 import { ROUTES } from '@/shared/constants/routes'
 
 export function ServiceDetailPage() {

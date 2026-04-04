@@ -9,7 +9,7 @@ import { AppCurrencyInput, AppDecimalInput } from '@/shared/components/app/app-n
 import { useDisclosure } from '@/shared/hooks/use-disclosure'
 import { buildInstallmentsPreview } from '@/features/create-installments/create-installments'
 import { RECEIVABLE_STATUS_LABELS, RECEIVABLE_STATUS_BADGE_VARIANTS } from '@/shared/constants/status'
-import dayjs from 'dayjs'
+import dayjs from '@/shared/lib/dayjs'
 import { DollarSign, Plus } from 'lucide-react'
 
 interface ReceivableSectionProps {

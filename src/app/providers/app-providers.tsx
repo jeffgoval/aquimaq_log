@@ -13,6 +13,8 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
             position="top-right"
             richColors
             closeButton
+            toastOptions={{ closeButtonAriaLabel: 'Fechar notificação' }}
+            containerAriaLabel="Notificações"
           />
         </AuthProvider>
       </QueryProvider>

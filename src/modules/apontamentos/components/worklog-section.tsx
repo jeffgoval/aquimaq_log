@@ -9,7 +9,7 @@ import { useDisclosure } from '@/shared/hooks/use-disclosure'
 import { AppDecimalInput } from '@/shared/components/app/app-numeric-input'
 import { useOperatorOptions } from '@/modules/operadores/hooks/use-operator-queries'
 import { Clock, Plus, Tag } from 'lucide-react'
-import dayjs from 'dayjs'
+import dayjs from '@/shared/lib/dayjs'
 
 interface WorklogSectionProps {
   serviceId: string

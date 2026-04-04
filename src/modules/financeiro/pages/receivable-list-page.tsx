@@ -10,7 +10,7 @@ import { AppSearchInput } from '@/shared/components/app/app-search-input'
 import { AppDataCard } from '@/shared/components/app/app-data-card'
 import { cn } from '@/shared/lib/cn'
 import { RECEIVABLE_STATUS_LABELS, RECEIVABLE_STATUS_BADGE_VARIANTS } from '@/shared/constants/status'
-import dayjs from 'dayjs'
+import dayjs from '@/shared/lib/dayjs'
 import { DollarSign } from 'lucide-react'
 
 const FILTER_LABELS: Record<string, string> = {

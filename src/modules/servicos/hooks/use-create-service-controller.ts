@@ -7,7 +7,7 @@ import { useClientOptions } from '@/modules/clientes/hooks/use-client-queries'
 import { useOperatorOptions } from '@/modules/operadores/hooks/use-operator-queries'
 import { useTractorOptions } from '@/modules/tratores/hooks/use-tractor-queries'
 import { ROUTES } from '@/shared/constants/routes'
-import dayjs from 'dayjs'
+import dayjs from '@/shared/lib/dayjs'
 
 export function useCreateServiceController() {
   const navigate = useNavigate()
