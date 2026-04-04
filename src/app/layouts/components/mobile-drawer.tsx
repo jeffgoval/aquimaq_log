@@ -60,8 +60,8 @@ export function MobileDrawer({ open, onClose }: MobileDrawerProps) {
         {/* Drawer header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-border shrink-0">
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg gradient-amber shrink-0">
-              <Tractor className="h-4 w-4 text-white" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg gradient-cat shrink-0">
+              <Tractor className="h-4 w-4 text-primary-foreground" />
             </div>
             <div>
               <p className="font-bold text-sm text-foreground leading-none">Aquimaq Log</p>

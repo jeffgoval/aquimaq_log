@@ -151,10 +151,16 @@ create index if not exists idx_receivables_due_date   on public.receivables(due_
 create index if not exists idx_worklogs_service_id    on public.service_worklogs(service_id);
 create index if not exists idx_machine_costs_tractor  on public.machine_costs(tractor_id);
 
--- UPDATED_AT triggers
+-- UPDATED_AT triggers (search_path fixa — Splinter 0011)
 create or replace function public.set_updated_at()
-returns trigger language plpgsql as $$
-begin new.updated_at = now(); return new; end;
+returns trigger
+language plpgsql
+set search_path = public
+as $$
+begin
+  new.updated_at = now();
+  return new;
+end;
 $$;
 
 create or replace trigger tractors_updated_at  before update on public.tractors  for each row execute function public.set_updated_at();
@@ -165,7 +171,10 @@ create or replace trigger receivables_updated  before update on public.receivabl
 
 -- PAYMENT TRIGGER: auto-update receivable.paid_amount + status
 create or replace function public.update_receivable_on_payment()
-returns trigger language plpgsql as $$
+returns trigger
+language plpgsql
+set search_path = public
+as $$
 declare
   v_total_paid numeric(12,2);
   v_final_amount numeric(12,2);
@@ -261,16 +270,51 @@ alter table public.receivable_payments enable row level security;
 alter table public.machine_costs   enable row level security;
 alter table public.operator_ledger enable row level security;
 
--- Default: authenticated users have full access (single-tenant)
-create policy "authenticated_full_access" on public.tractors         for all to authenticated using (true) with check (true);
-create policy "authenticated_full_access" on public.operators        for all to authenticated using (true) with check (true);
-create policy "authenticated_full_access" on public.clients          for all to authenticated using (true) with check (true);
-create policy "authenticated_full_access" on public.services         for all to authenticated using (true) with check (true);
-create policy "authenticated_full_access" on public.service_worklogs for all to authenticated using (true) with check (true);
-create policy "authenticated_full_access" on public.receivables      for all to authenticated using (true) with check (true);
-create policy "authenticated_full_access" on public.receivable_payments for all to authenticated using (true) with check (true);
-create policy "authenticated_full_access" on public.machine_costs    for all to authenticated using (true) with check (true);
-create policy "authenticated_full_access" on public.operator_ledger  for all to authenticated using (true) with check (true);
+-- Single-tenant: leitura aberta a authenticated; escritas exigem sessão JWT (Splinter 0024)
+create policy "authenticated_select" on public.tractors for select to authenticated using (true);
+create policy "authenticated_insert" on public.tractors for insert to authenticated with check ((select auth.uid()) is not null);
+create policy "authenticated_update" on public.tractors for update to authenticated using ((select auth.uid()) is not null) with check ((select auth.uid()) is not null);
+create policy "authenticated_delete" on public.tractors for delete to authenticated using ((select auth.uid()) is not null);
+
+create policy "authenticated_select" on public.operators for select to authenticated using (true);
+create policy "authenticated_insert" on public.operators for insert to authenticated with check ((select auth.uid()) is not null);
+create policy "authenticated_update" on public.operators for update to authenticated using ((select auth.uid()) is not null) with check ((select auth.uid()) is not null);
+create policy "authenticated_delete" on public.operators for delete to authenticated using ((select auth.uid()) is not null);
+
+create policy "authenticated_select" on public.clients for select to authenticated using (true);
+create policy "authenticated_insert" on public.clients for insert to authenticated with check ((select auth.uid()) is not null);
+create policy "authenticated_update" on public.clients for update to authenticated using ((select auth.uid()) is not null) with check ((select auth.uid()) is not null);
+create policy "authenticated_delete" on public.clients for delete to authenticated using ((select auth.uid()) is not null);
+
+create policy "authenticated_select" on public.services for select to authenticated using (true);
+create policy "authenticated_insert" on public.services for insert to authenticated with check ((select auth.uid()) is not null);
+create policy "authenticated_update" on public.services for update to authenticated using ((select auth.uid()) is not null) with check ((select auth.uid()) is not null);
+create policy "authenticated_delete" on public.services for delete to authenticated using ((select auth.uid()) is not null);
+
+create policy "authenticated_select" on public.service_worklogs for select to authenticated using (true);
+create policy "authenticated_insert" on public.service_worklogs for insert to authenticated with check ((select auth.uid()) is not null);
+create policy "authenticated_update" on public.service_worklogs for update to authenticated using ((select auth.uid()) is not null) with check ((select auth.uid()) is not null);
+create policy "authenticated_delete" on public.service_worklogs for delete to authenticated using ((select auth.uid()) is not null);
+
+create policy "authenticated_select" on public.receivables for select to authenticated using (true);
+create policy "authenticated_insert" on public.receivables for insert to authenticated with check ((select auth.uid()) is not null);
+create policy "authenticated_update" on public.receivables for update to authenticated using ((select auth.uid()) is not null) with check ((select auth.uid()) is not null);
+create policy "authenticated_delete" on public.receivables for delete to authenticated using ((select auth.uid()) is not null);
+
+create policy "authenticated_select" on public.receivable_payments for select to authenticated using (true);
+create policy "authenticated_insert" on public.receivable_payments for insert to authenticated with check ((select auth.uid()) is not null);
+create policy "authenticated_update" on public.receivable_payments for update to authenticated using ((select auth.uid()) is not null) with check ((select auth.uid()) is not null);
+create policy "authenticated_delete" on public.receivable_payments for delete to authenticated using ((select auth.uid()) is not null);
+
+create policy "authenticated_select" on public.machine_costs for select to authenticated using (true);
+create policy "authenticated_insert" on public.machine_costs for insert to authenticated with check ((select auth.uid()) is not null);
+create policy "authenticated_update" on public.machine_costs for update to authenticated using ((select auth.uid()) is not null) with check ((select auth.uid()) is not null);
+create policy "authenticated_delete" on public.machine_costs for delete to authenticated using ((select auth.uid()) is not null);
+
+create policy "authenticated_select" on public.operator_ledger for select to authenticated using (true);
+create policy "authenticated_insert" on public.operator_ledger for insert to authenticated with check ((select auth.uid()) is not null);
+create policy "authenticated_update" on public.operator_ledger for update to authenticated using ((select auth.uid()) is not null) with check ((select auth.uid()) is not null);
+create policy "authenticated_delete" on public.operator_ledger for delete to authenticated using ((select auth.uid()) is not null);
 
 -- After running this migration:
 -- Regenerate types with:

@@ -35,7 +35,7 @@ export function ServiceListPage() {
         title="Serviços"
         description="Acompanhamento de serviços e apontamentos"
         actions={
-          <Link to={ROUTES.SERVICE_NEW} className="flex items-center gap-2 gradient-amber text-white font-semibold px-4 py-2 rounded-lg hover:opacity-90 text-sm">
+          <Link to={ROUTES.SERVICE_NEW} className="flex items-center gap-2 gradient-cat text-primary-foreground font-semibold px-4 py-2 rounded-lg hover:opacity-90 text-sm">
             <Plus className="h-4 w-4" />Novo serviço
           </Link>
         }

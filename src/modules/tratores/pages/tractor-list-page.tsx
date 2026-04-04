@@ -32,7 +32,7 @@ export function TractorListPage() {
         actions={
           <Link
             to={ROUTES.TRACTOR_NEW}
-            className="flex items-center gap-2 gradient-amber text-white font-semibold px-4 py-2 rounded-lg hover:opacity-90 transition-opacity text-sm"
+            className="flex items-center gap-2 gradient-cat text-primary-foreground font-semibold px-4 py-2 rounded-lg hover:opacity-90 transition-opacity text-sm"
           >
             <Plus className="h-4 w-4" />
             Novo trator

@@ -49,7 +49,7 @@ export function WorklogSection({ serviceId, tractorId }: WorklogSectionProps) {
           <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Apontamentos</h2>
           {totalHours > 0 && (
             <div className="flex items-center gap-1.5 mt-1">
-              <div className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
+              <div className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_10px_#ffcd1175]" />
               <p className="text-xs font-bold text-foreground">Total: {totalHours.toFixed(1)}h trabalhadas</p>
             </div>
           )}

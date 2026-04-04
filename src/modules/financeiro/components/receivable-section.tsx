@@ -216,7 +216,7 @@ export function ReceivableSection({ serviceId, clientId, suggestedTotal }: Recei
             <div>
               <label className="field-label">Valor *</label>
               <AppCurrencyInput value={payAmount} onValueChange={v => setPayAmount(v.value)} className="field w-full max-w-[200px]" placeholder="R$ 0,00" />
-              {inputVal > remaining && <span className="field-hint text-amber-500">Valor maior que o saldo devedor</span>}
+              {inputVal > remaining && <span className="field-hint text-primary">Valor maior que o saldo devedor</span>}
               {inputVal > 0 && inputVal < remaining && <span className="field-hint text-blue-500">Pagamento parcial</span>}
             </div>
             <div className="flex gap-2">

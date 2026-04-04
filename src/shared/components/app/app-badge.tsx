@@ -13,7 +13,7 @@ export function AppBadge({ children, variant = 'default', className }: AppBadgeP
     default: 'bg-muted text-muted-foreground',
     success: 'bg-green-400/10 text-green-400',
     destructive: 'bg-red-400/10 text-red-400',
-    warning: 'bg-amber-400/10 text-amber-400',
+    warning: 'bg-primary/10 text-primary',
     info: 'bg-blue-400/10 text-blue-400',
     outline: 'border border-border text-muted-foreground',
   }

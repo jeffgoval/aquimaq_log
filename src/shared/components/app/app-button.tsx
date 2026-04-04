@@ -5,7 +5,7 @@ type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'destructive' | 'succes
 type ButtonSize = 'sm' | 'md' | 'lg'
 
 const variantClasses: Record<ButtonVariant, string> = {
-  primary: 'gradient-amber text-white font-semibold hover:opacity-90 disabled:opacity-50 transition-opacity',
+  primary: 'gradient-cat text-primary-foreground font-semibold hover:opacity-90 disabled:opacity-50 transition-opacity',
   secondary: 'bg-secondary text-secondary-foreground font-medium hover:bg-secondary/80 disabled:opacity-50 transition-colors',
   ghost: 'text-muted-foreground hover:text-foreground disabled:opacity-50 transition-colors',
   destructive: 'bg-destructive text-destructive-foreground font-semibold hover:bg-destructive/90 disabled:opacity-50 transition-colors',

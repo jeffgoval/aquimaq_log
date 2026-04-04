@@ -7,86 +7,95 @@
 
 @layer base {
   :root {
-    /* Light theme tokens (Default) */
+    /*
+     * Marca — cores oficiais fornecidas:
+     * 1) Amarelo Caterpillar / Pantone 1235 C — HEX #FFCD11 — RGB(255,205,17) — CMYK 0,20,93,0
+     * 2) Preto — HEX #000000 — RGB(0,0,0) — CMYK 0,0,0,100
+     * HSL do #FFCD11: 48 100% 53% (uso em hsl(var(--primary)))
+     */
+    --brand-cat-yellow: #ffcd11;
+    --brand-cat-yellow-alt: #ffc500;
+    --brand-cat-black: #000000;
+
+    /* Light */
     --background: 0 0% 100%;
-    --foreground: 222 47% 11%;
+    --foreground: 0 0% 0%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
+    --card-foreground: 0 0% 0%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
+    --popover-foreground: 0 0% 0%;
 
-    --primary: 38 92% 50%;        /* Amber — stays the same */
-    --primary-foreground: 210 40% 98%;
+    --primary: 48 100% 53%;
+    --primary-foreground: 0 0% 0%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222 47% 11.2%;
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 0%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 38%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222 47% 11.2%;
+    --accent: 0 0% 94%;
+    --accent-foreground: 0 0% 0%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 38 92% 50%;
+    --border: 0 0% 88%;
+    --input: 0 0% 88%;
+    --ring: 48 100% 53%;
 
     --radius: 0.5rem;
 
-    /* Status colors (Light) */
-    --status-draft: 215 16% 47%;
-    --status-in-progress: 38 92% 50%;
+    /* Status (amarelo marca = in_progress / pending) */
+    --status-draft: 0 0% 42%;
+    --status-in-progress: 48 100% 53%;
     --status-completed: 142 71% 45%;
     --status-cancelled: 0 84% 60%;
 
-    --status-pending: 38 92% 50%;
+    --status-pending: 48 100% 53%;
     --status-partially-paid: 199 89% 48%;
     --status-paid: 142 71% 45%;
     --status-overdue: 0 84% 60%;
   }
 
   .dark {
-    /* Dark theme tokens */
-    --background: 222 20% 8%;
-    --foreground: 210 20% 96%;
+    /* Fundo preto marca; texto claro para leitura em UI */
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
 
-    --card: 222 20% 11%;
-    --card-foreground: 210 20% 96%;
+    --card: 0 0% 6%;
+    --card-foreground: 0 0% 100%;
 
-    --popover: 222 20% 11%;
-    --popover-foreground: 210 20% 96%;
+    --popover: 0 0% 6%;
+    --popover-foreground: 0 0% 100%;
 
-    --primary: 38 92% 50%;
-    --primary-foreground: 222 20% 8%;
+    --primary: 48 100% 53%;
+    --primary-foreground: 0 0% 0%;
 
-    --secondary: 222 20% 16%;
-    --secondary-foreground: 210 20% 96%;
+    --secondary: 0 0% 12%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 222 20% 14%;
-    --muted-foreground: 215 16% 55%;
+    --muted: 0 0% 12%;
+    --muted-foreground: 0 0% 62%;
 
-    --accent: 222 20% 16%;
-    --accent-foreground: 210 20% 96%;
+    --accent: 0 0% 14%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 72% 51%;
-    --destructive-foreground: 210 20% 96%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 222 20% 18%;
-    --input: 222 20% 16%;
-    --ring: 38 92% 50%;
+    --border: 0 0% 18%;
+    --input: 0 0% 12%;
+    --ring: 48 100% 53%;
 
-    /* Status colors (Dark) */
-    --status-draft: 215 20% 55%;
-    --status-in-progress: 38 92% 50%;
+    --status-draft: 0 0% 58%;
+    --status-in-progress: 48 100% 53%;
     --status-completed: 142 71% 45%;
     --status-cancelled: 0 72% 51%;
 
-    --status-pending: 38 92% 50%;
+    --status-pending: 48 100% 53%;
     --status-partially-paid: 200 80% 55%;
     --status-paid: 142 71% 45%;
     --status-overdue: 0 72% 51%;
@@ -132,16 +141,14 @@
     border: 1px solid hsl(var(--border));
   }
 
-  .gradient-amber {
-    background: linear-gradient(135deg, hsl(38 92% 50%) 0%, hsl(28 95% 55%) 100%);
+  /* #FFCD11 → #FFC500 (dois tons da especificação) */
+  .gradient-cat {
+    background: linear-gradient(135deg, var(--brand-cat-yellow) 0%, var(--brand-cat-yellow-alt) 100%);
   }
 
   .gradient-sidebar {
-    background: linear-gradient(180deg, hsl(222 25% 9%) 0%, hsl(222 20% 7%) 100%);
+    background: var(--brand-cat-black);
   }
-  
-  /* Light sidebar alternative for light mode if needed, 
-     but keeping industrial dark sidebar usually looks better */
 }
 
 @layer components {

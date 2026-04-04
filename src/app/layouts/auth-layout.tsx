@@ -4,34 +4,20 @@ export function AuthLayout() {
   return (
     <div className="min-h-screen bg-background flex">
       {/* Left panel — branding */}
-      <div className="hidden lg:flex lg:w-1/2 gradient-amber flex-col items-center justify-center p-12 relative overflow-hidden">
-        <div className="absolute inset-0 bg-black/20" />
-        <div className="relative z-10 text-center">
+      <div className="hidden lg:flex lg:w-1/2 gradient-cat flex-col items-center justify-center p-12 relative overflow-hidden">
+        <div className="absolute inset-0 bg-black/10" />
+        <div className="relative z-10 text-center text-primary-foreground">
           <div className="flex items-center justify-center gap-3 mb-6">
-            <svg width="48" height="48" viewBox="0 0 48 48" fill="none" className="drop-shadow-lg">
-              <rect width="48" height="48" rx="12" fill="white" fillOpacity="0.2"/>
-              <path d="M8 32l8-12 6 8 6-10 12 14H8z" fill="white"/>
-              <circle cx="34" cy="18" r="4" fill="white"/>
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none" className="drop-shadow-md text-primary-foreground">
+              <rect width="48" height="48" rx="12" fill="black" fillOpacity="0.12" />
+              <path d="M8 32l8-12 6 8 6-10 12 14H8z" fill="currentColor"/>
+              <circle cx="34" cy="18" r="4" fill="currentColor"/>
             </svg>
-            <h1 className="text-4xl font-bold text-white tracking-tight">Aquimaq Log</h1>
+            <h1 className="text-4xl font-bold tracking-tight">Aquimaq Log</h1>
           </div>
-          <p className="text-white/80 text-lg max-w-sm">
+          <p className="text-primary-foreground/85 text-lg max-w-sm">
             Gestão inteligente de tratores, operadores e serviços agrícolas.
           </p>
-          <div className="mt-10 grid grid-cols-3 gap-6 text-white/70 text-sm">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-white mb-1">∞</div>
-              <div>Tratores</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-white mb-1">100%</div>
-              <div>Controle</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-white mb-1">R$</div>
-              <div>Rentabilidade</div>
-            </div>
-          </div>
         </div>
       </div>
 

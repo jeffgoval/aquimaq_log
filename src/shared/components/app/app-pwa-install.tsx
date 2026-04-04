@@ -68,8 +68,8 @@ export function AppPwaInstall() {
     <div className="fixed bottom-20 left-4 right-4 z-[100] lg:hidden animate-in slide-in-from-bottom-5 duration-300">
       <div className="rounded-2xl border border-primary/20 bg-card/95 backdrop-blur-xl p-4 shadow-2xl flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl gradient-amber shrink-0 shadow-lg shadow-primary/20">
-            <Download className="h-5 w-5 text-white" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl gradient-cat shrink-0 shadow-lg shadow-primary/20">
+            <Download className="h-5 w-5 text-primary-foreground" />
           </div>
           <div>
             <p className="text-sm font-bold text-foreground">Instalar Aquimaq Log</p>
