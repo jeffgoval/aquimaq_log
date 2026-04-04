@@ -200,7 +200,7 @@ after insert or update on public.receivable_payments
 for each row execute function public.update_receivable_on_payment();
 
 -- VIEWS: Operator financial balance
-create or replace view public.v_operator_financial_balance as
+create or replace view public.v_operator_financial_balance with (security_invoker = on) as
 select
   o.id as operator_id,
   o.name as operator_name,
@@ -221,7 +221,7 @@ left join (
 ) ledger on ledger.operator_id = o.id;
 
 -- VIEWS: Tractor profitability
-create or replace view public.v_tractor_profitability as
+create or replace view public.v_tractor_profitability with (security_invoker = on) as
 select
   t.id as tractor_id,
   t.name as tractor_name,
