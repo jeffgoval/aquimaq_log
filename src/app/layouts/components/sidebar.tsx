@@ -16,7 +16,7 @@ export function Sidebar() {
   }
 
   return (
-    <aside className="gradient-sidebar w-64 shrink-0 hidden lg:flex flex-col border-r border-border">
+    <aside className="w-64 shrink-0 hidden lg:flex flex-col border-r border-border bg-card">
       {/* Logo */}
       <div className="flex items-center gap-3 px-6 py-5 border-b border-border">
         <div className="flex h-9 w-9 items-center justify-center rounded-lg gradient-amber shrink-0">
@@ -50,11 +50,13 @@ export function Sidebar() {
         ))}
       </nav>
 
-      {/* Footer */}
-      <div className="px-3 py-4 border-t border-border flex flex-col gap-2">
-        <div className="flex items-center justify-between px-3 mb-2">
-          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Aparência</span>
-          <ThemeToggle className="h-8 w-8" />
+      {/* Footer / Theme Toggle */}
+      <div className="px-3 py-4 border-t border-border flex flex-col gap-1">
+        <div className="flex items-center justify-between px-3 py-2 mb-1 rounded-lg bg-secondary/30">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold text-foreground uppercase tracking-wider">Aparência</span>
+          </div>
+          <ThemeToggle />
         </div>
         
         <button

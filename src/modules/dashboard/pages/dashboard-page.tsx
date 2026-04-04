@@ -29,7 +29,6 @@ export function DashboardPage() {
     <div>
       <AppPageHeader
         title="Dashboard"
-        description={`Visão geral — ${dayjs().format('dddd, D [de] MMMM [de] YYYY')}`}
       />
 
       {/* Quick Actions */}
