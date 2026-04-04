@@ -32,6 +32,40 @@ export function DashboardPage() {
         description={`Visão geral — ${dayjs().format('dddd, D [de] MMMM [de] YYYY')}`}
       />
 
+      {/* Quick Actions */}
+      <div className="mb-8">
+        <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-4">Ações Rápidas</h2>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <Link to={ROUTES.SERVICE_NEW} className="flex flex-col items-center gap-3 p-4 rounded-2xl bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-all group">
+            <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform">
+              <ClipboardList className="h-5 w-5" />
+            </div>
+            <span className="text-xs font-bold text-foreground">Novo Serviço</span>
+          </Link>
+
+          <Link to={ROUTES.TRACTOR_NEW} className="flex flex-col items-center gap-3 p-4 rounded-2xl bg-secondary/50 border border-border hover:border-primary/30 transition-all group">
+            <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-card border border-border text-foreground shadow-sm group-hover:scale-110 transition-transform">
+              <Tractor className="h-5 w-5" />
+            </div>
+            <span className="text-xs font-bold text-foreground">Novo Trator</span>
+          </Link>
+
+          <Link to={ROUTES.OPERATOR_NEW} className="flex flex-col items-center gap-3 p-4 rounded-2xl bg-secondary/50 border border-border hover:border-primary/30 transition-all group">
+            <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-card border border-border text-foreground shadow-sm group-hover:scale-110 transition-transform">
+              <Users className="h-5 w-5" />
+            </div>
+            <span className="text-xs font-bold text-foreground">Operador</span>
+          </Link>
+
+          <Link to={ROUTES.CLIENT_NEW} className="flex flex-col items-center gap-3 p-4 rounded-2xl bg-secondary/50 border border-border hover:border-primary/30 transition-all group">
+            <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-card border border-border text-foreground shadow-sm group-hover:scale-110 transition-transform">
+              <Building2 className="h-5 w-5" />
+            </div>
+            <span className="text-xs font-bold text-foreground">Cliente</span>
+          </Link>
+        </div>
+      </div>
+
       {/* KPI cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <AppStatCard title="Tratores ativos" value={tractors.data?.filter(t => t.is_active).length ?? '…'} icon={Tractor} />
