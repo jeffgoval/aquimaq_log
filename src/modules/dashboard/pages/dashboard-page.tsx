@@ -6,7 +6,8 @@ import { useReceivables } from '@/modules/financeiro/hooks/use-financial-queries
 import { AppPageHeader } from '@/shared/components/app/app-page-header'
 import { AppStatCard } from '@/shared/components/app/app-stat-card'
 import { AppMoney } from '@/shared/components/app/app-money'
-import { Tractor, Users, Building2, ClipboardList, DollarSign, AlertTriangle } from 'lucide-react'
+import { useMachineCosts } from '@/modules/custos/hooks/use-cost-queries'
+import { Tractor, Users, Building2, ClipboardList, DollarSign, AlertTriangle, Wallet } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { ROUTES } from '@/shared/constants/routes'
 import { cn } from '@/shared/lib/cn'
@@ -18,12 +19,15 @@ export function DashboardPage() {
   const clients = useClientList()
   const services = useServiceList()
   const receivables = useReceivables()
+  const machineCosts = useMachineCosts()
 
   const overdueReceivables = receivables.data?.filter(r => r.status === 'overdue') ?? []
   const pendingReceivables = receivables.data?.filter(r => r.status === 'pending' || r.status === 'partially_paid') ?? []
   const totalPending = pendingReceivables.reduce((a, r) => a + (r.final_amount - r.paid_amount), 0)
   const totalOverdue = overdueReceivables.reduce((a, r) => a + (r.final_amount - r.paid_amount), 0)
   const activeServices = services.data?.filter(s => s.status === 'draft' || s.status === 'in_progress') ?? []
+  
+  const totalExpenses = machineCosts.data?.reduce((a, c) => a + c.amount, 0) ?? 0
 
   return (
     <div>
@@ -51,13 +55,14 @@ export function DashboardPage() {
         </div>
       </div>
 
-      {/* KPI cards */}
-      <div className="grid grid-cols-2 gap-4 mb-6">
+      {/* KPI cards section 1 */}
+      <div className="grid grid-cols-2 gap-4 mb-4">
         <AppStatCard title="Clientes" value={clients.data?.filter(c => c.is_active).length ?? '…'} icon={Building2} />
         <AppStatCard title="Serviços em aberto" value={activeServices.length} icon={ClipboardList} description="Aguardando conclusão" />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+      {/* Financial KPIs */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <AppStatCard title="A receber (pendente)" value={<AppMoney value={totalPending} />} icon={DollarSign} description={`${pendingReceivables.length} parcelas`} />
         <AppStatCard
           title="Vencido"
@@ -65,6 +70,13 @@ export function DashboardPage() {
           icon={AlertTriangle}
           description={`${overdueReceivables.length} parcelas`}
           className={overdueReceivables.length > 0 ? 'border-red-400/30' : ''}
+        />
+        <AppStatCard 
+          title="Despesas da frota" 
+          value={<AppMoney value={totalExpenses} />} 
+          icon={Wallet} 
+          description="Total registrado" 
+          className="border-primary/20"
         />
       </div>
 
