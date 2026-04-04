@@ -8,18 +8,28 @@ import { AppEmptyState } from '@/shared/components/app/app-empty-state'
 import { AppMoney } from '@/shared/components/app/app-money'
 import { AppCurrencyInput } from '@/shared/components/app/app-numeric-input'
 import { useDisclosure } from '@/shared/hooks/use-disclosure'
+import { AppBadge } from '@/shared/components/app/app-badge'
+import { AppSearchInput } from '@/shared/components/app/app-search-input'
+import { AppDataCard } from '@/shared/components/app/app-data-card'
 import { Plus, Wrench } from 'lucide-react'
 import dayjs from 'dayjs'
 
 const COST_TYPE_LABELS = { fuel: '⛽ Combustível', oil: '🛢️ Óleo', parts: '🔧 Peças', maintenance: '🔩 Manutenção', other: '📋 Outro' }
 
 export function MachineCostListPage() {
+  const [search, setSearch] = useState('')
   const { data, isLoading, isError, error, refetch } = useMachineCosts()
   const tractors = useTractorOptions()
   const createCost = useCreateCost()
   const addDialog = useDisclosure()
 
   const [form, setForm] = useState({ tractor_id: '', cost_type: 'fuel' as const, amount: '', description: '', supplier_name: '', cost_date: dayjs().format('YYYY-MM-DD') })
+
+  const filtered = data?.filter(c => 
+    c.description?.toLowerCase().includes(search.toLowerCase()) ||
+    c.tractors?.name.toLowerCase().includes(search.toLowerCase()) ||
+    c.supplier_name?.toLowerCase().includes(search.toLowerCase())
+  )
 
   const handleAdd = async () => {
     if (!form.tractor_id || !form.amount) return
@@ -36,10 +46,21 @@ export function MachineCostListPage() {
         title="Custos de Máquina"
         description={`Investimento total: ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(total)}`}
         actions={
-          <button onClick={addDialog.toggle} className="flex items-center gap-2 gradient-amber text-white font-semibold px-4 py-2 rounded-lg hover:opacity-90 text-sm shadow-sm transition-all">
-            <Plus className="h-4 w-4" />Registrar custo
+          <button
+            onClick={addDialog.toggle}
+            className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-bold shadow-lg shadow-primary/20 active:scale-95 transition-all outline-none"
+          >
+            <Plus className="h-4 w-4" />
+            Registrar Custo
           </button>
         }
+      />
+
+      <AppSearchInput
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        placeholder="Buscar por trator, descrição ou fornecedor..."
+        containerClassName="mb-4"
       />
 
       {addDialog.isOpen && (
@@ -73,7 +94,11 @@ export function MachineCostListPage() {
             </div>
           </div>
           <div className="flex items-center gap-3 pt-2">
-            <button onClick={handleAdd} disabled={createCost.isPending} className="gradient-amber text-white text-xs font-bold px-5 py-2.5 rounded-lg shadow-md hover:scale-[1.02] transition-transform active:scale-95 disabled:opacity-50 uppercase">
+            <button
+              onClick={handleAdd}
+              disabled={createCost.isPending}
+              className="px-6 py-2.5 bg-primary text-primary-foreground rounded-lg text-xs font-bold shadow-md active:scale-95 transition-all disabled:opacity-50 uppercase"
+            >
               {createCost.isPending ? 'Salvando...' : 'Salvar Custo'}
             </button>
             <button onClick={addDialog.close} className="text-xs font-bold text-muted-foreground hover:text-foreground uppercase tracking-wider">Cancelar</button>
@@ -84,33 +109,31 @@ export function MachineCostListPage() {
       {isLoading && <AppLoadingState />}
       {isError && <AppErrorState message={error.message} onRetry={refetch} />}
       {!isLoading && !isError && (
-        !data?.length ? <AppEmptyState title="Nenhum custo registrado" />
+        !filtered?.length ? <AppEmptyState title="Nenhum custo registrado" />
           : <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            {data.map(cost => (
-              <div key={cost.id} className="rounded-xl border border-border bg-card p-4 flex flex-col gap-3 group transition-all hover:border-primary/30">
-                <div className="flex items-start justify-between">
-                  <div className="min-w-0">
-                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
-                      {dayjs(cost.cost_date).format('DD [de] MMMM')}
+            {filtered?.map(cost => (
+              <AppDataCard
+                key={cost.id}
+                title={cost.tractors?.name || 'Maquinário'}
+                subtitle={dayjs(cost.cost_date).format('DD [de] MMMM')}
+                icon={Wrench}
+                badge={
+                  <AppBadge variant="default">
+                    {COST_TYPE_LABELS[cost.cost_type as keyof typeof COST_TYPE_LABELS].split(' ')[1]}
+                  </AppBadge>
+                }
+                items={[
+                  { label: 'Valor', value: <AppMoney value={cost.amount} size="sm" /> },
+                  { label: 'Fornecedor', value: cost.supplier_name || '—' },
+                ]}
+                footer={
+                  cost.description ? (
+                    <p className="text-[10px] text-muted-foreground mt-1 line-clamp-1 italic border-t border-border/50 pt-2">
+                      "{cost.description}"
                     </p>
-                    <h3 className="font-bold text-foreground text-sm truncate mt-0.5">{cost.tractors?.name || 'Maquinário'}</h3>
-                  </div>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-secondary text-muted-foreground uppercase tracking-tighter">
-                   {COST_TYPE_LABELS[cost.cost_type as keyof typeof COST_TYPE_LABELS].split(' ')[1]}
-                  </span>
-                </div>
-
-                <div className="py-2 border-y border-border/50">
-                  <p className="text-[10px] text-muted-foreground uppercase font-semibold">Valor</p>
-                  <AppMoney value={cost.amount} size="sm" />
-                  {cost.description && <p className="text-[10px] text-muted-foreground mt-1 line-clamp-1 italic">"{cost.description}"</p>}
-                </div>
-
-                <div className="flex items-center justify-between text-[10px] text-muted-foreground mt-auto">
-                  <span className="truncate flex-1 mr-2">{cost.supplier_name || 'Fornecedor não informado'}</span>
-                  <Wrench className="h-3 w-3 shrink-0" />
-                </div>
-              </div>
+                  ) : undefined
+                }
+              />
             ))}
           </div>
       )}

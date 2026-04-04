@@ -2,10 +2,12 @@ import { useState } from 'react'
 import { useWorklogsByService, useCreateWorklog } from '../hooks/use-worklog-queries'
 import { AppLoadingState } from '@/shared/components/app/app-loading-state'
 import { AppEmptyState } from '@/shared/components/app/app-empty-state'
+import { AppDataCard } from '@/shared/components/app/app-data-card'
+import { AppBadge } from '@/shared/components/app/app-badge'
 import { useDisclosure } from '@/shared/hooks/use-disclosure'
 import { AppDecimalInput } from '@/shared/components/app/app-numeric-input'
 import { useOperatorOptions } from '@/modules/operadores/hooks/use-operator-queries'
-import { Clock, Plus } from 'lucide-react'
+import { Clock, Plus, Tag } from 'lucide-react'
 import dayjs from 'dayjs'
 
 interface WorklogSectionProps {
@@ -46,13 +48,17 @@ export function WorklogSection({ serviceId, tractorId }: WorklogSectionProps) {
           <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Apontamentos</h2>
           {totalHours > 0 && (
             <div className="flex items-center gap-1.5 mt-1">
-              <div className="h-1 w-1 rounded-full bg-primary animate-pulse" />
+              <div className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
               <p className="text-[10px] font-bold text-foreground">Total: {totalHours.toFixed(1)}h trabalhadas</p>
             </div>
           )}
         </div>
-        <button onClick={addDialog.toggle} className="flex items-center gap-1.5 text-[10px] uppercase font-bold gradient-amber text-white px-3 py-1.5 rounded-lg shadow-sm hover:opacity-90 active:scale-95 transition-all">
-          <Plus className="h-3 w-3" />Registrar
+        <button
+          onClick={addDialog.toggle}
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-primary text-primary-foreground rounded-lg text-[10px] font-bold shadow-lg shadow-primary/20 active:scale-95 transition-all outline-none uppercase"
+        >
+          <Plus className="h-3 w-3" />
+          Registrar
         </button>
       </div>
 
@@ -87,7 +93,11 @@ export function WorklogSection({ serviceId, tractorId }: WorklogSectionProps) {
             </div>
           </div>
           <div className="flex items-center gap-3 pt-1">
-            <button onClick={handleAdd} disabled={createWorklog.isPending} className="flex-1 lg:flex-none gradient-amber text-white text-[10px] font-bold px-5 py-2.5 rounded-lg shadow-md uppercase">
+            <button
+              onClick={handleAdd}
+              disabled={createWorklog.isPending}
+              className="flex-1 lg:flex-none px-5 py-2.5 bg-primary text-primary-foreground rounded-lg text-[10px] font-bold shadow-md active:scale-95 transition-all disabled:opacity-50 uppercase"
+            >
               {createWorklog.isPending ? 'Salvando...' : 'Salvar Apontamento'}
             </button>
             <button onClick={addDialog.close} className="text-[10px] font-bold text-muted-foreground hover:text-foreground uppercase tracking-widest">Cancelar</button>
@@ -99,30 +109,31 @@ export function WorklogSection({ serviceId, tractorId }: WorklogSectionProps) {
       {!isLoading && (!data || data.length === 0) ? (
         <AppEmptyState title="Nenhum apontamento" description="Registre horas trabalhadas neste serviço" />
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {data?.map(log => (
-            <div key={log.id} className="flex flex-col gap-2 rounded-xl border border-border bg-muted/5 p-3 hover:border-primary/30 transition-all group">
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="rounded-lg bg-primary/10 p-1.5"><Clock className="h-3.5 w-3.5 text-primary" /></div>
-                  <div className="min-w-0">
-                    <p className="font-bold text-foreground text-xs">{dayjs(log.work_date).format('DD/MM/YYYY')}</p>
-                    <p className="text-[10px] text-muted-foreground uppercase font-medium tracking-tight">
-                      {log.operators?.name || 'Sem operador'}
-                    </p>
+            <AppDataCard
+              key={log.id}
+              title={dayjs(log.work_date).format('DD/MM/YYYY')}
+              subtitle={log.operators?.name || 'Sem operador'}
+              icon={Clock}
+              badge={
+                <AppBadge variant="success">
+                  {(log.worked_hours ?? 0).toFixed(1)}h
+                </AppBadge>
+              }
+              items={[
+                { label: 'Início', value: `${log.start_hourmeter}h` },
+                { label: 'Fim', value: `${log.end_hourmeter}h` },
+              ]}
+              footer={
+                log.notes ? (
+                  <div className="flex gap-1.5 items-start pt-2 border-t border-border/50">
+                    <Tag className="h-3 w-3 text-muted-foreground mt-0.5" />
+                    <p className="text-[10px] text-muted-foreground italic line-clamp-2">"{log.notes}"</p>
                   </div>
-                </div>
-                <p className="font-bold text-primary text-sm whitespace-nowrap">{(log.worked_hours ?? 0).toFixed(1)}h</p>
-              </div>
-              <div className="mt-1 flex items-center justify-between py-1.5 px-2 bg-muted/20 rounded-lg text-[10px] text-muted-foreground font-mono">
-                <span>Início: {log.start_hourmeter}h</span>
-                <span className="opacity-30">|</span>
-                <span>Fim: {log.end_hourmeter}h</span>
-              </div>
-              {log.notes && (
-                <p className="text-[10px] text-muted-foreground italic line-clamp-1 border-t border-border/30 pt-1 mt-1">"{log.notes}"</p>
-              )}
-            </div>
+                ) : undefined
+              }
+            />
           ))}
         </div>
       )}

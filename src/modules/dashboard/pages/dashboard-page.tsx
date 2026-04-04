@@ -11,7 +11,6 @@ import { Tractor, Users, Building2, ClipboardList, DollarSign, AlertTriangle, Wa
 import { Link } from 'react-router-dom'
 import { ROUTES } from '@/shared/constants/routes'
 import { cn } from '@/shared/lib/cn'
-import dayjs from 'dayjs'
 
 export function DashboardPage() {
   const tractors = useTractorList()
@@ -110,8 +109,8 @@ export function DashboardPage() {
               <Link key={s.id} to={ROUTES.SERVICE_DETAIL(s.id)}
                 className="flex items-center justify-between rounded-lg border border-border p-3 hover:border-primary/30 transition-colors">
                 <div>
-                  <p className="text-sm font-medium">{s.clients?.name}</p>
-                  <p className="text-xs text-muted-foreground">{s.tractors?.name} · {dayjs(s.service_date).format('DD/MM/YY')}</p>
+                  <p className="text-sm font-medium text-foreground">{s.clients?.name}</p>
+                  <p className="text-[10px] uppercase font-bold text-muted-foreground mt-0.5">{s.tractors?.name}</p>
                 </div>
                 <span className={cn('text-xs font-medium px-2 py-0.5 rounded-full bg-slate-400/10 text-slate-400')}>Em aberto</span>
               </Link>

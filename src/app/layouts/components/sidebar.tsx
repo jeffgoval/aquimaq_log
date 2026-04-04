@@ -16,20 +16,20 @@ export function Sidebar() {
   }
 
   return (
-    <aside className="w-64 shrink-0 hidden lg:flex flex-col border-r border-border bg-card">
+    <aside className="w-64 shrink-0 hidden lg:flex flex-col border-r border-border bg-card shadow-sm h-full z-10 relative">
       {/* Logo */}
-      <div className="flex items-center gap-3 px-6 py-5 border-b border-border">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg gradient-amber shrink-0">
-          <Tractor className="h-5 w-5 text-white" />
+      <div className="flex items-center gap-3 px-6 h-[72px] border-b border-border">
+        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary shrink-0">
+          <Tractor className="h-5 w-5 text-primary-foreground" />
         </div>
         <div>
-          <p className="font-bold text-sm text-foreground leading-none">Aquimaq Log</p>
-          <p className="text-xs text-muted-foreground mt-0.5">Gestão de Frota</p>
+          <p className="font-bold text-sm text-foreground leading-tight tracking-tight">Aquimaq Log</p>
+          <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Gestão de Frota</p>
         </div>
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
+      <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto no-scrollbar">
         {NAV_ITEMS.map((item) => (
           <NavLink
             key={item.href}
@@ -37,33 +37,28 @@ export function Sidebar() {
             end={item.href === '/'}
             className={({ isActive }) =>
               cn(
-                'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150',
+                'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-ring',
                 isActive
-                  ? 'bg-primary/15 text-primary'
-                  : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
+                  ? 'bg-primary text-primary-foreground shadow-md shadow-primary/20'
+                  : 'text-muted-foreground hover:bg-secondary/80 hover:text-foreground'
               )
             }
           >
-            <item.icon className="h-4 w-4 shrink-0" />
+            <item.icon className={cn("h-4 w-4 shrink-0", ({ isActive }: any) => isActive ? 'text-primary-foreground' : 'text-muted-foreground')} />
             {item.label}
           </NavLink>
         ))}
       </nav>
 
       {/* Footer / Theme Toggle */}
-      <div className="px-3 py-4 border-t border-border flex flex-col gap-1">
-        <div className="flex items-center justify-between px-3 py-2 mb-1 rounded-lg bg-secondary/30">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-foreground uppercase tracking-wider">Aparência</span>
-          </div>
-          <ThemeToggle />
-        </div>
+      <div className="p-4 border-t border-border flex flex-col gap-2">
+        <ThemeToggle variant="switch" />
         
         <button
           onClick={handleSignOut}
-          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
+          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold text-muted-foreground hover:bg-destructive hover:text-destructive-foreground transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-destructive"
         >
-          <LogOut className="h-4 w-4" />
+          <LogOut className="h-4 w-4 shrink-0" />
           Sair
         </button>
       </div>

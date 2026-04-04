@@ -5,7 +5,9 @@ import { AppErrorState } from '@/shared/components/app/app-error-state'
 import { AppEmptyState } from '@/shared/components/app/app-empty-state'
 import { AppMoney } from '@/shared/components/app/app-money'
 import { AppStatCard } from '@/shared/components/app/app-stat-card'
-import { TrendingUp, TrendingDown, DollarSign, Clock } from 'lucide-react'
+import { AppDataCard } from '@/shared/components/app/app-data-card'
+import { AppBadge } from '@/shared/components/app/app-badge'
+import { TrendingUp, TrendingDown, DollarSign, Clock, Tractor } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
 
 export function ProfitabilityPage() {
@@ -51,54 +53,37 @@ export function ProfitabilityPage() {
                 const marginPercent = revenue > 0 ? (margin / revenue) * 100 : 0
 
                 return (
-                  <div key={t.tractor_id} className="rounded-xl border border-border bg-card p-4 hover:border-primary/30 transition-all shadow-sm">
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="min-w-0">
-                        <h3 className="font-bold text-foreground text-sm truncate">{t.tractor_name}</h3>
-                        <p className="text-[10px] text-muted-foreground uppercase font-medium tracking-tight">Análise de Performance</p>
-                      </div>
-                      <span className={cn('text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tighter shrink-0', margin >= 0 ? 'bg-green-400/10 text-green-400' : 'bg-red-400/10 text-red-400')}>
+                  <AppDataCard
+                    key={t.tractor_id}
+                    title={t.tractor_name || 'Desconhecido'}
+                    subtitle="Análise de Performance"
+                    icon={Tractor}
+                    badge={
+                      <AppBadge variant={margin >= 0 ? 'success' : 'destructive'}>
                         {marginPercent.toFixed(1)}% MARGEM
-                      </span>
-                    </div>
-
-                    <div className="space-y-3">
-                      <div className="grid grid-cols-2 gap-3 pb-3 border-b border-border/50">
-                        <div>
-                          <p className="text-[10px] text-muted-foreground uppercase font-bold">Horas Totais</p>
-                          <p className="text-xs font-bold text-foreground">{Number(t.total_hours).toFixed(1)}h</p>
+                      </AppBadge>
+                    }
+                    items={[
+                      { label: 'Horas Totais', value: `${Number(t.total_hours).toFixed(1)}h` },
+                      { label: 'Receita Bruta', value: <AppMoney value={Number(t.gross_revenue)} size="sm" /> },
+                      { label: 'Depreciação', value: <AppMoney value={Number(t.depreciation_cost)} size="sm" /> },
+                      { label: 'Custo Oper.', value: <AppMoney value={Number(t.operational_cost)} size="sm" /> },
+                    ]}
+                    footer={
+                      <div className="space-y-3 pt-2 border-t border-border/50">
+                        <div className="flex justify-between items-center bg-muted/20 p-2 rounded-lg">
+                          <span className="text-[10px] font-bold text-foreground uppercase">Resultado Líquido</span>
+                          <AppMoney value={margin} colored size="sm" />
                         </div>
-                        <div>
-                          <p className="text-[10px] text-muted-foreground uppercase font-bold">Receita Bruta</p>
-                          <AppMoney value={Number(t.gross_revenue)} size="sm" />
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-3 pb-3 border-b border-border/50">
-                        <div>
-                          <p className="text-[10px] text-muted-foreground uppercase font-bold">Depreciação</p>
-                          <AppMoney value={Number(t.depreciation_cost)} size="sm" />
-                        </div>
-                        <div>
-                          <p className="text-[10px] text-muted-foreground uppercase font-bold">Custo Oper.</p>
-                          <AppMoney value={Number(t.operational_cost)} size="sm" />
+                        <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+                          <div
+                            className={cn('h-full rounded-full transition-all duration-500', margin >= 0 ? 'bg-green-400 shadow-[0_0_8px_rgba(74,222,128,0.4)]' : 'bg-red-400')}
+                            style={{ width: `${Math.min(Math.abs(marginPercent), 100)}%` }}
+                          />
                         </div>
                       </div>
-
-                      <div className="flex justify-between items-center bg-muted/20 p-2 rounded-lg">
-                        <span className="text-[10px] font-bold text-foreground uppercase">Resultado Liquido</span>
-                        <AppMoney value={margin} colored size="sm" />
-                      </div>
-                    </div>
-
-                    {/* Margin bar */}
-                    <div className="mt-4 h-1.5 rounded-full bg-muted overflow-hidden">
-                      <div
-                        className={cn('h-full rounded-full transition-all duration-500', margin >= 0 ? 'bg-green-400 shadow-[0_0_8px_rgba(74,222,128,0.4)]' : 'bg-red-400')}
-                        style={{ width: `${Math.min(Math.abs(marginPercent), 100)}%` }}
-                      />
-                    </div>
-                  </div>
+                    }
+                  />
                 )
               })}
             </div>
