@@ -50,7 +50,7 @@ export function ReceivableListPage() {
               key={k}
               onClick={() => setStatusFilter(k)}
               className={cn(
-                'px-3 py-1.5 rounded-lg text-[10px] uppercase font-bold transition-all shrink-0 whitespace-nowrap',
+                'px-3 py-1.5 rounded-lg text-xs uppercase font-bold transition-all shrink-0 whitespace-nowrap',
                 statusFilter === k ? 'bg-primary text-primary-foreground shadow-sm' : 'bg-secondary text-muted-foreground hover:text-foreground'
               )}
             >
@@ -81,7 +81,7 @@ export function ReceivableListPage() {
                   { label: 'Valor Pago', value: <AppMoney value={rec.paid_amount} size="sm" /> },
                 ]}
                 footer={
-                  <p className="text-[10px] text-muted-foreground truncate border-t border-border/50 pt-2">
+                  <p className="text-xs text-muted-foreground truncate border-t border-border/50 pt-2">
                     {rec.description || `Parcela ${rec.installment_number}/${rec.installment_count}`}
                   </p>
                 }

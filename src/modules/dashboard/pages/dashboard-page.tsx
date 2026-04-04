@@ -108,7 +108,7 @@ export function DashboardPage() {
                 className="flex items-center justify-between rounded-lg border border-border p-3 hover:border-primary/30 transition-colors">
                 <div>
                   <p className="text-sm font-medium text-foreground">{s.clients?.name}</p>
-                  <p className="text-[10px] uppercase font-bold text-muted-foreground mt-0.5">{s.tractors?.name}</p>
+                  <p className="text-xs uppercase font-bold text-muted-foreground mt-0.5">{s.tractors?.name}</p>
                 </div>
                 <span className={cn('text-xs font-medium px-2 py-0.5 rounded-full bg-slate-400/10 text-slate-400')}>Em aberto</span>
               </Link>

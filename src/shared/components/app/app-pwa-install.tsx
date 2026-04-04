@@ -76,7 +76,7 @@ export function AppPwaInstall() {
             {isIOS ? (
               <div className="flex items-center gap-1.5 mt-0.5">
                 <Share className="h-3 w-3 text-muted-foreground" />
-                <p className="text-[10px] text-muted-foreground leading-tight">
+                <p className="text-xs text-muted-foreground leading-tight">
                   Toque em "Compartilhar" e "Adicionar à Tela de Início"
                 </p>
               </div>

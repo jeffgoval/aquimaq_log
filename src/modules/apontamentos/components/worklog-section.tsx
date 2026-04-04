@@ -50,7 +50,7 @@ export function WorklogSection({ serviceId, tractorId }: WorklogSectionProps) {
           {totalHours > 0 && (
             <div className="flex items-center gap-1.5 mt-1">
               <div className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
-              <p className="text-[10px] font-bold text-foreground">Total: {totalHours.toFixed(1)}h trabalhadas</p>
+              <p className="text-xs font-bold text-foreground">Total: {totalHours.toFixed(1)}h trabalhadas</p>
             </div>
           )}
         </div>
@@ -124,7 +124,7 @@ export function WorklogSection({ serviceId, tractorId }: WorklogSectionProps) {
               loading={createWorklog.isPending}
               loadingText="Salvando..."
               onClick={handleAdd}
-              className="flex-1 lg:flex-none uppercase text-[10px] font-bold shadow-md active:scale-95"
+              className="flex-1 lg:flex-none uppercase text-xs font-bold shadow-md active:scale-95"
             >
               Salvar Apontamento
             </AppButton>
@@ -164,7 +164,7 @@ export function WorklogSection({ serviceId, tractorId }: WorklogSectionProps) {
                 log.notes ? (
                   <div className="flex gap-1.5 items-start pt-2 border-t border-border/50">
                     <Tag className="h-3 w-3 text-muted-foreground mt-0.5" />
-                    <p className="text-[10px] text-muted-foreground italic line-clamp-2">"{log.notes}"</p>
+                    <p className="text-xs text-muted-foreground italic line-clamp-2">"{log.notes}"</p>
                   </div>
                 ) : undefined
               }

@@ -20,7 +20,7 @@ export function AppBadge({ children, variant = 'default', className }: AppBadgeP
 
   return (
     <span className={cn(
-      'text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tighter shrink-0 inline-flex items-center justify-center',
+      'text-xs font-bold px-2 py-0.5 rounded-full uppercase tracking-tighter shrink-0 inline-flex items-center justify-center',
       variants[variant],
       className
     )}>

@@ -115,7 +115,7 @@ export function ReceivableSection({ serviceId, clientId, suggestedTotal }: Recei
                 <button
                   type="button"
                   onClick={() => setInst(i => ({ ...i, totalAmount: String(suggestedTotal) }))}
-                  className="text-[10px] text-primary hover:underline mt-1"
+                  className="text-xs text-primary hover:underline mt-1"
                 >
                   Usar total apurado (<AppMoney value={suggestedTotal} size="sm" />)
                 </button>

@@ -72,7 +72,7 @@ export function ProfitabilityPage() {
                     footer={
                       <div className="space-y-3 pt-2 border-t border-border/50">
                         <div className="flex justify-between items-center bg-muted/20 p-2 rounded-lg">
-                          <span className="text-[10px] font-bold text-foreground uppercase">Resultado Líquido</span>
+                          <span className="text-xs font-bold text-foreground uppercase">Resultado Líquido</span>
                           <AppMoney value={margin} colored size="sm" />
                         </div>
                         <div className="h-1.5 rounded-full bg-muted overflow-hidden">

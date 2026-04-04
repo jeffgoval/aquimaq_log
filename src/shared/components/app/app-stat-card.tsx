@@ -41,7 +41,7 @@ export function AppStatCard({
       <div>
         <p className="text-xl lg:text-2xl font-bold tracking-tight text-foreground leading-none">{value}</p>
         {description && (
-          <p className="mt-1 text-[10px] lg:text-xs text-muted-foreground line-clamp-1">{description}</p>
+          <p className="mt-1 text-xs text-muted-foreground line-clamp-1">{description}</p>
         )}
       </div>
 

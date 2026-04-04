@@ -24,7 +24,7 @@ export function Sidebar() {
         </div>
         <div>
           <p className="font-bold text-sm text-foreground leading-tight tracking-tight">Aquimaq Log</p>
-          <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Gestão de Frota</p>
+          <p className="text-xs uppercase font-bold text-muted-foreground tracking-wider">Gestão de Frota</p>
         </div>
       </div>
 
