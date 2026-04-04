@@ -1,6 +1,7 @@
 import { useRegisterController } from '../hooks/use-register-controller'
 import { Link } from 'react-router-dom'
 import { ROUTES } from '@/shared/constants/routes'
+import { AppButton } from '@/shared/components/app/app-button'
 
 export function RegisterPage() {
   const { form, onSubmit, isSubmitting } = useRegisterController()
@@ -15,60 +16,51 @@ export function RegisterPage() {
 
       <form onSubmit={onSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-foreground mb-1.5">
-            E-mail
-          </label>
+          <label className="field-label">E-mail</label>
           <input
             {...register('email')}
             type="email"
             autoComplete="email"
             placeholder="seu@email.com"
-            className="w-full rounded-lg border border-input bg-input px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-shadow"
+            className="field"
           />
-          {errors.email && (
-            <p className="mt-1 text-xs text-destructive">{errors.email.message}</p>
-          )}
+          {errors.email && <span className="field-error">{errors.email.message}</span>}
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-foreground mb-1.5">
-            Senha
-          </label>
+          <label className="field-label">Senha</label>
           <input
             {...register('password')}
             type="password"
             autoComplete="new-password"
             placeholder="••••••••"
-            className="w-full rounded-lg border border-input bg-input px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-shadow"
+            className="field"
           />
-          {errors.password && (
-            <p className="mt-1 text-xs text-destructive">{errors.password.message}</p>
-          )}
+          {errors.password && <span className="field-error">{errors.password.message}</span>}
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-foreground mb-1.5">
-            Confirmar Senha
-          </label>
+          <label className="field-label">Confirmar Senha</label>
           <input
             {...register('confirmPassword')}
             type="password"
             autoComplete="new-password"
             placeholder="••••••••"
-            className="w-full rounded-lg border border-input bg-input px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-shadow"
+            className="field"
           />
-          {errors.confirmPassword && (
-            <p className="mt-1 text-xs text-destructive">{errors.confirmPassword.message}</p>
-          )}
+          {errors.confirmPassword && <span className="field-error">{errors.confirmPassword.message}</span>}
         </div>
 
-        <button
+        <AppButton
           type="submit"
-          disabled={isSubmitting}
-          className="w-full gradient-amber text-white font-semibold py-2.5 rounded-lg hover:opacity-90 disabled:opacity-50 transition-opacity mt-6"
+          variant="primary"
+          size="lg"
+          loading={isSubmitting}
+          loadingText="Cadastrando..."
+          className="w-full mt-6"
         >
-          {isSubmitting ? 'Cadastrando...' : 'Criar Conta'}
-        </button>
+          Criar Conta
+        </AppButton>
 
         <div className="text-center mt-6">
           <p className="text-sm text-muted-foreground">

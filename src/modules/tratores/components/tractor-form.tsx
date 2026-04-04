@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { Controller } from 'react-hook-form'
 import { ArrowLeft } from 'lucide-react'
 import { AppCurrencyInput, AppDecimalInput } from '@/shared/components/app/app-numeric-input'
+import { AppButton } from '@/shared/components/app/app-button'
 import type { useTractorFormController } from '../hooks/use-tractor-form-controller'
 import { ROUTES } from '@/shared/constants/routes'
 
@@ -22,20 +23,20 @@ export function TractorForm({ controller }: TractorFormProps) {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="sm:col-span-2">
-            <label className="block text-sm font-medium text-foreground mb-1.5">Nome *</label>
+            <label className="field-label">Nome *</label>
             <input {...register('name')} className="field" placeholder="Ex: Trator John Deere 6110" />
-            {errors.name && <p className="field-error">{errors.name.message}</p>}
+            {errors.name && <span className="field-error">{errors.name.message}</span>}
           </div>
           <div>
-            <label className="block text-sm font-medium text-foreground mb-1.5">Marca</label>
+            <label className="field-label">Marca</label>
             <input {...register('brand')} className="field" placeholder="John Deere" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-foreground mb-1.5">Modelo</label>
+            <label className="field-label">Modelo</label>
             <input {...register('model')} className="field" placeholder="6110J" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-foreground mb-1.5">Placa</label>
+            <label className="field-label">Placa</label>
             <input {...register('plate')} className="field" placeholder="ABC-1234" />
           </div>
         </div>
@@ -45,7 +46,7 @@ export function TractorForm({ controller }: TractorFormProps) {
         <h2 className="text-sm font-semibold text-foreground">Valores e Depreciação</h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
-            <label className="block text-sm font-medium text-foreground mb-1.5">Valor de Compra *</label>
+            <label className="field-label">Valor de Compra *</label>
             <Controller
               name="purchase_value"
               control={control}
@@ -57,10 +58,10 @@ export function TractorForm({ controller }: TractorFormProps) {
                 />
               )}
             />
-            {errors.purchase_value && <p className="field-error">{errors.purchase_value.message}</p>}
+            {errors.purchase_value && <span className="field-error">{errors.purchase_value.message}</span>}
           </div>
           <div>
-            <label className="block text-sm font-medium text-foreground mb-1.5">Valor Residual</label>
+            <label className="field-label">Valor Residual</label>
             <Controller
               name="residual_value"
               control={control}
@@ -74,7 +75,7 @@ export function TractorForm({ controller }: TractorFormProps) {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-foreground mb-1.5">Vida Útil (h) *</label>
+            <label className="field-label">Vida Útil (h) *</label>
             <Controller
               name="useful_life_hours"
               control={control}
@@ -87,10 +88,10 @@ export function TractorForm({ controller }: TractorFormProps) {
                 />
               )}
             />
-            {errors.useful_life_hours && <p className="field-error">{errors.useful_life_hours.message}</p>}
+            {errors.useful_life_hours && <span className="field-error">{errors.useful_life_hours.message}</span>}
           </div>
         </div>
-        <p className="text-xs text-muted-foreground">
+        <p className="field-hint">
           O custo de depreciação por hora é calculado automaticamente: (Compra − Residual) ÷ Vida Útil
         </p>
       </div>
@@ -106,13 +107,15 @@ export function TractorForm({ controller }: TractorFormProps) {
       </div>
 
       <div className="flex items-center gap-3">
-        <button
+        <AppButton
           type="submit"
-          disabled={isSubmitting}
-          className="gradient-amber text-white font-semibold px-6 py-2.5 rounded-lg hover:opacity-90 disabled:opacity-50 transition-opacity text-sm"
+          variant="primary"
+          size="lg"
+          loading={isSubmitting}
+          loadingText="Salvando..."
         >
-          {isSubmitting ? 'Salvando...' : isEditing ? 'Salvar alterações' : 'Cadastrar trator'}
-        </button>
+          {isEditing ? 'Salvar alterações' : 'Cadastrar trator'}
+        </AppButton>
         <Link
           to={ROUTES.TRACTORS}
           className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"

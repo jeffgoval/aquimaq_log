@@ -5,18 +5,12 @@ import { AppPageHeader } from '@/shared/components/app/app-page-header'
 import { AppLoadingState } from '@/shared/components/app/app-loading-state'
 import { AppErrorState } from '@/shared/components/app/app-error-state'
 import { AppMoney } from '@/shared/components/app/app-money'
+import { AppButton } from '@/shared/components/app/app-button'
 import { WorklogSection } from '@/modules/apontamentos/components/worklog-section'
 import { ReceivableSection } from '@/modules/financeiro/components/receivable-section'
 import { cn } from '@/shared/lib/cn'
+import { SERVICE_STATUS_LABELS, SERVICE_STATUS_COLORS } from '@/shared/constants/status'
 import dayjs from 'dayjs'
-
-const STATUS_LABELS = { draft: 'Em aberto', in_progress: 'Em andamento', completed: 'Concluído', cancelled: 'Cancelado' }
-const STATUS_COLORS = {
-  draft: 'bg-slate-400/10 text-slate-400 border-slate-400/20',
-  in_progress: 'bg-amber-400/10 text-amber-400 border-amber-400/20',
-  completed: 'bg-green-400/10 text-green-400 border-green-400/20',
-  cancelled: 'bg-red-400/10 text-red-400 border-red-400/20',
-}
 
 export function ServiceDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -38,17 +32,19 @@ export function ServiceDetailPage() {
         description={`${service.tractors?.name} · ${dayjs(service.service_date).format('DD/MM/YYYY')}`}
         actions={
           <div className="flex items-center gap-2">
-            <span className={cn('text-xs font-medium px-3 py-1.5 rounded-full border', STATUS_COLORS[service.status])}>
-              {STATUS_LABELS[service.status]}
+            <span className={cn('text-xs font-medium px-3 py-1.5 rounded-full border', SERVICE_STATUS_COLORS[service.status])}>
+              {SERVICE_STATUS_LABELS[service.status]}
             </span>
             {service.status !== 'completed' && service.status !== 'cancelled' && (
-              <button
+              <AppButton
+                variant="success"
+                size="sm"
+                loading={complete.isPending}
+                loadingText="..."
                 onClick={() => complete.mutate(service.id)}
-                disabled={complete.isPending}
-                className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-green-600 hover:bg-green-500 text-white transition-colors disabled:opacity-50"
               >
-                {complete.isPending ? '...' : 'Concluir serviço'}
-              </button>
+                Concluir serviço
+              </AppButton>
             )}
           </div>
         }

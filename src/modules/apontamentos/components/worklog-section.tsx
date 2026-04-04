@@ -4,6 +4,7 @@ import { AppLoadingState } from '@/shared/components/app/app-loading-state'
 import { AppEmptyState } from '@/shared/components/app/app-empty-state'
 import { AppDataCard } from '@/shared/components/app/app-data-card'
 import { AppBadge } from '@/shared/components/app/app-badge'
+import { AppButton } from '@/shared/components/app/app-button'
 import { useDisclosure } from '@/shared/hooks/use-disclosure'
 import { AppDecimalInput } from '@/shared/components/app/app-numeric-input'
 import { useOperatorOptions } from '@/modules/operadores/hooks/use-operator-queries'
@@ -53,13 +54,15 @@ export function WorklogSection({ serviceId, tractorId }: WorklogSectionProps) {
             </div>
           )}
         </div>
-        <button
+        <AppButton
+          variant="primary"
+          size="sm"
           onClick={addDialog.toggle}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-primary text-primary-foreground rounded-lg text-[10px] font-bold shadow-lg shadow-primary/20 active:scale-95 transition-all outline-none uppercase"
+          className="flex items-center gap-1.5 shadow-lg shadow-primary/20 active:scale-95 uppercase"
         >
           <Plus className="h-3 w-3" />
           Registrar
-        </button>
+        </AppButton>
       </div>
 
       {/* Add form */}
@@ -67,40 +70,72 @@ export function WorklogSection({ serviceId, tractorId }: WorklogSectionProps) {
         <div className="rounded-xl border border-border p-4 mb-5 bg-muted/10 space-y-4 animate-in fade-in slide-in-from-top-2">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             <div>
-              <label className="text-[10px] uppercase font-bold text-muted-foreground ml-1">Data</label>
-              <input type="date" value={form.work_date} onChange={e => setForm(f => ({ ...f, work_date: e.target.value }))} className="w-full mt-1 rounded-lg border border-input bg-input px-3 py-2 text-sm focus:ring-2 focus:ring-ring focus:outline-none" />
+              <label className="field-label">Data</label>
+              <input
+                type="date"
+                value={form.work_date}
+                onChange={e => setForm(f => ({ ...f, work_date: e.target.value }))}
+                className="field"
+              />
             </div>
             <div>
-              <label className="text-[10px] uppercase font-bold text-muted-foreground ml-1">Operador</label>
-              <select value={form.operator_id} onChange={e => setForm(f => ({ ...f, operator_id: e.target.value }))} className="w-full mt-1 rounded-lg border border-input bg-input px-3 py-2 text-sm focus:ring-2 focus:ring-ring focus:outline-none">
+              <label className="field-label">Operador</label>
+              <select
+                value={form.operator_id}
+                onChange={e => setForm(f => ({ ...f, operator_id: e.target.value }))}
+                className="field"
+              >
                 <option value="">Nenhum</option>
                 {operators.data?.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}
               </select>
             </div>
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <label className="text-[10px] uppercase font-bold text-muted-foreground ml-1">H. Inicial</label>
-                <AppDecimalInput value={form.start_hourmeter} onValueChange={v => setForm(f => ({ ...f, start_hourmeter: v.value }))} className="w-full mt-1 rounded-lg border border-input bg-input px-3 py-2 text-sm focus:ring-2 focus:ring-ring focus:outline-none" placeholder="0,0" />
+                <label className="field-label">H. Inicial</label>
+                <AppDecimalInput
+                  value={form.start_hourmeter}
+                  onValueChange={v => setForm(f => ({ ...f, start_hourmeter: v.value }))}
+                  placeholder="0,0"
+                />
               </div>
               <div>
-                <label className="text-[10px] uppercase font-bold text-muted-foreground ml-1">H. Final</label>
-                <AppDecimalInput value={form.end_hourmeter} onValueChange={v => setForm(f => ({ ...f, end_hourmeter: v.value }))} className="w-full mt-1 rounded-lg border border-input bg-input px-3 py-2 text-sm focus:ring-2 focus:ring-ring focus:outline-none" placeholder="0,0" />
+                <label className="field-label">H. Final</label>
+                <AppDecimalInput
+                  value={form.end_hourmeter}
+                  onValueChange={v => setForm(f => ({ ...f, end_hourmeter: v.value }))}
+                  placeholder="0,0"
+                />
               </div>
             </div>
             <div className="sm:col-span-2 lg:col-span-3">
-              <label className="text-[10px] uppercase font-bold text-muted-foreground ml-1">Observações</label>
-              <input value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} className="w-full mt-1 rounded-lg border border-input bg-input px-3 py-2 text-sm focus:ring-2 focus:ring-ring focus:outline-none" placeholder="Algum detalhe importante..." />
+              <label className="field-label">Observações</label>
+              <input
+                value={form.notes}
+                onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
+                className="field"
+                placeholder="Algum detalhe importante..."
+              />
             </div>
           </div>
           <div className="flex items-center gap-3 pt-1">
-            <button
+            <AppButton
+              variant="primary"
+              size="md"
+              loading={createWorklog.isPending}
+              loadingText="Salvando..."
               onClick={handleAdd}
-              disabled={createWorklog.isPending}
-              className="flex-1 lg:flex-none px-5 py-2.5 bg-primary text-primary-foreground rounded-lg text-[10px] font-bold shadow-md active:scale-95 transition-all disabled:opacity-50 uppercase"
+              className="flex-1 lg:flex-none uppercase text-[10px] font-bold shadow-md active:scale-95"
             >
-              {createWorklog.isPending ? 'Salvando...' : 'Salvar Apontamento'}
-            </button>
-            <button onClick={addDialog.close} className="text-[10px] font-bold text-muted-foreground hover:text-foreground uppercase tracking-widest">Cancelar</button>
+              Salvar Apontamento
+            </AppButton>
+            <AppButton
+              variant="ghost"
+              size="sm"
+              onClick={addDialog.close}
+              className="uppercase tracking-widest font-bold"
+            >
+              Cancelar
+            </AppButton>
           </div>
         </div>
       )}

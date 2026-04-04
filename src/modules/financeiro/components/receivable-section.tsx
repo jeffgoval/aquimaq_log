@@ -2,21 +2,15 @@ import { useState, useMemo } from 'react'
 import { useReceivablesByService, useRegisterPayment, useCreateInstallments } from '../hooks/use-financial-queries'
 import { AppLoadingState } from '@/shared/components/app/app-loading-state'
 import { AppMoney } from '@/shared/components/app/app-money'
+import { AppBadge } from '@/shared/components/app/app-badge'
+import { AppButton } from '@/shared/components/app/app-button'
+import { AppTable, AppTableRow, AppTableCell } from '@/shared/components/app/app-table'
 import { AppCurrencyInput, AppDecimalInput } from '@/shared/components/app/app-numeric-input'
 import { useDisclosure } from '@/shared/hooks/use-disclosure'
 import { buildInstallmentsPreview } from '@/features/create-installments/create-installments'
-import { cn } from '@/shared/lib/cn'
+import { RECEIVABLE_STATUS_LABELS, RECEIVABLE_STATUS_BADGE_VARIANTS } from '@/shared/constants/status'
 import dayjs from 'dayjs'
 import { DollarSign, Plus } from 'lucide-react'
-
-const STATUS_LABELS: Record<string, string> = { pending: 'Pendente', partially_paid: 'Parcial', paid: 'Pago', overdue: 'Vencido', cancelled: 'Cancelado' }
-const STATUS_COLORS: Record<string, string> = {
-  pending: 'bg-amber-400/10 text-amber-400',
-  partially_paid: 'bg-blue-400/10 text-blue-400',
-  paid: 'bg-green-400/10 text-green-400',
-  overdue: 'bg-red-400/10 text-red-400',
-  cancelled: 'bg-muted text-muted-foreground',
-}
 
 interface ReceivableSectionProps {
   serviceId: string
@@ -95,12 +89,14 @@ export function ReceivableSection({ serviceId, clientId, suggestedTotal }: Recei
             </p>
           )}
         </div>
-        <button
+        <AppButton
+          variant="primary"
+          size="sm"
           onClick={installmentDialog.toggle}
-          className="flex items-center gap-1.5 text-xs gradient-amber text-white font-medium px-3 py-1.5 rounded-lg hover:opacity-90 transition-opacity"
+          className="flex items-center gap-1.5"
         >
           <Plus className="h-3.5 w-3.5" />Novo parcelamento
-        </button>
+        </AppButton>
       </div>
 
       {/* Formulário de novo parcelamento */}
@@ -156,43 +152,51 @@ export function ReceivableSection({ serviceId, clientId, suggestedTotal }: Recei
 
           {/* Preview */}
           {preview.length > 0 && (
-            <div className="rounded-lg border border-border overflow-hidden">
-              <table className="w-full text-xs">
-                <thead>
-                  <tr className="bg-muted/30 border-b border-border">
-                    <th className="text-left px-3 py-2 font-medium text-muted-foreground">Parcela</th>
-                    <th className="text-left px-3 py-2 font-medium text-muted-foreground">Vencimento</th>
-                    <th className="text-right px-3 py-2 font-medium text-muted-foreground">Valor</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {preview.map(item => (
-                    <tr key={item.installmentNumber} className="border-b border-border last:border-0">
-                      <td className="px-3 py-1.5 text-muted-foreground">{item.installmentNumber}/{installmentCount}</td>
-                      <td className="px-3 py-1.5">{dayjs(item.dueDate).format('DD/MM/YYYY')}</td>
-                      <td className="px-3 py-1.5 text-right font-medium"><AppMoney value={item.amount} size="sm" /></td>
-                    </tr>
-                  ))}
-                  <tr className="bg-muted/20 border-t border-border">
-                    <td colSpan={2} className="px-3 py-1.5 font-semibold text-xs">Total</td>
-                    <td className="px-3 py-1.5 text-right font-semibold">
-                      <AppMoney value={preview.reduce((s, i) => s + i.amount, 0)} size="sm" />
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+            <AppTable
+              columns={[
+                { header: 'Parcela' },
+                { header: 'Vencimento' },
+                { header: 'Valor', align: 'right' },
+              ]}
+              footer={
+                <tr>
+                  <td colSpan={2} className="px-3 py-1.5 font-semibold text-xs">Total</td>
+                  <td className="px-3 py-1.5 text-right font-semibold">
+                    <AppMoney value={preview.reduce((s, i) => s + i.amount, 0)} size="sm" />
+                  </td>
+                </tr>
+              }
+            >
+              {preview.map(item => (
+                <AppTableRow key={item.installmentNumber}>
+                  <AppTableCell className="text-muted-foreground">{item.installmentNumber}/{installmentCount}</AppTableCell>
+                  <AppTableCell>{dayjs(item.dueDate).format('DD/MM/YYYY')}</AppTableCell>
+                  <AppTableCell align="right" className="font-medium">
+                    <AppMoney value={item.amount} size="sm" />
+                  </AppTableCell>
+                </AppTableRow>
+              ))}
+            </AppTable>
           )}
 
           <div className="flex gap-2">
-            <button
+            <AppButton
+              variant="primary"
+              size="sm"
+              loading={createInstallments.isPending}
+              loadingText="Salvando..."
               onClick={handleCreateInstallments}
-              disabled={createInstallments.isPending || totalAmount <= 0}
-              className="gradient-amber text-white text-xs font-medium px-4 py-1.5 rounded-lg hover:opacity-90 disabled:opacity-50"
+              disabled={totalAmount <= 0}
             >
-              {createInstallments.isPending ? 'Salvando...' : 'Salvar parcelamento'}
-            </button>
-            <button onClick={() => { installmentDialog.close(); setInst(DEFAULT_INSTALLMENT) }} className="text-xs text-muted-foreground hover:text-foreground">Cancelar</button>
+              Salvar parcelamento
+            </AppButton>
+            <AppButton
+              variant="ghost"
+              size="sm"
+              onClick={() => { installmentDialog.close(); setInst(DEFAULT_INSTALLMENT) }}
+            >
+              Cancelar
+            </AppButton>
           </div>
         </div>
       )}
@@ -212,14 +216,21 @@ export function ReceivableSection({ serviceId, clientId, suggestedTotal }: Recei
             <div>
               <label className="field-label">Valor *</label>
               <AppCurrencyInput value={payAmount} onValueChange={v => setPayAmount(v.value)} className="field w-full max-w-[200px]" placeholder="R$ 0,00" />
-              {inputVal > remaining && <p className="text-xs text-amber-500 mt-1">Valor maior que o saldo devedor</p>}
-              {inputVal > 0 && inputVal < remaining && <p className="text-xs text-blue-500 mt-1">Pagamento parcial</p>}
+              {inputVal > remaining && <span className="field-hint text-amber-500">Valor maior que o saldo devedor</span>}
+              {inputVal > 0 && inputVal < remaining && <span className="field-hint text-blue-500">Pagamento parcial</span>}
             </div>
             <div className="flex gap-2">
-              <button onClick={handlePay} disabled={registerPayment.isPending || inputVal <= 0} className="gradient-amber text-white text-xs font-medium px-4 py-1.5 rounded-lg disabled:opacity-50 hover:opacity-90">
-                {registerPayment.isPending ? 'Salvando...' : 'Confirmar'}
-              </button>
-              <button onClick={payDialog.close} className="text-xs text-muted-foreground hover:text-foreground">Cancelar</button>
+              <AppButton
+                variant="primary"
+                size="sm"
+                loading={registerPayment.isPending}
+                loadingText="Salvando..."
+                onClick={handlePay}
+                disabled={inputVal <= 0}
+              >
+                Confirmar
+              </AppButton>
+              <AppButton variant="ghost" size="sm" onClick={payDialog.close}>Cancelar</AppButton>
             </div>
           </div>
         )
@@ -238,7 +249,9 @@ export function ReceivableSection({ serviceId, clientId, suggestedTotal }: Recei
                   <p className="text-xs text-muted-foreground">Vence {dayjs(rec.due_date).format('DD/MM/YYYY')}</p>
                 </div>
                 <AppMoney value={rec.final_amount} size="sm" />
-                <span className={cn('text-xs font-medium px-2 py-0.5 rounded-full', STATUS_COLORS[rec.status])}>{STATUS_LABELS[rec.status]}</span>
+                <AppBadge variant={RECEIVABLE_STATUS_BADGE_VARIANTS[rec.status] ?? 'default'}>
+                  {RECEIVABLE_STATUS_LABELS[rec.status] ?? rec.status}
+                </AppBadge>
                 {rec.status !== 'paid' && rec.status !== 'cancelled' && (
                   <button
                     onClick={() => {

@@ -3,6 +3,7 @@ import { useCreateServiceController } from '../hooks/use-create-service-controll
 import { Controller } from 'react-hook-form'
 import { AppCurrencyInput } from '@/shared/components/app/app-numeric-input'
 import { AppPageHeader } from '@/shared/components/app/app-page-header'
+import { AppButton } from '@/shared/components/app/app-button'
 import { ROUTES } from '@/shared/constants/routes'
 
 export function ServiceCreatePage() {
@@ -66,9 +67,9 @@ export function ServiceCreatePage() {
         </div>
 
         <div className="flex items-center gap-3">
-          <button type="submit" disabled={isSubmitting} className="gradient-amber text-white font-semibold px-6 py-2.5 rounded-lg hover:opacity-90 disabled:opacity-50 text-sm">
-            {isSubmitting ? 'Criando...' : 'Criar serviço'}
-          </button>
+          <AppButton type="submit" variant="primary" size="lg" loading={isSubmitting} loadingText="Criando...">
+            Criar serviço
+          </AppButton>
           <Link to={ROUTES.SERVICES} className="text-sm text-muted-foreground hover:text-foreground transition-colors">Cancelar</Link>
         </div>
       </form>

@@ -5,22 +5,27 @@ import { AppLoadingState } from '@/shared/components/app/app-loading-state'
 import { AppErrorState } from '@/shared/components/app/app-error-state'
 import { AppEmptyState } from '@/shared/components/app/app-empty-state'
 import { AppMoney } from '@/shared/components/app/app-money'
-import { cn } from '@/shared/lib/cn'
-import dayjs from 'dayjs'
 import { AppBadge } from '@/shared/components/app/app-badge'
 import { AppSearchInput } from '@/shared/components/app/app-search-input'
 import { AppDataCard } from '@/shared/components/app/app-data-card'
+import { cn } from '@/shared/lib/cn'
+import { RECEIVABLE_STATUS_LABELS, RECEIVABLE_STATUS_BADGE_VARIANTS } from '@/shared/constants/status'
+import dayjs from 'dayjs'
 import { DollarSign } from 'lucide-react'
 
-const STATUS_LABELS: Record<string, string> = { all: 'Todos', pending: 'Pendente', paid: 'Pago', overdue: 'Vencido' }
-const STATUS_VARIANTS: Record<string, any> = { pending: 'warning', paid: 'success', overdue: 'destructive', cancelled: 'default' }
+const FILTER_LABELS: Record<string, string> = {
+  all: 'Todos',
+  pending: RECEIVABLE_STATUS_LABELS.pending,
+  paid: RECEIVABLE_STATUS_LABELS.paid,
+  overdue: RECEIVABLE_STATUS_LABELS.overdue,
+}
 
 export function ReceivableListPage() {
   const [statusFilter, setStatusFilter] = useState('all')
   const [search, setSearch] = useState('')
   const { data, isLoading, isError, error, refetch } = useReceivables({ status: statusFilter })
 
-  const filtered = data?.filter(r => 
+  const filtered = data?.filter(r =>
     r.clients?.name.toLowerCase().includes(search.toLowerCase()) ||
     r.description?.toLowerCase().includes(search.toLowerCase())
   )
@@ -40,7 +45,7 @@ export function ReceivableListPage() {
         />
 
         <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar scroll-smooth">
-          {Object.entries(STATUS_LABELS).map(([k, v]) => (
+          {Object.entries(FILTER_LABELS).map(([k, v]) => (
             <button
               key={k}
               onClick={() => setStatusFilter(k)}
@@ -67,8 +72,8 @@ export function ReceivableListPage() {
                 subtitle={`Vence em ${dayjs(rec.due_date).format('DD/MM/YYYY')}`}
                 icon={DollarSign}
                 badge={
-                  <AppBadge variant={STATUS_VARIANTS[rec.status] || 'default'}>
-                    {STATUS_LABELS[rec.status] || rec.status}
+                  <AppBadge variant={RECEIVABLE_STATUS_BADGE_VARIANTS[rec.status] ?? 'default'}>
+                    {RECEIVABLE_STATUS_LABELS[rec.status] ?? rec.status}
                   </AppBadge>
                 }
                 items={[

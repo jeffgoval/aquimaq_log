@@ -10,16 +10,11 @@ import { AppSearchInput } from '@/shared/components/app/app-search-input'
 import { AppDataCard } from '@/shared/components/app/app-data-card'
 import { cn } from '@/shared/lib/cn'
 import { ROUTES } from '@/shared/constants/routes'
+import { SERVICE_STATUS_LABELS, SERVICE_STATUS_BADGE_VARIANTS } from '@/shared/constants/status'
 import dayjs from 'dayjs'
 import { Plus, Briefcase } from 'lucide-react'
 
-const STATUS_LABELS = { draft: 'Em aberto', in_progress: 'Em andamento', completed: 'Concluído', cancelled: 'Cancelado' }
-const STATUS_COLORS = {
-  draft: 'bg-slate-400/10 text-slate-400',
-  in_progress: 'bg-amber-400/10 text-amber-400',
-  completed: 'bg-green-400/10 text-green-400',
-  cancelled: 'bg-red-400/10 text-red-400',
-}
+const FILTER_LABELS = { all: 'Todos', draft: SERVICE_STATUS_LABELS.draft, completed: SERVICE_STATUS_LABELS.completed, cancelled: SERVICE_STATUS_LABELS.cancelled }
 
 export function ServiceListPage() {
   const navigate = useNavigate()
@@ -53,10 +48,10 @@ export function ServiceListPage() {
           placeholder="Buscar..."
           containerClassName="max-w-xs"
         />
-        {(['all', 'draft', 'completed', 'cancelled'] as const).map(s => (
-          <button key={s} onClick={() => setStatusFilter(s)}
-            className={cn('px-3 py-1.5 rounded-lg text-xs font-medium transition-colors', statusFilter === s ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground hover:text-foreground')}>
-            {s === 'all' ? 'Todos' : STATUS_LABELS[s]}
+        {(Object.entries(FILTER_LABELS) as [string, string][]).map(([k, v]) => (
+          <button key={k} onClick={() => setStatusFilter(k)}
+            className={cn('px-3 py-1.5 rounded-lg text-xs font-medium transition-colors', statusFilter === k ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground hover:text-foreground')}>
+            {v}
           </button>
         ))}
       </div>
@@ -76,12 +71,8 @@ export function ServiceListPage() {
                   title={service.clients?.name || 'Cliente sem nome'}
                   subtitle={dayjs(service.service_date).format('DD [de] MMMM')}
                   badge={
-                    <AppBadge variant={
-                      service.status === 'completed' ? 'success' :
-                      service.status === 'in_progress' ? 'warning' :
-                      service.status === 'cancelled' ? 'destructive' : 'default'
-                    }>
-                      {STATUS_LABELS[service.status]}
+                    <AppBadge variant={SERVICE_STATUS_BADGE_VARIANTS[service.status] ?? 'default'}>
+                      {SERVICE_STATUS_LABELS[service.status] ?? service.status}
                     </AppBadge>
                   }
                   items={[

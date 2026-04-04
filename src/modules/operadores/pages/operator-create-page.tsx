@@ -1,12 +1,12 @@
 import { useForm, Controller, type Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { AppCurrencyInput } from '@/shared/components/app/app-numeric-input'
-import { useNavigate } from 'react-router-dom'
+import { AppButton } from '@/shared/components/app/app-button'
+import { useNavigate, Link } from 'react-router-dom'
 import { operatorSchema, type OperatorInput } from '../schemas/operator.schema'
 import { useCreateOperator } from '../hooks/use-operator-queries'
 import { ROUTES } from '@/shared/constants/routes'
 import { AppPageHeader } from '@/shared/components/app/app-page-header'
-import { Link } from 'react-router-dom'
 
 export function OperatorCreatePage() {
   const navigate = useNavigate()
@@ -28,7 +28,7 @@ export function OperatorCreatePage() {
             <div className="sm:col-span-2">
               <label className="field-label">Nome *</label>
               <input {...register('name')} className="field" placeholder="Nome completo" />
-              {errors.name && <p className="field-error">{errors.name.message}</p>}
+              {errors.name && <span className="field-error">{errors.name.message}</span>}
             </div>
             <div>
               <label className="field-label">Telefone</label>
@@ -51,7 +51,7 @@ export function OperatorCreatePage() {
                   />
                 )}
               />
-              {errors.default_hour_rate && <p className="field-error">{errors.default_hour_rate.message}</p>}
+              {errors.default_hour_rate && <span className="field-error">{errors.default_hour_rate.message}</span>}
             </div>
           </div>
           <div>
@@ -60,9 +60,9 @@ export function OperatorCreatePage() {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <button type="submit" disabled={create.isPending} className="gradient-amber text-white font-semibold px-6 py-2.5 rounded-lg hover:opacity-90 disabled:opacity-50 text-sm">
-            {create.isPending ? 'Salvando...' : 'Cadastrar operador'}
-          </button>
+          <AppButton type="submit" variant="primary" size="lg" loading={create.isPending} loadingText="Salvando...">
+            Cadastrar operador
+          </AppButton>
           <Link to={ROUTES.OPERATORS} className="text-sm text-muted-foreground hover:text-foreground transition-colors">Cancelar</Link>
         </div>
       </form>

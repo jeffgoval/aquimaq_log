@@ -25,14 +25,12 @@ export function DashboardPage() {
   const totalPending = pendingReceivables.reduce((a, r) => a + (r.final_amount - r.paid_amount), 0)
   const totalOverdue = overdueReceivables.reduce((a, r) => a + (r.final_amount - r.paid_amount), 0)
   const activeServices = services.data?.filter(s => s.status === 'draft' || s.status === 'in_progress') ?? []
-  
+
   const totalPayables = machineCosts.data?.filter(c => c.status === 'pending').reduce((a, c) => a + c.amount, 0) ?? 0
 
   return (
     <div>
-      <AppPageHeader
-        title="Dashboard"
-      />
+      <AppPageHeader title="Dashboard" />
 
       {/* Quick Actions */}
       <div className="mb-8">
@@ -68,29 +66,29 @@ export function DashboardPage() {
           value={<AppMoney value={totalOverdue} />}
           icon={AlertTriangle}
           description={`${overdueReceivables.length} parcelas`}
-          className={overdueReceivables.length > 0 ? 'border-red-400/20 bg-red-400/5' : ''}
+          className={overdueReceivables.length > 0 ? 'border-destructive/20 bg-destructive/5' : ''}
         />
-        <AppStatCard 
-          title="Contas a pagar" 
-          value={<AppMoney value={totalPayables} />} 
-          icon={Wallet} 
-          description="Dívidas da frota" 
+        <AppStatCard
+          title="Contas a pagar"
+          value={<AppMoney value={totalPayables} />}
+          icon={Wallet}
+          description="Dívidas da frota"
           className="lg:border-primary/20"
         />
       </div>
 
       {/* Overdue alert */}
       {overdueReceivables.length > 0 && (
-        <div className="rounded-xl border border-red-400/30 bg-red-400/5 p-4 mb-6">
+        <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 mb-6">
           <div className="flex items-center gap-2 mb-3">
-            <AlertTriangle className="h-4 w-4 text-red-400" />
-            <p className="text-sm font-semibold text-red-400">{overdueReceivables.length} parcela{overdueReceivables.length !== 1 ? 's' : ''} vencida{overdueReceivables.length !== 1 ? 's' : ''}</p>
+            <AlertTriangle className="h-4 w-4 text-destructive" />
+            <p className="text-sm font-semibold text-destructive">{overdueReceivables.length} parcela{overdueReceivables.length !== 1 ? 's' : ''} vencida{overdueReceivables.length !== 1 ? 's' : ''}</p>
           </div>
           <div className="space-y-2">
             {overdueReceivables.slice(0, 3).map(r => (
               <div key={r.id} className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">{r.clients?.name} · {r.description}</span>
-                <AppMoney value={r.final_amount - r.paid_amount} size="sm" className="text-red-400" />
+                <AppMoney value={r.final_amount - r.paid_amount} size="sm" className="text-destructive" />
               </div>
             ))}
           </div>
