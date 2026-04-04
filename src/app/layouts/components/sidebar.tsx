@@ -4,6 +4,7 @@ import { cn } from '@/shared/lib/cn'
 import { NAV_ITEMS } from '@/app/config/navigation'
 import { supabase } from '@/integrations/supabase/client'
 import { toast } from 'sonner'
+import { ThemeToggle } from '@/shared/components/app/theme-toggle'
 
 export function Sidebar() {
   const navigate = useNavigate()
@@ -50,7 +51,12 @@ export function Sidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="px-3 py-4 border-t border-border">
+      <div className="px-3 py-4 border-t border-border flex flex-col gap-2">
+        <div className="flex items-center justify-between px-3 mb-2">
+          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Aparência</span>
+          <ThemeToggle className="h-8 w-8" />
+        </div>
+        
         <button
           onClick={handleSignOut}
           className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
