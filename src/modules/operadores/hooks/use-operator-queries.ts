@@ -4,6 +4,9 @@ import { queryKeys } from '@/integrations/supabase/query-keys'
 import { operatorRepository } from '../services/operator.repository'
 import { parseSupabaseError } from '@/shared/lib/errors'
 import type { OperatorInput } from '../schemas/operator.schema'
+import type { Updates } from '@/integrations/supabase/db-types'
+
+type OperatorUpdate = Updates<'operators'>
 
 export const useOperatorList = () => useQuery({ queryKey: queryKeys.operators, queryFn: operatorRepository.list })
 export const useOperatorOptions = () => useQuery({ queryKey: queryKeys.operatorOptions, queryFn: operatorRepository.listActive })
@@ -22,8 +25,13 @@ export function useCreateOperator() {
 export function useUpdateOperator(id: string) {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (p: OperatorInput) => operatorRepository.update(id, p),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: queryKeys.operators }); toast.success('Operador atualizado!') },
+    mutationFn: (p: OperatorUpdate) => operatorRepository.update(id, p),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.operators })
+      qc.invalidateQueries({ queryKey: queryKeys.operatorOptions })
+      qc.invalidateQueries({ queryKey: ['operators', id] })
+      toast.success('Operador atualizado!')
+    },
     onError: (e: Error) => toast.error(parseSupabaseError(e)),
   })
 }

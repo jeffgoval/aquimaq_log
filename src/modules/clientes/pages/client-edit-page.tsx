@@ -1,27 +1,65 @@
-import { useNavigate, Link } from 'react-router-dom'
+import { useEffect } from 'react'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { clientSchema, type ClientInput } from '../schemas/client.schema'
-import { useCreateClient } from '../hooks/use-client-queries'
+import { useClient, useUpdateClient } from '../hooks/use-client-queries'
 import { ROUTES } from '@/shared/constants/routes'
 import { AppPageHeader } from '@/shared/components/app/app-page-header'
 import { AppButton } from '@/shared/components/app/app-button'
+import { AppLoadingState } from '@/shared/components/app/app-loading-state'
+import { AppErrorState } from '@/shared/components/app/app-error-state'
 
-export function ClientCreatePage() {
+function nullIfEmpty(s: string | undefined): string | null {
+  const t = s?.trim()
+  return t ? t : null
+}
+
+export function ClientEditPage() {
+  const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const create = useCreateClient()
+  const { data: client, isLoading, isError, error } = useClient(id ?? '')
+  const update = useUpdateClient(id ?? '')
+
   const form = useForm<ClientInput>({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: zodResolver(clientSchema) as any,
     defaultValues: { name: '', is_active: true },
   })
-  const { register, formState: { errors } } = form
+  const { register, formState: { errors }, reset } = form
 
-  const onSubmit = form.handleSubmit(async (v) => { await create.mutateAsync(v); navigate(ROUTES.CLIENTS) })
+  useEffect(() => {
+    if (!client) return
+    reset({
+      name: client.name,
+      document: client.document ?? '',
+      phone: client.phone ?? '',
+      email: client.email ?? '',
+      notes: client.notes ?? '',
+      is_active: client.is_active,
+    })
+  }, [client, reset])
+
+  const onSubmit = form.handleSubmit(async (v) => {
+    if (!id) return
+    await update.mutateAsync({
+      name: v.name.trim(),
+      document: nullIfEmpty(v.document),
+      phone: nullIfEmpty(v.phone),
+      email: v.email?.trim() ? v.email.trim() : null,
+      notes: nullIfEmpty(v.notes),
+      is_active: v.is_active,
+    })
+    navigate(ROUTES.CLIENT_DETAIL(id))
+  })
+
+  if (!id) return <AppErrorState message="Cliente inválido" />
+  if (isLoading) return <AppLoadingState />
+  if (isError) return <AppErrorState message={error.message} />
 
   return (
     <div className="max-w-2xl">
-      <AppPageHeader title="Novo Cliente" />
+      <AppPageHeader title="Editar Cliente" description={client?.name} />
       <form onSubmit={onSubmit} className="space-y-6">
         <div className="rounded-xl border border-border bg-card p-6 space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -56,10 +94,12 @@ export function ClientCreatePage() {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <AppButton type="submit" variant="primary" size="lg" loading={create.isPending} loadingText="Salvando...">
-            Cadastrar cliente
+          <AppButton type="submit" variant="primary" size="lg" loading={update.isPending} loadingText="Salvando...">
+            Salvar alterações
           </AppButton>
-          <Link to={ROUTES.CLIENTS} className="text-sm text-muted-foreground hover:text-foreground transition-colors">Cancelar</Link>
+          <Link to={ROUTES.CLIENT_DETAIL(id)} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+            Cancelar
+          </Link>
         </div>
       </form>
     </div>

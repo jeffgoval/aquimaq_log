@@ -16,6 +16,8 @@ export const queryKeys = {
   receivablesByClient: (clientId: string) => ['receivables', 'client', clientId] as const,
   receivablePayments: (receivableId: string) => ['receivable-payments', receivableId] as const,
   machineCosts: ['machine-costs'] as const,
+  suppliers: ['suppliers'] as const,
+  supplierOptions: ['supplier-options'] as const,
   machineCostsByTractor: (tractorId: string) => ['machine-costs', 'tractor', tractorId] as const,
   profitability: ['profitability'] as const,
   financialLedger: ['financial-ledger'] as const,

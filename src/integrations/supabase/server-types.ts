@@ -44,6 +44,7 @@ export type Database = {
           id: string
           tractor_id: string
           service_id: string | null
+          supplier_id: string | null
           cost_date: string
           cost_type: 'fuel' | 'oil' | 'parts' | 'maintenance' | 'other'
           amount: number
@@ -57,6 +58,7 @@ export type Database = {
           id?: string
           tractor_id: string
           service_id?: string | null
+          supplier_id?: string | null
           cost_date: string
           cost_type: 'fuel' | 'oil' | 'parts' | 'maintenance' | 'other'
           amount: number
@@ -70,6 +72,7 @@ export type Database = {
           id?: string
           tractor_id?: string
           service_id?: string | null
+          supplier_id?: string | null
           cost_date?: string
           cost_type?: 'fuel' | 'oil' | 'parts' | 'maintenance' | 'other'
           amount?: number
@@ -82,6 +85,7 @@ export type Database = {
         Relationships: [
           { foreignKeyName: 'machine_costs_tractor_id_fkey'; columns: ['tractor_id']; referencedRelation: 'tractors'; referencedColumns: ['id'] },
           { foreignKeyName: 'machine_costs_service_id_fkey'; columns: ['service_id']; referencedRelation: 'services'; referencedColumns: ['id'] },
+          { foreignKeyName: 'machine_costs_supplier_id_fkey'; columns: ['supplier_id']; referencedRelation: 'suppliers'; referencedColumns: ['id'] },
         ]
       }
       operator_ledger: {
@@ -328,6 +332,42 @@ export type Database = {
           { foreignKeyName: 'services_tractor_id_fkey'; columns: ['tractor_id']; referencedRelation: 'tractors'; referencedColumns: ['id'] },
           { foreignKeyName: 'services_primary_operator_id_fkey'; columns: ['primary_operator_id']; referencedRelation: 'operators'; referencedColumns: ['id'] },
         ]
+      }
+      suppliers: {
+        Row: {
+          id: string
+          name: string
+          address: string | null
+          phone: string | null
+          cnpj: string | null
+          is_active: boolean
+          notes: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          address?: string | null
+          phone?: string | null
+          cnpj?: string | null
+          is_active?: boolean
+          notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          address?: string | null
+          phone?: string | null
+          cnpj?: string | null
+          is_active?: boolean
+          notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       tractors: {
         Row: {

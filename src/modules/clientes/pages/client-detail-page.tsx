@@ -1,8 +1,9 @@
-import { useParams } from 'react-router-dom'
+import { useParams, Link } from 'react-router-dom'
 import { useClient } from '../hooks/use-client-queries'
 import { AppPageHeader } from '@/shared/components/app/app-page-header'
 import { AppLoadingState } from '@/shared/components/app/app-loading-state'
 import { AppErrorState } from '@/shared/components/app/app-error-state'
+import { ROUTES } from '@/shared/constants/routes'
 
 export function ClientDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -14,7 +15,18 @@ export function ClientDetailPage() {
 
   return (
     <div>
-      <AppPageHeader title={client.name} description={client.document || undefined} />
+      <AppPageHeader
+        title={client.name}
+        description={client.document || undefined}
+        actions={
+          <Link
+            to={ROUTES.CLIENT_EDIT(client.id)}
+            className="flex items-center gap-2 bg-secondary text-foreground font-medium px-4 py-2 rounded-lg hover:bg-secondary/70 transition-colors text-sm"
+          >
+            Editar
+          </Link>
+        }
+      />
       <div className="rounded-xl border border-border bg-card p-6">
         <dl className="grid grid-cols-2 gap-4 text-sm">
           {[

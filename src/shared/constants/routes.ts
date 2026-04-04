@@ -26,6 +26,12 @@ export const ROUTES = {
   CLIENT_DETAIL: (id: string) => `/clientes/${id}`,
   CLIENT_EDIT: (id: string) => `/clientes/${id}/editar`,
 
+  // Suppliers (fornecedores)
+  SUPPLIERS: '/fornecedores',
+  SUPPLIER_NEW: '/fornecedores/novo',
+  SUPPLIER_DETAIL: (id: string) => `/fornecedores/${id}`,
+  SUPPLIER_EDIT: (id: string) => `/fornecedores/${id}/editar`,
+
   // Services
   SERVICES: '/servicos',
   SERVICE_NEW: '/servicos/novo',

@@ -25,7 +25,12 @@ export function useUpdateClient(id: string) {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (p: ClientUpdate) => clientRepository.update(id, p),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: queryKeys.clients }); toast.success('Cliente atualizado!') },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.clients })
+      qc.invalidateQueries({ queryKey: queryKeys.clientOptions })
+      qc.invalidateQueries({ queryKey: ['clients', id] })
+      toast.success('Cliente atualizado!')
+    },
     onError: (e: Error) => toast.error(parseSupabaseError(e)),
   })
 }

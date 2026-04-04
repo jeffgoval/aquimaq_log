@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { ROUTES } from '@/shared/constants/routes'
 import { useServiceList } from '../hooks/use-service-queries'
 import { AppPageHeader } from '@/shared/components/app/app-page-header'
 import { AppLoadingState } from '@/shared/components/app/app-loading-state'
@@ -9,10 +10,9 @@ import { AppBadge } from '@/shared/components/app/app-badge'
 import { AppSearchInput } from '@/shared/components/app/app-search-input'
 import { AppDataCard } from '@/shared/components/app/app-data-card'
 import { cn } from '@/shared/lib/cn'
-import { ROUTES } from '@/shared/constants/routes'
 import { SERVICE_STATUS_LABELS, SERVICE_STATUS_BADGE_VARIANTS } from '@/shared/constants/status'
 import dayjs from 'dayjs'
-import { Plus, Briefcase } from 'lucide-react'
+import { Plus, Briefcase, Edit } from 'lucide-react'
 
 const FILTER_LABELS = { all: 'Todos', draft: SERVICE_STATUS_LABELS.draft, completed: SERVICE_STATUS_LABELS.completed, cancelled: SERVICE_STATUS_LABELS.cancelled }
 
@@ -79,6 +79,18 @@ export function ServiceListPage() {
                     { label: 'Trator', value: service.tractors?.name || '—' },
                     { label: 'Operador', value: service.operators?.name || '—' },
                   ]}
+                  footer={
+                    <div className="flex gap-2 pt-1 border-t border-border/50">
+                      <Link
+                        to={ROUTES.SERVICE_EDIT(service.id)}
+                        onClick={(e) => e.stopPropagation()}
+                        className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors font-medium"
+                      >
+                        <Edit className="h-3 w-3" />
+                        Editar
+                      </Link>
+                    </div>
+                  }
                 />
               ))}
             </div>

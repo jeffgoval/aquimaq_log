@@ -24,7 +24,7 @@ export function OperatorDetailPage() {
         title={operator.name}
         description={operator.phone || undefined}
         actions={
-          <Link to={ROUTES.OPERATOR_DETAIL(operator.id) + '/editar'} className="flex items-center gap-2 bg-secondary text-foreground font-medium px-4 py-2 rounded-lg hover:bg-secondary/70 transition-colors text-sm">
+          <Link to={ROUTES.OPERATOR_EDIT(operator.id)} className="flex items-center gap-2 bg-secondary text-foreground font-medium px-4 py-2 rounded-lg hover:bg-secondary/70 transition-colors text-sm">
             Editar
           </Link>
         }

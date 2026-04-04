@@ -30,6 +30,12 @@ export const serviceRepository = {
     return data
   },
 
+  async update(id: string, payload: ServiceUpdate): Promise<Tables<'services'>> {
+    const { data, error } = await supabase.from('services').update(payload).eq('id', id).select().single()
+    if (error) throw error
+    return data
+  },
+
   async complete(id: string): Promise<Tables<'services'>> {
     const { data, error } = await supabase
       .from('services')

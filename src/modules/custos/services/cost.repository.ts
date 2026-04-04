@@ -7,7 +7,7 @@ export const costRepository = {
   async list(): Promise<MachineCostWithTractor[]> {
     const { data, error } = await supabase
       .from('machine_costs')
-      .select('*, tractors(name), services(service_date)')
+      .select('*, tractors(name), services(service_date), suppliers(name, cnpj)')
       .order('cost_date', { ascending: false })
     if (error) throw error
     return (data ?? []) as MachineCostWithTractor[]

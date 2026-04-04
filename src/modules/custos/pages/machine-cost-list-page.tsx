@@ -1,6 +1,9 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useMachineCosts, useCreateCost } from '../hooks/use-cost-queries'
 import { useTractorOptions } from '@/modules/tratores/hooks/use-tractor-queries'
+import { useSupplierOptions } from '@/modules/fornecedores/hooks/use-supplier-queries'
+import { ROUTES } from '@/shared/constants/routes'
 import { AppPageHeader } from '@/shared/components/app/app-page-header'
 import { AppLoadingState } from '@/shared/components/app/app-loading-state'
 import { AppErrorState } from '@/shared/components/app/app-error-state'
@@ -21,21 +24,48 @@ export function MachineCostListPage() {
   const [search, setSearch] = useState('')
   const { data, isLoading, isError, error, refetch } = useMachineCosts()
   const tractors = useTractorOptions()
+  const suppliers = useSupplierOptions()
   const createCost = useCreateCost()
   const addDialog = useDisclosure()
 
-  const [form, setForm] = useState({ tractor_id: '', cost_type: 'fuel' as const, amount: '', description: '', supplier_name: '', cost_date: dayjs().format('YYYY-MM-DD') })
+  const [form, setForm] = useState({
+    tractor_id: '',
+    supplier_id: '',
+    cost_type: 'fuel' as const,
+    amount: '',
+    description: '',
+    cost_date: dayjs().format('YYYY-MM-DD'),
+  })
 
-  const filtered = data?.filter(c =>
-    c.description?.toLowerCase().includes(search.toLowerCase()) ||
-    c.tractors?.name.toLowerCase().includes(search.toLowerCase()) ||
-    c.supplier_name?.toLowerCase().includes(search.toLowerCase())
-  )
+  const filtered = data?.filter((c) => {
+    const q = search.toLowerCase()
+    const supplierLabel = c.suppliers?.name || c.supplier_name || ''
+    return (
+      c.description?.toLowerCase().includes(q) ||
+      c.tractors?.name.toLowerCase().includes(q) ||
+      supplierLabel.toLowerCase().includes(q)
+    )
+  })
 
   const handleAdd = async () => {
     if (!form.tractor_id || !form.amount) return
-    await createCost.mutateAsync({ tractor_id: form.tractor_id, cost_type: form.cost_type as never, amount: Number(form.amount), description: form.description || null, supplier_name: form.supplier_name || null, cost_date: form.cost_date })
-    setForm({ tractor_id: '', cost_type: 'fuel', amount: '', description: '', supplier_name: '', cost_date: dayjs().format('YYYY-MM-DD') })
+    await createCost.mutateAsync({
+      tractor_id: form.tractor_id,
+      supplier_id: form.supplier_id || null,
+      cost_type: form.cost_type as never,
+      amount: Number(form.amount),
+      description: form.description || null,
+      supplier_name: null,
+      cost_date: form.cost_date,
+    })
+    setForm({
+      tractor_id: '',
+      supplier_id: '',
+      cost_type: 'fuel',
+      amount: '',
+      description: '',
+      cost_date: dayjs().format('YYYY-MM-DD'),
+    })
     addDialog.close()
   }
 
@@ -93,7 +123,23 @@ export function MachineCostListPage() {
             </div>
             <div className="sm:col-span-2 lg:col-span-1">
               <label className="field-label">Fornecedor</label>
-              <input value={form.supplier_name} onChange={e => setForm(f => ({ ...f, supplier_name: e.target.value }))} className="field" placeholder="Nome do fornecedor" />
+              <select
+                value={form.supplier_id}
+                onChange={(e) => setForm((f) => ({ ...f, supplier_id: e.target.value }))}
+                className="field"
+              >
+                <option value="">Nenhum / selecione...</option>
+                {suppliers.data?.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.name}
+                  </option>
+                ))}
+              </select>
+              <p className="mt-1.5 text-xs text-muted-foreground">
+                <Link to={ROUTES.SUPPLIER_NEW} className="text-primary hover:underline font-medium">
+                  Cadastrar novo fornecedor
+                </Link>
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-3 pt-2">
@@ -129,7 +175,7 @@ export function MachineCostListPage() {
                 }
                 items={[
                   { label: 'Valor', value: <AppMoney value={cost.amount} size="sm" /> },
-                  { label: 'Fornecedor', value: cost.supplier_name || '—' },
+                  { label: 'Fornecedor', value: cost.suppliers?.name || cost.supplier_name || '—' },
                 ]}
                 footer={
                   cost.description ? (

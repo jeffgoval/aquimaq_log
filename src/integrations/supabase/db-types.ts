@@ -25,4 +25,5 @@ export type ReceivableWithClient = Tables<'receivables'> & {
 export type MachineCostWithTractor = Tables<'machine_costs'> & {
   tractors: { name: string } | null
   services: { service_date: string } | null
+  suppliers: { name: string; cnpj: string | null } | null
 }

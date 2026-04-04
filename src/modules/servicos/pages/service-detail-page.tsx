@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom'
+import { useParams, Link } from 'react-router-dom'
 import { useService, useCompleteService } from '../hooks/use-service-queries'
 import { useWorklogsByService } from '@/modules/apontamentos/hooks/use-worklog-queries'
 import { AppPageHeader } from '@/shared/components/app/app-page-header'
@@ -11,6 +11,7 @@ import { ReceivableSection } from '@/modules/financeiro/components/receivable-se
 import { cn } from '@/shared/lib/cn'
 import { SERVICE_STATUS_LABELS, SERVICE_STATUS_COLORS } from '@/shared/constants/status'
 import dayjs from 'dayjs'
+import { ROUTES } from '@/shared/constants/routes'
 
 export function ServiceDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -31,7 +32,13 @@ export function ServiceDetailPage() {
         title={service.clients?.name ?? 'Serviço'}
         description={`${service.tractors?.name} · ${dayjs(service.service_date).format('DD/MM/YYYY')}`}
         actions={
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <Link
+              to={ROUTES.SERVICE_EDIT(service.id)}
+              className="flex items-center gap-2 bg-secondary text-foreground font-medium px-4 py-2 rounded-lg hover:bg-secondary/70 transition-colors text-sm"
+            >
+              Editar
+            </Link>
             <span className={cn('text-xs font-medium px-3 py-1.5 rounded-full border', SERVICE_STATUS_COLORS[service.status])}>
               {SERVICE_STATUS_LABELS[service.status]}
             </span>

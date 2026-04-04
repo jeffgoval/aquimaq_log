@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from 'react-router-dom'
-import { X, LogOut, Tractor, LayoutDashboard, Users, Building2, ClipboardList, DollarSign, Wrench, TrendingUp } from 'lucide-react'
+import { X, LogOut, Tractor, LayoutDashboard, Users, Building2, Store, ClipboardList, DollarSign, Wrench, TrendingUp } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
 import { ROUTES } from '@/shared/constants/routes'
 import { supabase } from '@/integrations/supabase/client'
@@ -10,6 +10,7 @@ const ALL_NAV = [
   { label: 'Tratores',      href: ROUTES.TRACTORS,      icon: Tractor,         end: false },
   { label: 'Operadores',    href: ROUTES.OPERATORS,     icon: Users,           end: false },
   { label: 'Clientes',      href: ROUTES.CLIENTS,       icon: Building2,       end: false },
+  { label: 'Fornecedores',  href: ROUTES.SUPPLIERS,     icon: Store,           end: false },
   { label: 'Serviços',      href: ROUTES.SERVICES,      icon: ClipboardList,   end: false },
   { label: 'Financeiro',    href: ROUTES.RECEIVABLES,   icon: DollarSign,      end: false },
   { label: 'Custos',        href: ROUTES.MACHINE_COSTS, icon: Wrench,          end: false },
