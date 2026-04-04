@@ -35,8 +35,8 @@ export function OperatorCreatePage() {
               <input {...register('phone')} className="field" placeholder="(11) 99999-9999" />
             </div>
             <div>
-              <label className="field-label">Documento (CPF/CNH)</label>
-              <input {...register('document')} className="field" placeholder="000.000.000-00" />
+              <label className="field-label">CNH</label>
+              <input {...register('document')} className="field" placeholder="Número da CNH" />
             </div>
             <div>
               <label className="field-label">Taxa por hora</label>

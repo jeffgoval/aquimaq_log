@@ -62,7 +62,7 @@ export function OperatorListPage() {
                 <AppDataCard
                   key={operator.id}
                   title={operator.name}
-                  subtitle={operator.document || 'Sem documento'}
+                  subtitle={operator.document || 'Sem CNH'}
                   icon={User}
                   onClick={() => navigate(ROUTES.OPERATOR_DETAIL(operator.id))}
                   badge={

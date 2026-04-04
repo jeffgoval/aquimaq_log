@@ -45,7 +45,7 @@ export function OperatorDetailPage() {
         <h2 className="text-sm font-semibold text-foreground mb-4">Dados</h2>
         <dl className="grid grid-cols-2 gap-4 text-sm">
           {[
-            { label: 'Documento', value: operator.document || '—' },
+            { label: 'CNH', value: operator.document || '—' },
             { label: 'Telefone', value: operator.phone || '—' },
             { label: 'Taxa/hora', value: <AppMoney value={operator.default_hour_rate} /> },
           ].map(({ label, value }) => (
