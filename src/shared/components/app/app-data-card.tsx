@@ -57,9 +57,9 @@ export function AppDataCard({
             </div>
           )}
           <div className="min-w-0">
-            <h3 className="font-bold text-foreground text-sm truncate leading-tight">{title}</h3>
+            <h3 className="typo-card-title truncate">{title}</h3>
             {subtitle && (
-              <p className="text-xs text-muted-foreground uppercase font-medium tracking-tight truncate mt-0.5">
+              <p className="typo-caption font-medium uppercase tracking-wide truncate mt-0.5">
                 {subtitle}
               </p>
             )}
@@ -76,10 +76,10 @@ export function AppDataCard({
         )}>
           {items.map((item, idx) => (
             <div key={idx} className={cn('min-w-0', item.className)}>
-              <p className="text-xs text-muted-foreground uppercase font-semibold leading-none mb-1">
+              <p className="typo-caption font-semibold uppercase tracking-wide mb-1">
                 {item.label}
               </p>
-              <div className="text-xs font-bold text-foreground truncate">
+              <div className="typo-body font-semibold truncate">
                 {item.value}
               </div>
             </div>
@@ -90,7 +90,7 @@ export function AppDataCard({
       {footer && <div className="mt-auto">{footer}</div>}
       
       {!footer && onClick && (
-        <div className="flex items-center justify-between text-xs text-muted-foreground mt-auto opacity-40 group-hover:opacity-100 transition-opacity uppercase font-bold tracking-widest">
+        <div className="flex items-center justify-between typo-section-label mt-auto opacity-40 group-hover:opacity-100 transition-opacity">
           <span>Ver Detalhes</span>
         </div>
       )}

@@ -15,7 +15,7 @@ export function AppLoadingState({ fullScreen, message = 'Carregando...' }: AppLo
       )}
     >
       <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      <p className="text-sm font-medium">{message}</p>
+      <p className="typo-body font-medium">{message}</p>
     </div>
   )
 }

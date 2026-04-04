@@ -12,11 +12,12 @@ export function AppErrorState({
   return (
     <div className="flex h-48 flex-col items-center justify-center gap-3 text-destructive">
       <AlertTriangle className="h-8 w-8" />
-      <p className="text-sm font-medium">{message}</p>
+      <p className="text-base font-medium">{message}</p>
       {onRetry && (
         <button
+          type="button"
           onClick={onRetry}
-          className="text-sm text-muted-foreground underline hover:text-foreground transition-colors"
+          className="typo-body text-muted-foreground underline underline-offset-2 hover:text-foreground transition-colors"
         >
           Tentar novamente
         </button>

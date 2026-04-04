@@ -68,7 +68,7 @@ export function MachineCostListPage() {
 
       {addDialog.isOpen && (
         <div className="rounded-xl border border-border bg-card p-4 lg:p-6 mb-6 space-y-4 shadow-sm animate-in fade-in slide-in-from-top-2">
-          <h2 className="text-sm font-semibold text-muted-foreground">Novo registro de custo</h2>
+          <h2 className="typo-section-title text-muted-foreground">Novo registro de custo</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             <div>
               <label className="field-label">Trator *</label>

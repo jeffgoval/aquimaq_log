@@ -42,7 +42,7 @@ export function OperatorDetailPage() {
         </div>
       )}
       <div className="rounded-xl border border-border bg-card p-6">
-        <h2 className="text-sm font-semibold text-foreground mb-4">Dados</h2>
+        <h2 className="typo-section-title mb-4">Dados</h2>
         <dl className="grid grid-cols-2 gap-4 text-sm">
           {[
             { label: 'CNH', value: operator.document || '—' },

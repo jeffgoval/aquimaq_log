@@ -24,8 +24,8 @@ export function ForgotPasswordPage() {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold text-foreground mb-1">Recuperar senha</h2>
-      <p className="text-sm text-muted-foreground mb-8">
+      <h2 className="typo-auth-screen-title mb-1">Recuperar senha</h2>
+      <p className="typo-body-muted mb-8">
         Enviaremos um link para redefinir sua senha
       </p>
 

@@ -9,8 +9,8 @@ export function RegisterPage() {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold text-foreground mb-1">Criar Conta</h2>
-      <p className="text-sm text-muted-foreground mb-8">
+      <h2 className="typo-auth-screen-title mb-1">Criar Conta</h2>
+      <p className="typo-body-muted mb-8">
         Preencha os dados abaixo para cadastrar-se no sistema
       </p>
 

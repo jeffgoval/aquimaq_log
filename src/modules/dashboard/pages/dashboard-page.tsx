@@ -34,20 +34,20 @@ export function DashboardPage() {
 
       {/* Quick Actions */}
       <div className="mb-8">
-        <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-4">Ações Rápidas</h2>
+        <h2 className="typo-section-label mb-4">Ações Rápidas</h2>
         <div className="grid grid-cols-2 gap-3 max-w-md">
           <Link to={ROUTES.SERVICE_NEW} className="flex flex-col items-center gap-3 p-4 rounded-2xl bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-all group">
             <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform">
               <ClipboardList className="h-5 w-5" />
             </div>
-            <span className="text-xs font-bold text-foreground">Novo Serviço</span>
+            <span className="text-sm font-semibold text-foreground text-center leading-tight">Novo Serviço</span>
           </Link>
 
           <Link to={ROUTES.CLIENT_NEW} className="flex flex-col items-center gap-3 p-4 rounded-2xl bg-secondary/50 border border-border hover:border-primary/30 transition-all group">
             <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-card border border-border text-foreground shadow-sm group-hover:scale-110 transition-transform">
               <Building2 className="h-5 w-5" />
             </div>
-            <span className="text-xs font-bold text-foreground">Novo Cliente</span>
+            <span className="text-sm font-semibold text-foreground text-center leading-tight">Novo Cliente</span>
           </Link>
         </div>
       </div>
@@ -82,18 +82,18 @@ export function DashboardPage() {
         <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 mb-6">
           <div className="flex items-center gap-2 mb-3">
             <AlertTriangle className="h-4 w-4 text-destructive" />
-            <p className="text-sm font-semibold text-destructive">{overdueReceivables.length} parcela{overdueReceivables.length !== 1 ? 's' : ''} vencida{overdueReceivables.length !== 1 ? 's' : ''}</p>
+            <p className="typo-section-title text-destructive">{overdueReceivables.length} parcela{overdueReceivables.length !== 1 ? 's' : ''} vencida{overdueReceivables.length !== 1 ? 's' : ''}</p>
           </div>
           <div className="space-y-2">
             {overdueReceivables.slice(0, 3).map(r => (
-              <div key={r.id} className="flex items-center justify-between text-sm">
+              <div key={r.id} className="flex items-center justify-between typo-body">
                 <span className="text-muted-foreground">{r.clients?.name} · {r.description}</span>
                 <AppMoney value={r.final_amount - r.paid_amount} size="sm" className="text-destructive" />
               </div>
             ))}
           </div>
           {overdueReceivables.length > 3 && (
-            <Link to={ROUTES.RECEIVABLES} className="text-xs text-primary hover:underline mt-2 block">Ver todas →</Link>
+            <Link to={ROUTES.RECEIVABLES} className="typo-caption text-primary hover:underline mt-2 block font-medium">Ver todas →</Link>
           )}
         </div>
       )}
@@ -101,16 +101,16 @@ export function DashboardPage() {
       {/* Active services */}
       {activeServices.length > 0 && (
         <div className="rounded-xl border border-border bg-card p-6">
-          <h2 className="text-sm font-semibold text-foreground mb-4">Serviços em aberto</h2>
+          <h2 className="typo-section-title mb-4">Serviços em aberto</h2>
           <div className="space-y-2">
             {activeServices.slice(0, 5).map(s => (
               <Link key={s.id} to={ROUTES.SERVICE_DETAIL(s.id)}
                 className="flex items-center justify-between rounded-lg border border-border p-3 hover:border-primary/30 transition-colors">
                 <div>
-                  <p className="text-sm font-medium text-foreground">{s.clients?.name}</p>
-                  <p className="text-xs uppercase font-bold text-muted-foreground mt-0.5">{s.tractors?.name}</p>
+                  <p className="typo-body font-medium text-foreground">{s.clients?.name}</p>
+                  <p className="typo-caption font-semibold uppercase tracking-wide mt-0.5">{s.tractors?.name}</p>
                 </div>
-                <span className={cn('text-xs font-medium px-2 py-0.5 rounded-full bg-slate-400/10 text-slate-400')}>Em aberto</span>
+                <span className={cn('typo-caption font-medium px-2 py-0.5 rounded-full bg-slate-400/10 text-slate-400')}>Em aberto</span>
               </Link>
             ))}
           </div>

@@ -19,14 +19,14 @@ interface AppTableProps {
 export function AppTable({ columns, children, footer, className }: AppTableProps) {
   return (
     <div className={cn('rounded-lg border border-border overflow-hidden', className)}>
-      <table className="w-full text-xs">
+      <table className="w-full">
         <thead>
           <tr className="bg-muted/30 border-b border-border">
             {columns.map((col, i) => (
               <th
                 key={i}
                 className={cn(
-                  'px-3 py-2 font-medium text-muted-foreground',
+                  'typo-table-header px-3 py-2.5 font-semibold',
                   col.align === 'right' ? 'text-right' : col.align === 'center' ? 'text-center' : 'text-left',
                   col.className
                 )}
@@ -72,7 +72,7 @@ export function AppTableCell({ children, align, className }: AppTableCellProps) 
   return (
     <td
       className={cn(
-        'px-3 py-1.5',
+        'typo-table-cell px-3 py-2 align-middle',
         align === 'right' && 'text-right',
         align === 'center' && 'text-center',
         className

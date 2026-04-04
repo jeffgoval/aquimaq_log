@@ -30,7 +30,7 @@ export function ClientListPage() {
         actions={
           <Link
             to={ROUTES.CLIENT_NEW}
-            className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-bold shadow-lg shadow-primary/20 active:scale-95 transition-all outline-none"
+            className="flex items-center gap-2 px-4 py-2.5 min-h-[44px] bg-primary text-primary-foreground rounded-lg text-base font-semibold shadow-lg shadow-primary/20 active:scale-95 transition-all outline-none"
           >
             <Plus className="h-4 w-4" />
             Novo Cliente

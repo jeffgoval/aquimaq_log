@@ -32,7 +32,7 @@ export function MobileBottomNav() {
             end={item.end}
             className={({ isActive }) =>
               cn(
-                'flex flex-1 flex-col items-center justify-center gap-1 py-2.5 text-xs font-medium transition-colors min-h-[56px]',
+                'flex flex-1 flex-col items-center justify-center gap-0.5 py-2 text-[11px] font-medium leading-tight transition-colors min-h-[56px] sm:text-xs',
                 isActive
                   ? 'text-primary'
                   : 'text-muted-foreground'
@@ -56,7 +56,7 @@ export function MobileBottomNav() {
         {/* More button */}
         <button
           onClick={() => setDrawerOpen(true)}
-          className="flex flex-1 flex-col items-center justify-center gap-1 py-2.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors min-h-[56px]"
+          className="flex flex-1 flex-col items-center justify-center gap-0.5 py-2 text-[11px] font-medium leading-tight text-muted-foreground hover:text-foreground transition-colors min-h-[56px] sm:text-xs"
           aria-label="Mais opções"
         >
           <span className="flex items-center justify-center w-7 h-7 rounded-xl transition-all duration-200">

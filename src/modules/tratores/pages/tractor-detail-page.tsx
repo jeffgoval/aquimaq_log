@@ -63,7 +63,7 @@ export function TractorDetailPage() {
 
       {/* Details */}
       <div className="rounded-xl border border-border bg-card p-6">
-        <h2 className="text-sm font-semibold text-foreground mb-4">Detalhes</h2>
+        <h2 className="typo-section-title mb-4">Detalhes</h2>
         <dl className="grid grid-cols-2 gap-4 text-sm">
           {[
             { label: 'Valor Residual', value: <AppMoney value={tractor.residual_value} /> },

@@ -16,7 +16,7 @@ export function MobileHeader() {
         <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary shrink-0">
           <Tractor className="h-4 w-4 text-primary-foreground" />
         </div>
-        <span className="font-bold text-sm text-foreground tracking-tight">Aquimaq Log</span>
+        <span className="text-base font-bold text-foreground tracking-tight">Aquimaq Log</span>
       </div>
 
       {/* Toolbar */}

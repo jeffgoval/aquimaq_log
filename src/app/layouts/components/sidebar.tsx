@@ -23,8 +23,8 @@ export function Sidebar() {
           <Tractor className="h-5 w-5 text-primary-foreground" />
         </div>
         <div>
-          <p className="font-bold text-sm text-foreground leading-tight tracking-tight">Aquimaq Log</p>
-          <p className="text-xs uppercase font-bold text-muted-foreground tracking-wider">Gestão de Frota</p>
+          <p className="text-base font-bold text-foreground leading-tight tracking-tight">Aquimaq Log</p>
+          <p className="typo-section-label mt-0.5">Gestão de Frota</p>
         </div>
       </div>
 
@@ -37,9 +37,9 @@ export function Sidebar() {
             end={item.href === '/'}
             className={({ isActive }) =>
               cn(
-                'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                'typo-nav-item flex items-center gap-3 rounded-lg px-3 py-2.5 transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-ring',
                 isActive
-                  ? 'bg-primary text-primary-foreground shadow-md shadow-primary/20'
+                  ? 'typo-nav-item-active bg-primary text-primary-foreground shadow-md shadow-primary/20'
                   : 'text-muted-foreground hover:bg-secondary/80 hover:text-foreground'
               )
             }
@@ -56,7 +56,7 @@ export function Sidebar() {
         
         <button
           onClick={handleSignOut}
-          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold text-muted-foreground hover:bg-destructive hover:text-destructive-foreground transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-destructive"
+          className="typo-nav-item flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-muted-foreground hover:bg-destructive hover:text-destructive-foreground transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-destructive"
         >
           <LogOut className="h-4 w-4 shrink-0" />
           Sair

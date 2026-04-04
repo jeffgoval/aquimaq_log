@@ -19,7 +19,7 @@ export function TractorForm({ controller }: TractorFormProps) {
   return (
     <form onSubmit={onSubmit} className="space-y-6">
       <div className="rounded-xl border border-border bg-card p-6 space-y-4">
-        <h2 className="text-sm font-semibold text-foreground">Identificação</h2>
+        <h2 className="typo-section-title">Identificação</h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="sm:col-span-2">
@@ -43,7 +43,7 @@ export function TractorForm({ controller }: TractorFormProps) {
       </div>
 
       <div className="rounded-xl border border-border bg-card p-6 space-y-4">
-        <h2 className="text-sm font-semibold text-foreground">Valores e Depreciação</h2>
+        <h2 className="typo-section-title">Valores e Depreciação</h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <label className="field-label">Valor de Compra *</label>
@@ -97,7 +97,7 @@ export function TractorForm({ controller }: TractorFormProps) {
       </div>
 
       <div className="rounded-xl border border-border bg-card p-6 space-y-4">
-        <h2 className="text-sm font-semibold text-foreground">Observações</h2>
+        <h2 className="typo-section-title">Observações</h2>
         <textarea
           {...register('notes')}
           rows={3}

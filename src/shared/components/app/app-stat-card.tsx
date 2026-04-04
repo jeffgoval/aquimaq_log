@@ -30,7 +30,7 @@ export function AppStatCard({
       )}
     >
       <div className="flex items-center justify-between">
-        <p className="text-xs lg:text-sm font-medium text-muted-foreground">{title}</p>
+        <p className="typo-kpi-label text-xs lg:text-sm">{title}</p>
         {Icon && (
           <div className="rounded-lg bg-primary/10 p-1.5 lg:p-2">
             <Icon className="h-3.5 w-3.5 lg:h-4 lg:w-4 text-primary" />
@@ -39,9 +39,9 @@ export function AppStatCard({
       </div>
 
       <div>
-        <p className="text-xl lg:text-2xl font-bold tracking-tight text-foreground leading-none">{value}</p>
+        <p className="typo-kpi-value">{value}</p>
         {description && (
-          <p className="mt-1 text-xs text-muted-foreground line-clamp-1">{description}</p>
+          <p className="typo-caption mt-1 line-clamp-1">{description}</p>
         )}
       </div>
 
@@ -49,13 +49,13 @@ export function AppStatCard({
         <div className="flex items-center gap-1">
           <span
             className={cn(
-              'text-xs font-medium',
+              'typo-caption font-medium',
               trend.value >= 0 ? 'text-green-400' : 'text-red-400'
             )}
           >
             {trend.value >= 0 ? '+' : ''}{trend.value}%
           </span>
-          <span className="text-xs text-muted-foreground">{trend.label}</span>
+          <span className="typo-caption">{trend.label}</span>
         </div>
       )}
 

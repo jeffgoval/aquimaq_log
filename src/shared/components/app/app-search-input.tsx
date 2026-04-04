@@ -12,7 +12,7 @@ export function AppSearchInput({ containerClassName, className, ...props }: AppS
       <input
         {...props}
         className={cn(
-          'w-full rounded-lg border border-input bg-input pl-9 pr-3 py-2 text-sm text-foreground',
+          'w-full rounded-lg border border-input bg-input pl-9 pr-3 py-2.5 text-base text-foreground min-h-[44px]',
           'placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary/50 transition-all',
           className
         )}

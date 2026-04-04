@@ -28,11 +28,11 @@ const sizeClasses: Record<ButtonSize, Record<ButtonVariant, string>> = {
     success: 'px-4 py-2 text-sm rounded-lg',
   },
   lg: {
-    primary: 'px-6 py-2.5 text-sm rounded-lg',
-    secondary: 'px-6 py-2.5 text-sm rounded-lg',
-    ghost: 'text-sm',
-    destructive: 'px-6 py-2.5 text-sm rounded-lg',
-    success: 'px-6 py-2.5 text-sm rounded-lg',
+    primary: 'px-6 py-3 text-base rounded-lg min-h-[48px]',
+    secondary: 'px-6 py-3 text-base rounded-lg min-h-[48px]',
+    ghost: 'text-base',
+    destructive: 'px-6 py-3 text-base rounded-lg min-h-[48px]',
+    success: 'px-6 py-3 text-base rounded-lg min-h-[48px]',
   },
 }
 

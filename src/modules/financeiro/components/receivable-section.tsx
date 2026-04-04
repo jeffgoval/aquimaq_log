@@ -82,7 +82,7 @@ export function ReceivableSection({ serviceId, clientId, suggestedTotal }: Recei
     <div className="rounded-xl border border-border bg-card p-6">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h2 className="text-sm font-semibold">Parcelamento</h2>
+          <h2 className="typo-section-title">Parcelamento</h2>
           {totalReceivable > 0 && (
             <p className="text-xs text-muted-foreground mt-0.5">
               <AppMoney value={totalPaid} size="sm" /> recebido de <AppMoney value={totalReceivable} size="sm" />
@@ -102,7 +102,7 @@ export function ReceivableSection({ serviceId, clientId, suggestedTotal }: Recei
       {/* Formulário de novo parcelamento */}
       {installmentDialog.isOpen && (
         <div className="rounded-lg border border-border p-4 mb-4 bg-muted/20 space-y-4">
-          <p className="text-sm font-medium">Registrar parcelamento</p>
+          <p className="typo-body font-medium">Registrar parcelamento</p>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <div>
               <label className="field-label">Valor total *</label>
@@ -209,7 +209,7 @@ export function ReceivableSection({ serviceId, clientId, suggestedTotal }: Recei
         const inputVal = Number(payAmount)
         return (
           <div className="rounded-lg border border-border p-4 mb-4 bg-muted/20 space-y-3">
-            <p className="text-sm font-medium">Registrar pagamento</p>
+            <p className="typo-body font-medium">Registrar pagamento</p>
             <p className="text-xs text-muted-foreground">
               Saldo: <strong className="text-foreground"><AppMoney value={remaining} size="sm" /></strong>
             </p>

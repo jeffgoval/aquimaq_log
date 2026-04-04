@@ -64,8 +64,8 @@ export function MobileDrawer({ open, onClose }: MobileDrawerProps) {
               <Tractor className="h-4 w-4 text-primary-foreground" />
             </div>
             <div>
-              <p className="font-bold text-sm text-foreground leading-none">Aquimaq Log</p>
-              <p className="text-xs text-muted-foreground mt-0.5">Gestão de Frota</p>
+              <p className="text-base font-bold text-foreground leading-none">Aquimaq Log</p>
+              <p className="typo-caption mt-0.5">Gestão de Frota</p>
             </div>
           </div>
           <button

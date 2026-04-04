@@ -53,42 +53,42 @@ export function ServiceDetailPage() {
       {/* Resumo financeiro */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div className="rounded-xl border border-border bg-card p-4">
-          <p className="text-xs text-muted-foreground mb-1">Taxa/hora</p>
-          <p className="font-semibold"><AppMoney value={service.contracted_hour_rate} /></p>
+          <p className="typo-caption mb-1">Taxa/hora</p>
+          <p className="typo-body font-semibold"><AppMoney value={service.contracted_hour_rate} /></p>
         </div>
         <div className="rounded-xl border border-border bg-card p-4">
-          <p className="text-xs text-muted-foreground mb-1">Horas trabalhadas</p>
-          <p className="font-semibold">{totalHours > 0 ? `${totalHours.toFixed(1)}h` : <span className="text-muted-foreground">—</span>}</p>
+          <p className="typo-caption mb-1">Horas trabalhadas</p>
+          <p className="typo-body font-semibold">{totalHours > 0 ? `${totalHours.toFixed(1)}h` : <span className="text-muted-foreground">—</span>}</p>
         </div>
         <div className={cn('rounded-xl border bg-card p-4 col-span-2', totalValue > 0 ? 'border-primary/30' : 'border-border')}>
-          <p className="text-xs text-muted-foreground mb-1">Total apurado</p>
+          <p className="typo-caption mb-1">Total apurado</p>
           {totalValue > 0
             ? (
               <div className="flex items-baseline gap-2">
-                <p className="font-bold text-lg"><AppMoney value={totalValue} /></p>
-                <p className="text-xs text-muted-foreground">({totalHours.toFixed(1)}h × <AppMoney value={service.contracted_hour_rate} size="sm" />)</p>
+                <p className="typo-section-title font-bold tabular-nums"><AppMoney value={totalValue} /></p>
+                <p className="typo-caption">({totalHours.toFixed(1)}h × <AppMoney value={service.contracted_hour_rate} size="sm" />)</p>
               </div>
             )
-            : <p className="text-muted-foreground text-sm">Sem apontamentos ainda</p>}
+            : <p className="typo-body-muted">Sem apontamentos ainda</p>}
         </div>
       </div>
 
       {/* Dados */}
       <div className="rounded-xl border border-border bg-card p-6">
-        <h2 className="text-sm font-semibold mb-3">Dados do serviço</h2>
-        <dl className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm">
+        <h2 className="typo-section-title mb-3">Dados do serviço</h2>
+        <dl className="grid grid-cols-2 sm:grid-cols-3 gap-4 typo-body">
           {[
             { label: 'Operador', value: service.operators?.name || '—' },
             { label: 'Data', value: dayjs(service.service_date).format('DD/MM/YYYY') },
             { label: 'Custo/h do trator', value: service.tractors?.standard_hour_cost != null ? <AppMoney value={Number(service.tractors.standard_hour_cost)} size="sm" /> : '—' },
           ].map(({ label, value }) => (
             <div key={label}>
-              <dt className="text-xs text-muted-foreground">{label}</dt>
-              <dd className="font-medium mt-0.5">{value}</dd>
+              <dt className="typo-caption">{label}</dt>
+              <dd className="font-medium mt-1">{value}</dd>
             </div>
           ))}
         </dl>
-        {service.notes && <p className="mt-4 pt-4 border-t border-border text-sm text-muted-foreground">{service.notes}</p>}
+        {service.notes && <p className="mt-4 pt-4 border-t border-border typo-body-muted">{service.notes}</p>}
       </div>
 
       <WorklogSection serviceId={service.id} tractorId={service.tractor_id} />

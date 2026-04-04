@@ -14,8 +14,8 @@ export function AppEmptyState({
   return (
     <div className="flex h-48 flex-col items-center justify-center gap-3 text-muted-foreground">
       <InboxIcon className="h-10 w-10 opacity-40" />
-      <p className="text-sm font-medium">{title}</p>
-      {description && <p className="text-xs opacity-70">{description}</p>}
+      <p className="text-base font-medium text-foreground">{title}</p>
+      {description && <p className="typo-body-muted max-w-sm text-center">{description}</p>}
       {action && <div className="mt-1">{action}</div>}
     </div>
   )

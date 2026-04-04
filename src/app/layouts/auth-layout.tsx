@@ -1,4 +1,5 @@
 import { Outlet } from 'react-router-dom'
+import { Tractor } from 'lucide-react'
 
 export function AuthLayout() {
   return (
@@ -13,9 +14,9 @@ export function AuthLayout() {
               <path d="M8 32l8-12 6 8 6-10 12 14H8z" fill="currentColor"/>
               <circle cx="34" cy="18" r="4" fill="currentColor"/>
             </svg>
-            <h1 className="text-4xl font-bold tracking-tight">Aquimaq Log</h1>
+            <h1 className="typo-brand-display text-primary-foreground">Aquimaq Log</h1>
           </div>
-          <p className="text-primary-foreground/85 text-lg max-w-sm">
+          <p className="text-primary-foreground/90 text-base sm:text-lg max-w-sm leading-relaxed">
             Gestão inteligente de tratores, operadores e serviços agrícolas.
           </p>
         </div>
@@ -24,9 +25,16 @@ export function AuthLayout() {
       {/* Right panel — form */}
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="w-full max-w-md">
-          <div className="flex items-center gap-2 mb-8 lg:hidden">
-            <span className="text-xl font-bold text-foreground">Aquimaq Log</span>
-          </div>
+          <header className="mb-8 lg:hidden">
+            <div className="flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary shrink-0 shadow-sm">
+                <Tractor className="h-7 w-7 text-primary-foreground" aria-hidden />
+              </div>
+              <h1 className="typo-brand-display text-foreground">
+                Aquimaq Log
+              </h1>
+            </div>
+          </header>
           <Outlet />
         </div>
       </div>
