@@ -63,6 +63,28 @@ export const TractorForm = ({ controller }: TractorFormProps) => {
         </p>
       </FormSection>
 
+      <FormSection title="Manutenção — troca de óleo (opcional)">
+        <FormGrid columns={2}>
+          <RHFDecimalField
+            methods={form}
+            name="oil_change_interval_hours"
+            label="Intervalo (horas)"
+            placeholder="Ex: 250"
+            allowEmpty
+            decimalScale={0}
+            hint="Deixe vazio para não receber alertas no dashboard."
+          />
+          <RHFDecimalField
+            methods={form}
+            name="oil_change_last_done_hourmeter"
+            label="Horímetro na última troca"
+            placeholder="Leitura do painel"
+            allowEmpty
+            hint="Obrigatório para o alerta: intervalo + esta leitura + apontamentos com horímetro."
+          />
+        </FormGrid>
+      </FormSection>
+
       <FormSection title="Observações">
         <RHFTextareaField
           methods={form}

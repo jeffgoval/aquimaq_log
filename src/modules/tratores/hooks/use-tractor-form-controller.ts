@@ -26,6 +26,8 @@ export function useTractorFormController(existing?: Tractor) {
           useful_life_hours: existing.useful_life_hours,
           is_active: existing.is_active,
           notes: existing.notes ?? '',
+          oil_change_interval_hours: existing.oil_change_interval_hours ?? null,
+          oil_change_last_done_hourmeter: existing.oil_change_last_done_hourmeter ?? null,
         }
       : undefined,
     defaultValues: {
@@ -38,6 +40,8 @@ export function useTractorFormController(existing?: Tractor) {
       useful_life_hours: 5000,
       is_active: true,
       notes: '',
+      oil_change_interval_hours: null,
+      oil_change_last_done_hourmeter: null,
     },
   })
 

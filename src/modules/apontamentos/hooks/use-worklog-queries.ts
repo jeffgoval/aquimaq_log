@@ -21,6 +21,8 @@ export function useCreateWorklog(serviceId: string) {
       worklogRepository.create({ ...p, service_id: serviceId }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.worklogsByService(serviceId) })
+      qc.invalidateQueries({ queryKey: queryKeys.tractorLatestHourmeters })
+      qc.invalidateQueries({ queryKey: ['tractors', 'latest-hourmeter'] })
       toast.success('Apontamento registrado!')
     },
     onError: (e: Error) => toast.error(parseSupabaseError(e)),
@@ -33,6 +35,8 @@ export function useUpdateWorklog(serviceId: string) {
     mutationFn: ({ id, payload }: { id: string; payload: WorklogUpdate }) => worklogRepository.update(id, payload),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.worklogsByService(serviceId) })
+      qc.invalidateQueries({ queryKey: queryKeys.tractorLatestHourmeters })
+      qc.invalidateQueries({ queryKey: ['tractors', 'latest-hourmeter'] })
       toast.success('Registo de horímetro atualizado!')
     },
     onError: (e: Error) => toast.error(parseSupabaseError(e)),
@@ -45,6 +49,8 @@ export function useDeleteWorklog(serviceId: string) {
     mutationFn: (id: string) => worklogRepository.delete(id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.worklogsByService(serviceId) })
+      qc.invalidateQueries({ queryKey: queryKeys.tractorLatestHourmeters })
+      qc.invalidateQueries({ queryKey: ['tractors', 'latest-hourmeter'] })
       toast.success('Registo removido.')
     },
     onError: (e: Error) => toast.error(parseSupabaseError(e)),

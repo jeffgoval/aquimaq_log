@@ -433,6 +433,8 @@ export type Database = {
           standard_hour_cost: number | null
           is_active: boolean
           notes: string | null
+          oil_change_interval_hours: number | null
+          oil_change_last_done_hourmeter: number | null
           created_at: string
           updated_at: string
         }
@@ -447,6 +449,8 @@ export type Database = {
           useful_life_hours?: number
           is_active?: boolean
           notes?: string | null
+          oil_change_interval_hours?: number | null
+          oil_change_last_done_hourmeter?: number | null
           created_at?: string
           updated_at?: string
         }
@@ -461,6 +465,8 @@ export type Database = {
           useful_life_hours?: number
           is_active?: boolean
           notes?: string | null
+          oil_change_interval_hours?: number | null
+          oil_change_last_done_hourmeter?: number | null
           created_at?: string
           updated_at?: string
         }
@@ -495,6 +501,13 @@ export type Database = {
           revenue_per_hour: number | null
           cost_per_hour: number | null
           net_margin: number | null
+        }
+        Relationships: []
+      }
+      v_tractor_latest_hourmeter: {
+        Row: {
+          tractor_id: string | null
+          latest_hourmeter: number | null
         }
         Relationships: []
       }

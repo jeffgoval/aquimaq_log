@@ -8,6 +8,7 @@ import { useMachineCosts } from '@/modules/custos/hooks/use-cost-queries'
 import { Building2, ClipboardList, DollarSign, AlertTriangle, Wallet } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { ROUTES } from '@/shared/constants/routes'
+import { PreventiveOilAlertsCard } from '../components/preventive-oil-alerts-card'
 
 export function DashboardPage() {
   const clients = useClientList()
@@ -52,6 +53,8 @@ export function DashboardPage() {
         <AppStatCard title="Clientes" value={clients.data?.filter(c => c.is_active).length ?? '…'} icon={Building2} />
         <AppStatCard title="Serviços" value={activeServices.length} icon={ClipboardList} description="Em aberto" />
       </div>
+
+      <PreventiveOilAlertsCard />
 
       {/* Financial KPIs (Money) */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">

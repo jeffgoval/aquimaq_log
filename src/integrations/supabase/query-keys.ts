@@ -2,6 +2,8 @@ export const queryKeys = {
   tractors: ['tractors'] as const,
   tractorOptions: ['tractor-options'] as const,
   tractorById: (id: string) => ['tractors', id] as const,
+  tractorLatestHourmeters: ['tractors', 'latest-hourmeters'] as const,
+  tractorLatestHourmeter: (tractorId: string) => ['tractors', 'latest-hourmeter', tractorId] as const,
   operators: ['operators'] as const,
   operatorOptions: ['operator-options'] as const,
   operatorLedger: (operatorId: string) => ['operator-ledger', operatorId] as const,

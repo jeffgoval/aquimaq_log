@@ -21,6 +21,7 @@ import {
 import { ServiceOperatorPaymentPanel } from '../components/service-operator-payment-panel'
 import { ServiceOwnerDiscountCard } from '../components/service-owner-discount-card'
 import { ReceiptViewButton } from '@/shared/components/receipts'
+import { ServiceVoucherPdfButton } from '../components/service-voucher-pdf-button'
 
 const LaborOperatorsInService = ({ attribution }: { attribution: LaborOperatorAttribution }) => {
   if (attribution.kind === 'none') {
@@ -99,6 +100,7 @@ export function ServiceDetailPage() {
         description={`${service.tractors?.name} · ${dayjs(service.service_date).format('DD/MM/YYYY')}`}
         actions={
           <div className="flex flex-wrap items-center gap-2">
+            <ServiceVoucherPdfButton service={service} worklogs={worklogs ?? []} summary={summary} />
             <Link
               to={ROUTES.SERVICE_EDIT(service.id)}
               className="flex items-center gap-2 bg-secondary text-foreground font-medium px-4 py-2 rounded-lg hover:bg-secondary/70 transition-colors text-sm"

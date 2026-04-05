@@ -15,6 +15,8 @@ export interface RHFDecimalFieldProps<T extends FieldValues> {
   inputClassName?: string
   allowNegative?: boolean
   decimalScale?: NumericFormatProps['decimalScale']
+  /** Se true, campo vazio envia `null` em vez de 0 (campos opcionais). */
+  allowEmpty?: boolean
 }
 
 export const RHFDecimalField = <T extends FieldValues>({
@@ -28,6 +30,7 @@ export const RHFDecimalField = <T extends FieldValues>({
   inputClassName,
   allowNegative = false,
   decimalScale,
+  allowEmpty = false,
 }: RHFDecimalFieldProps<T>) => {
   const { control, formState } = methods
   const error = getFieldError(formState.errors, name)
@@ -46,8 +49,20 @@ export const RHFDecimalField = <T extends FieldValues>({
         render={({ field: { onChange, value } }) => (
           <AppDecimalInput
             className={inputClassName}
-            value={typeof value === 'number' ? value : (value ?? '')}
-            onValueChange={(v) => onChange(v.floatValue ?? 0)}
+            value={
+              allowEmpty && (value === null || value === undefined)
+                ? ''
+                : typeof value === 'number'
+                  ? value
+                  : (value ?? '')
+            }
+            onValueChange={(v) => {
+              if (allowEmpty) {
+                onChange(v.floatValue === undefined ? null : v.floatValue)
+              } else {
+                onChange(v.floatValue ?? 0)
+              }
+            }}
             placeholder={placeholder}
             allowNegative={allowNegative}
             decimalScale={decimalScale}
