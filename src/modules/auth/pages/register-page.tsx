@@ -2,6 +2,7 @@ import { useRegisterController } from '../hooks/use-register-controller'
 import { Link } from 'react-router-dom'
 import { ROUTES } from '@/shared/constants/routes'
 import { AppButton } from '@/shared/components/app/app-button'
+import { AppPasswordInput } from '@/shared/components/app/app-password-input'
 
 export function RegisterPage() {
   const { form, onSubmit, isSubmitting } = useRegisterController()
@@ -29,24 +30,20 @@ export function RegisterPage() {
 
         <div>
           <label className="field-label">Senha</label>
-          <input
+          <AppPasswordInput
             {...register('password')}
-            type="password"
             autoComplete="new-password"
             placeholder="••••••••"
-            className="field"
           />
           {errors.password && <span className="field-error">{errors.password.message}</span>}
         </div>
 
         <div>
           <label className="field-label">Confirmar Senha</label>
-          <input
+          <AppPasswordInput
             {...register('confirmPassword')}
-            type="password"
             autoComplete="new-password"
             placeholder="••••••••"
-            className="field"
           />
           {errors.confirmPassword && <span className="field-error">{errors.confirmPassword.message}</span>}
         </div>

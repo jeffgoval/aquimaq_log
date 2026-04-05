@@ -46,4 +46,7 @@ export const ROUTES = {
 
   // Profitability
   PROFITABILITY: '/rentabilidade',
+
+  // Account
+  ACCOUNT: '/conta',
 } as const

@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from 'react-router-dom'
-import { X, LogOut, Tractor, LayoutDashboard, Users, Building2, Store, ClipboardList, DollarSign, Wrench, TrendingUp } from 'lucide-react'
+import { X, LogOut, Tractor, LayoutDashboard, Users, Building2, Store, ClipboardList, DollarSign, Wrench, TrendingUp, UserCircle } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
 import { ROUTES } from '@/shared/constants/routes'
 import { supabase } from '@/integrations/supabase/client'
@@ -15,6 +15,7 @@ const ALL_NAV = [
   { label: 'Financeiro',    href: ROUTES.RECEIVABLES,   icon: DollarSign,      end: false },
   { label: 'Custos',        href: ROUTES.MACHINE_COSTS, icon: Wrench,          end: false },
   { label: 'Rentabilidade', href: ROUTES.PROFITABILITY, icon: TrendingUp,      end: false },
+  { label: 'Minha conta', href: ROUTES.ACCOUNT, icon: UserCircle, end: false },
 ]
 
 interface MobileDrawerProps {

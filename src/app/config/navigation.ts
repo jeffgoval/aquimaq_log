@@ -8,6 +8,7 @@ import {
   DollarSign,
   Wrench,
   TrendingUp,
+  UserCircle,
   type LucideIcon,
 } from 'lucide-react'
 import { ROUTES } from '@/shared/constants/routes'
@@ -29,4 +30,5 @@ export const NAV_ITEMS: NavItem[] = [
   { label: 'Financeiro', href: ROUTES.RECEIVABLES, icon: DollarSign },
   { label: 'Custos', href: ROUTES.MACHINE_COSTS, icon: Wrench },
   { label: 'Rentabilidade', href: ROUTES.PROFITABILITY, icon: TrendingUp },
+  { label: 'Minha conta', href: ROUTES.ACCOUNT, icon: UserCircle },
 ]

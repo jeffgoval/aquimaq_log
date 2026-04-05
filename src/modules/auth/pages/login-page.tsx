@@ -2,6 +2,7 @@ import { useLoginController } from '../hooks/use-login-controller'
 import { Link } from 'react-router-dom'
 import { ROUTES } from '@/shared/constants/routes'
 import { AppButton } from '@/shared/components/app/app-button'
+import { AppPasswordInput } from '@/shared/components/app/app-password-input'
 
 export function LoginPage() {
   const { form, onSubmit, isSubmitting } = useLoginController()
@@ -34,12 +35,10 @@ export function LoginPage() {
               Esqueceu a senha?
             </Link>
           </div>
-          <input
+          <AppPasswordInput
             {...register('password')}
-            type="password"
             autoComplete="current-password"
             placeholder="••••••••"
-            className="field"
           />
           {errors.password && <span className="field-error">{errors.password.message}</span>}
         </div>

@@ -10,6 +10,8 @@ import { ROUTES } from '@/shared/constants/routes'
 const LoginPage               = lazy(() => import('@/modules/auth/pages/login-page').then(m => ({ default: m.LoginPage })))
 const RegisterPage            = lazy(() => import('@/modules/auth/pages/register-page').then(m => ({ default: m.RegisterPage })))
 const ForgotPasswordPage      = lazy(() => import('@/modules/auth/pages/forgot-password-page').then(m => ({ default: m.ForgotPasswordPage })))
+const ResetPasswordPage       = lazy(() => import('@/modules/auth/pages/reset-password-page').then(m => ({ default: m.ResetPasswordPage })))
+const AccountSettingsPage     = lazy(() => import('@/modules/conta/pages/account-settings-page').then(m => ({ default: m.AccountSettingsPage })))
 const DashboardPage           = lazy(() => import('@/modules/dashboard/pages/dashboard-page').then(m => ({ default: m.DashboardPage })))
 const TractorListPage         = lazy(() => import('@/modules/tratores/pages/tractor-list-page').then(m => ({ default: m.TractorListPage })))
 const TractorCreatePage       = lazy(() => import('@/modules/tratores/pages/tractor-create-page').then(m => ({ default: m.TractorCreatePage })))
@@ -45,6 +47,7 @@ const router = createBrowserRouter([
       { path: ROUTES.LOGIN, element: <Suspense fallback={<Fallback />}><LoginPage /></Suspense> },
       { path: ROUTES.REGISTER, element: <Suspense fallback={<Fallback />}><RegisterPage /></Suspense> },
       { path: ROUTES.FORGOT_PASSWORD, element: <Suspense fallback={<Fallback />}><ForgotPasswordPage /></Suspense> },
+      { path: ROUTES.RESET_PASSWORD, element: <Suspense fallback={<Fallback />}><ResetPasswordPage /></Suspense> },
     ],
   },
   // Protected Routes
@@ -78,6 +81,7 @@ const router = createBrowserRouter([
           { path: ROUTES.RECEIVABLES,        element: <Suspense fallback={<Fallback />}><ReceivableListPage /></Suspense> },
           { path: ROUTES.MACHINE_COSTS,      element: <Suspense fallback={<Fallback />}><MachineCostListPage /></Suspense> },
           { path: ROUTES.PROFITABILITY,      element: <Suspense fallback={<Fallback />}><ProfitabilityPage /></Suspense> },
+          { path: ROUTES.ACCOUNT,            element: <Suspense fallback={<Fallback />}><AccountSettingsPage /></Suspense> },
         ],
       },
     ],

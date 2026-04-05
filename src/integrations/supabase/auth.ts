@@ -17,6 +17,9 @@ export const auth = {
   updatePassword: (password: string) =>
     supabase.auth.updateUser({ password }),
 
+  updateUserMetadata: (data: Record<string, unknown>) =>
+    supabase.auth.updateUser({ data }),
+
   getSession: () => supabase.auth.getSession(),
 
   onAuthStateChange: supabase.auth.onAuthStateChange.bind(supabase.auth),
