@@ -4,6 +4,7 @@ import { createRoot } from 'react-dom/client'
 import '@/app/styles/globals.css'
 import { AppProviders } from '@/app/providers/app-providers'
 import { AppRouter } from '@/app/router'
+import { AppErrorBoundary } from '@/shared/components/app/app-error-boundary'
 import { registerSW } from 'virtual:pwa-register'
 
 // Register Service Worker for PWA (Browser/CI build)
@@ -20,8 +21,10 @@ const updateSW = registerSW({
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <AppProviders>
-      <AppRouter />
-    </AppProviders>
+    <AppErrorBoundary>
+      <AppProviders>
+        <AppRouter />
+      </AppProviders>
+    </AppErrorBoundary>
   </StrictMode>
 )
