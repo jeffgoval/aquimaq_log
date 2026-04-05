@@ -67,18 +67,28 @@ export function ServiceEditPage() {
         return
       }
     }
-    if (locked) {
-      await update.mutateAsync({ notes: v.notes?.trim() || null, ...receiptExtra })
-    } else {
-      await update.mutateAsync({
-        client_id: v.client_id,
-        tractor_id: v.tractor_id,
-        primary_operator_id: null,
-        service_date: v.service_date,
-        contracted_hour_rate: v.contracted_hour_rate,
-        notes: v.notes?.trim() || null,
-        ...receiptExtra,
-      })
+    const newReceiptPath =
+      typeof receiptExtra.receipt_storage_path === 'string'
+        ? receiptExtra.receipt_storage_path
+        : undefined
+    try {
+      if (locked) {
+        await update.mutateAsync({ notes: v.notes?.trim() || null, ...receiptExtra })
+      } else {
+        await update.mutateAsync({
+          client_id: v.client_id,
+          tractor_id: v.tractor_id,
+          primary_operator_id: null,
+          service_date: v.service_date,
+          contracted_hour_rate: v.contracted_hour_rate,
+          notes: v.notes?.trim() || null,
+          ...receiptExtra,
+        })
+      }
+    } catch (e) {
+      if (newReceiptPath) void removeReceiptAtPathIfExists(newReceiptPath)
+      toast.error(parseSupabaseError(e as Error))
+      return
     }
     setReceiptFile(null)
     navigate(ROUTES.SERVICE_DETAIL(id))

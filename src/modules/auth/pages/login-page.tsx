@@ -29,17 +29,25 @@ export function LoginPage() {
         </div>
 
         <div>
-          <div className="flex items-center justify-between mb-1.5">
-            <label className="field-label mb-0">Senha</label>
-            <Link to={ROUTES.FORGOT_PASSWORD} className="text-xs text-primary hover:underline">
+          <div className="grid grid-cols-[1fr_auto] gap-x-2 gap-y-1.5 items-end">
+            <label htmlFor="login-password" className="field-label mb-0 col-start-1 row-start-1 self-end">
+              Senha
+            </label>
+            <div className="col-span-2 row-start-2">
+              <AppPasswordInput
+                id="login-password"
+                {...register('password')}
+                autoComplete="current-password"
+                placeholder="••••••••"
+              />
+            </div>
+            <Link
+              to={ROUTES.FORGOT_PASSWORD}
+              className="col-start-2 row-start-1 justify-self-end text-xs text-primary hover:underline pb-0.5"
+            >
               Esqueceu a senha?
             </Link>
           </div>
-          <AppPasswordInput
-            {...register('password')}
-            autoComplete="current-password"
-            placeholder="••••••••"
-          />
           {errors.password && <span className="field-error">{errors.password.message}</span>}
         </div>
 

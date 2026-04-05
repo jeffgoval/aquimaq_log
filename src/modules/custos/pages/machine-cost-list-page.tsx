@@ -5,7 +5,7 @@ import { toast } from 'sonner'
 import { useMachineCosts, useCreateCost } from '../hooks/use-cost-queries'
 import { costRepository } from '../services/cost.repository'
 import { queryKeys } from '@/integrations/supabase/query-keys'
-import { uploadMachineCostReceipt } from '@/integrations/supabase/receipts-storage'
+import { removeReceiptAtPathIfExists, uploadMachineCostReceipt } from '@/integrations/supabase/receipts-storage'
 import { compressImageToJpeg } from '@/shared/lib/image-compress'
 import { useTractorOptions } from '@/modules/tratores/hooks/use-tractor-queries'
 import { useSupplierOptions } from '@/modules/fornecedores/hooks/use-supplier-queries'
@@ -30,6 +30,12 @@ import { parseMoneyInput } from '@/shared/lib/currency'
 import { getPreferredTractorId, sortTractorsForSelect } from '@/shared/lib/tractors-select'
 
 const COST_TYPE_LABELS = { fuel: '⛽ Combustível', oil: '🛢️ Óleo', parts: '🔧 Peças', maintenance: '🔩 Manutenção', other: '📋 Outro' }
+
+function paymentBadgeForCost(status: MachineCostWithTractor['status']) {
+  if (status === 'paid') return { variant: 'success' as const, label: 'Pago' }
+  if (status === 'cancelled') return { variant: 'destructive' as const, label: 'Cancelado' }
+  return { variant: 'warning' as const, label: 'Pendente' }
+}
 
 type CostSortMode =
   | 'launch_desc'
@@ -132,12 +138,14 @@ export function MachineCostListPage() {
         cost_date: form.cost_date,
       })
       if (receiptFile) {
+        let uploadedPath: string | undefined
         try {
           const blob = await compressImageToJpeg(receiptFile)
-          const path = await uploadMachineCostReceipt(row.id, blob)
-          await costRepository.update(row.id, { receipt_storage_path: path })
+          uploadedPath = await uploadMachineCostReceipt(row.id, blob)
+          await costRepository.update(row.id, { receipt_storage_path: uploadedPath })
           await queryClient.invalidateQueries({ queryKey: queryKeys.machineCosts })
         } catch {
+          if (uploadedPath) void removeReceiptAtPathIfExists(uploadedPath)
           toast.warning('Custo salvo, mas a foto da notinha não foi enviada.')
         }
       }
@@ -165,7 +173,7 @@ export function MachineCostListPage() {
         backTo={ROUTES.DASHBOARD}
         backLabel="Voltar ao início"
         title="Custos de Máquina"
-        description={`Investimento total: ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(total)}`}
+        description={`Total de custos da frota: ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(total)}`}
         actions={
           <AppButton
             variant="primary"
@@ -307,7 +315,9 @@ export function MachineCostListPage() {
           : (
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                {sortedFiltered?.map((cost) => (
+                {sortedFiltered?.map((cost) => {
+                  const payment = paymentBadgeForCost(cost.status)
+                  return (
                   <AppDataCard
                     key={cost.id}
                     onClick={() => setSelectedCost(cost)}
@@ -315,9 +325,12 @@ export function MachineCostListPage() {
                     subtitle={dayjs(cost.cost_date).format('DD [de] MMMM')}
                     icon={Wrench}
                     badge={
-                      <AppBadge variant="default">
-                        {COST_TYPE_LABELS[cost.cost_type as keyof typeof COST_TYPE_LABELS].split(' ')[1]}
-                      </AppBadge>
+                      <div className="flex flex-wrap gap-1 justify-end">
+                        <AppBadge variant="default">
+                          {COST_TYPE_LABELS[cost.cost_type as keyof typeof COST_TYPE_LABELS].split(' ')[1]}
+                        </AppBadge>
+                        <AppBadge variant={payment.variant}>{payment.label}</AppBadge>
+                      </div>
                     }
                     items={[
                       { label: 'Valor', value: <AppMoney value={cost.amount} size="sm" /> },
@@ -335,15 +348,23 @@ export function MachineCostListPage() {
                         ) : null}
                         <p className="flex items-center gap-1 text-xs font-semibold text-primary">
                           <ChevronRight className="h-3.5 w-3.5 shrink-0" aria-hidden />
-                          Abrir ficha — observação e notinha
+                          Abrir ficha — pagamento, observação e notinha
                         </p>
                       </div>
                     }
                   />
-                ))}
+                  )
+                })}
               </div>
               {selectedCost ? (
-                <MachineCostDetailPanel key={selectedCost.id} cost={selectedCost} onClose={() => setSelectedCost(null)} />
+                <MachineCostDetailPanel
+                  key={selectedCost.id}
+                  cost={selectedCost}
+                  onClose={() => setSelectedCost(null)}
+                  onCostUpdated={(row) => {
+                    setSelectedCost((prev) => (prev && prev.id === row.id ? { ...prev, ...row } : prev))
+                  }}
+                />
               ) : null}
             </>
           )

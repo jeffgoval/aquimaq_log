@@ -18,6 +18,7 @@ import {
   AlertTriangle,
   Building2,
   Target,
+  Info,
 } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
 import { ROUTES } from '@/shared/constants/routes'
@@ -189,23 +190,38 @@ export function ProfitabilityPage() {
                                 ? 'bg-green-100 border border-green-200 dark:bg-green-500/10 dark:border-green-500/25'
                                 : 'bg-destructive/8 border border-destructive/20',
                             )}>
-                              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                                Análise por hora trabalhada
+                              <p className="flex items-center justify-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                                <span>Análise por hora trabalhada</span>
+                                <span
+                                  className="inline-flex shrink-0"
+                                  title="Passe o rato sobre cada coluna (rótulo ou valor) para ver o que é Receita/h, CPH e Spread/h."
+                                >
+                                  <Info className="h-3.5 w-3.5 text-muted-foreground/70" aria-hidden />
+                                </span>
                               </p>
                               <div className="grid grid-cols-3 gap-2 text-center">
-                                <div>
+                                <div
+                                  className="min-w-0 rounded-md px-0.5 py-0.5"
+                                  title="Receita por hora: receita bruta do trator dividida pelas horas trabalhadas no período."
+                                >
                                   <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Receita/h</p>
                                   <p className={cn('text-sm font-bold tabular-nums', isCphOk ? 'text-green-800 dark:text-green-400' : 'text-destructive')}>
                                     <AppMoney value={revPerHour} size="sm" />
                                   </p>
                                 </div>
-                                <div>
+                                <div
+                                  className="min-w-0 rounded-md px-0.5 py-0.5"
+                                  title="CPH (custo por hora): depreciação + custos operacionais + mão de obra, dividido pelas horas trabalhadas. Use para precificação e comparar com a receita/h."
+                                >
                                   <p className="text-[10px] text-muted-foreground uppercase tracking-wide">CPH</p>
                                   <p className="text-sm font-bold tabular-nums text-foreground">
                                     <AppMoney value={cph} size="sm" />
                                   </p>
                                 </div>
-                                <div>
+                                <div
+                                  className="min-w-0 rounded-md px-0.5 py-0.5"
+                                  title="Spread por hora: receita/h menos CPH — margem média por hora trabalhada."
+                                >
                                   <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Spread/h</p>
                                   <p className={cn('text-sm font-bold tabular-nums', isCphOk ? 'text-green-800 dark:text-green-400' : 'text-destructive')}>
                                     <AppMoney value={revPerHour - cph} size="sm" />

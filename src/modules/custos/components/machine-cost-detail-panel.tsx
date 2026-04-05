@@ -3,33 +3,44 @@ import { toast } from 'sonner'
 import { X } from 'lucide-react'
 import { AppButton } from '@/shared/components/app/app-button'
 import { AppMoney } from '@/shared/components/app/app-money'
-import { AppBadge } from '@/shared/components/app/app-badge'
 import { ReceiptPhotoPicker, ReceiptViewButton } from '@/shared/components/receipts'
 import { compressImageToJpeg } from '@/shared/lib/image-compress'
 import { removeReceiptAtPathIfExists, uploadMachineCostReceipt } from '@/integrations/supabase/receipts-storage'
 import { useUpdateMachineCost } from '../hooks/use-cost-queries'
-import type { MachineCostWithTractor, Updates } from '@/integrations/supabase/db-types'
+import type { MachineCostWithTractor, Tables, Updates } from '@/integrations/supabase/db-types'
 import { parseSupabaseError } from '@/shared/lib/errors'
 import dayjs from '@/shared/lib/dayjs'
 import { cn } from '@/shared/lib/cn'
 
 const COST_TYPE_LABELS = { fuel: '⛽ Combustível', oil: '🛢️ Óleo', parts: '🔧 Peças', maintenance: '🔩 Manutenção', other: '📋 Outro' }
 
-const STATUS_LABELS: Record<string, string> = {
+type MachineCostRow = Tables<'machine_costs'>
+
+const STATUS_LABELS: Record<MachineCostRow['status'], string> = {
   pending: 'Pendente',
   paid: 'Pago',
   cancelled: 'Cancelado',
 }
 
+const STATUS_OPTIONS: MachineCostRow['status'][] = ['pending', 'paid', 'cancelled']
+
 export interface MachineCostDetailPanelProps {
   cost: MachineCostWithTractor
   onClose: () => void
+  onCostUpdated?: (row: MachineCostRow) => void
 }
 
-export const MachineCostDetailPanel = ({ cost, onClose }: MachineCostDetailPanelProps) => {
+export const MachineCostDetailPanel = ({ cost, onClose, onCostUpdated }: MachineCostDetailPanelProps) => {
   const updateCost = useUpdateMachineCost()
   const [description, setDescription] = useState(() => cost.description ?? '')
+  const [paymentStatus, setPaymentStatus] = useState<MachineCostRow['status']>(() => cost.status)
   const [receiptFile, setReceiptFile] = useState<File | null>(null)
+
+  useEffect(() => {
+    setDescription(cost.description ?? '')
+    setPaymentStatus(cost.status)
+    setReceiptFile(null)
+  }, [cost.id, cost.description, cost.status])
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -47,6 +58,9 @@ export const MachineCostDetailPanel = ({ cost, onClose }: MachineCostDetailPanel
     if (newDesc !== (cost.description ?? null)) {
       payload.description = newDesc
     }
+    if (paymentStatus !== cost.status) {
+      payload.status = paymentStatus
+    }
     if (receiptFile) {
       try {
         const blob = await compressImageToJpeg(receiptFile)
@@ -61,14 +75,24 @@ export const MachineCostDetailPanel = ({ cost, onClose }: MachineCostDetailPanel
       onClose()
       return
     }
-    await updateCost.mutateAsync({ id: cost.id, payload })
+    const newReceiptPath =
+      typeof payload.receipt_storage_path === 'string' ? payload.receipt_storage_path : undefined
+    try {
+      const updatedRow = await updateCost.mutateAsync({ id: cost.id, payload })
+      onCostUpdated?.(updatedRow)
+    } catch (e) {
+      if (newReceiptPath) void removeReceiptAtPathIfExists(newReceiptPath)
+      toast.error(parseSupabaseError(e as Error))
+      return
+    }
     setReceiptFile(null)
     onClose()
   }
 
   const dirtyDesc = (description.trim() || null) !== (cost.description ?? null)
   const dirtyReceipt = receiptFile !== null
-  const canSave = dirtyDesc || dirtyReceipt
+  const dirtyStatus = paymentStatus !== cost.status
+  const canSave = dirtyDesc || dirtyReceipt || dirtyStatus
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end" role="dialog" aria-modal="true" aria-labelledby="cost-panel-title">
@@ -106,13 +130,23 @@ export const MachineCostDetailPanel = ({ cost, onClose }: MachineCostDetailPanel
                 <AppMoney value={cost.amount} />
               </p>
             </div>
-            <div>
-              <p className="typo-caption">Situação (contas)</p>
-              <div className="mt-1">
-                <AppBadge variant={cost.status === 'paid' ? 'success' : 'default'}>
-                  {STATUS_LABELS[cost.status] ?? cost.status}
-                </AppBadge>
-              </div>
+            <div className="min-w-0">
+              <label htmlFor="cost-panel-status" className="typo-caption">
+                Situação (pagamento)
+              </label>
+              <select
+                id="cost-panel-status"
+                className="field mt-1 w-full"
+                value={paymentStatus}
+                onChange={(e) => setPaymentStatus(e.target.value as MachineCostRow['status'])}
+                disabled={updateCost.isPending}
+              >
+                {STATUS_OPTIONS.map((key) => (
+                  <option key={key} value={key}>
+                    {STATUS_LABELS[key]}
+                  </option>
+                ))}
+              </select>
             </div>
             <div className="col-span-2">
               <p className="typo-caption">Fornecedor</p>
