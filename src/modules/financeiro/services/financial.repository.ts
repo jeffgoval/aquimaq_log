@@ -50,25 +50,31 @@ export const financialRepository = {
     return data
   },
 
-  /** Uma parcela criada e quitada na hora (pagamento à vista). */
+  /** Uma parcela criada e quitada na hora (pagamento à vista ou entrada). */
   async createReceivableWithFullPayment(params: {
     service_id: string
     client_id: string
     amount: number
     payment_date: string
+    /** Padrão: "À vista"; use "Entrada" no parcelamento com sinal. */
+    description?: string
+    installment_number?: number
+    installment_count?: number
   }): Promise<void> {
+    const installmentNumber = params.installment_number ?? 1
+    const installmentCount = params.installment_count ?? 1
     const { data: rec, error: e1 } = await supabase
       .from('receivables')
       .insert({
         service_id: params.service_id,
         client_id: params.client_id,
-        installment_number: 1,
-        installment_count: 1,
+        installment_number: installmentNumber,
+        installment_count: installmentCount,
         original_amount: params.amount,
         fee_percent: 0,
         final_amount: params.amount,
         due_date: params.payment_date,
-        description: 'À vista',
+        description: params.description ?? 'À vista',
       })
       .select('id')
       .single()
@@ -80,5 +86,29 @@ export const financialRepository = {
       payment_method: 'dinheiro',
     })
     if (e2) throw e2
+  },
+
+  /** Entrada já recebida + parcelas do saldo (restante com juros só sobre o financiado). */
+  async createDownPaymentAndInstallments(params: {
+    service_id: string
+    client_id: string
+    downPayment: number
+    downPaymentDate: string
+    /** 1 (entrada) + número de parcelas do saldo. */
+    planTotalCount: number
+    parcels: ReceivableInsert[]
+  }): Promise<void> {
+    await this.createReceivableWithFullPayment({
+      service_id: params.service_id,
+      client_id: params.client_id,
+      amount: params.downPayment,
+      payment_date: params.downPaymentDate,
+      description: 'Entrada',
+      installment_number: 1,
+      installment_count: params.planTotalCount,
+    })
+    if (params.parcels.length > 0) {
+      await this.createInstallments(params.parcels)
+    }
   },
 }

@@ -20,15 +20,15 @@ export interface BuildInstallmentsPreviewInput {
   firstDueDate: string
 }
 
-export function buildInstallmentsPreview({
-  totalAmount,
-  installmentCount,
-  feePercent,
-  firstDueDate,
-}: BuildInstallmentsPreviewInput): InstallmentPreviewItem[] {
-  if (installmentCount <= 0 || totalAmount <= 0) return []
+function previewFromPrincipal(
+  principalTotal: number,
+  installmentCount: number,
+  feePercent: number,
+  firstDueDate: string,
+): InstallmentPreviewItem[] {
+  if (installmentCount <= 0 || principalTotal <= 0) return []
 
-  const totalWithFee = totalAmount * (1 + feePercent / 100)
+  const totalWithFee = principalTotal * (1 + feePercent / 100)
   const baseInstallment = totalWithFee / installmentCount
 
   return Array.from({ length: installmentCount }, (_, i) => ({
@@ -36,4 +36,28 @@ export function buildInstallmentsPreview({
     amount: Number(baseInstallment.toFixed(2)),
     dueDate: addMonths(firstDueDate, i),
   }))
+}
+
+export function buildInstallmentsPreview({
+  totalAmount,
+  installmentCount,
+  feePercent,
+  firstDueDate,
+}: BuildInstallmentsPreviewInput): InstallmentPreviewItem[] {
+  return previewFromPrincipal(totalAmount, installmentCount, feePercent, firstDueDate)
+}
+
+/** Juros aplicam-se só ao saldo financiado (total − entrada); parcelas mensais a partir de `firstDueDate`. */
+export function buildFinancedInstallmentsPreview(params: {
+  financedAmount: number
+  installmentCount: number
+  feePercent: number
+  firstDueDate: string
+}): InstallmentPreviewItem[] {
+  return previewFromPrincipal(
+    params.financedAmount,
+    params.installmentCount,
+    params.feePercent,
+    params.firstDueDate,
+  )
 }

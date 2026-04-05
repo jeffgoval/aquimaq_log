@@ -1,8 +1,10 @@
 import { useState, useMemo } from 'react'
+import { toast } from 'sonner'
 import {
   useReceivablesByService,
   useRegisterPayment,
   useCreateInstallments,
+  useCreateDownPaymentAndInstallments,
   useUpdateReceivable,
   useCreateReceivableAtSight,
 } from '../hooks/use-financial-queries'
@@ -13,7 +15,7 @@ import { AppButton } from '@/shared/components/app/app-button'
 import { AppTable, AppTableRow, AppTableCell } from '@/shared/components/app/app-table'
 import { AppCurrencyInput, AppDecimalInput } from '@/shared/components/app/app-numeric-input'
 import { useDisclosure } from '@/shared/hooks/use-disclosure'
-import { buildInstallmentsPreview } from '@/features/create-installments/create-installments'
+import { buildInstallmentsPreview, buildFinancedInstallmentsPreview } from '@/features/create-installments/create-installments'
 import { RECEIVABLE_STATUS_LABELS, RECEIVABLE_STATUS_BADGE_VARIANTS } from '@/shared/constants/status'
 import dayjs from '@/shared/lib/dayjs'
 import { Banknote, DollarSign, Layers, Plus, Pencil } from 'lucide-react'
@@ -24,12 +26,31 @@ interface ReceivableSectionProps {
   suggestedTotal?: number
 }
 
-const DEFAULT_INSTALLMENT = { totalAmount: '', installmentCount: '1', feePercent: '0', firstDueDate: dayjs().format('YYYY-MM-DD') }
+type InstallmentFormMode = 'full' | 'down_payment'
+
+/** Valor vindo do AppCurrencyInput (ex.: 1.500,00). */
+const parseBrMoney = (raw: unknown): number => {
+  if (raw == null || raw === '') return 0
+  const s = String(raw).replace(/\s/g, '').replace(/R\$\s*/i, '').replace(/\./g, '').replace(',', '.')
+  const n = Number(s)
+  return Number.isFinite(n) ? n : 0
+}
+
+const DEFAULT_INSTALLMENT = {
+  mode: 'full' as InstallmentFormMode,
+  totalAmount: '',
+  downPayment: '',
+  downPaymentDate: dayjs().format('YYYY-MM-DD'),
+  installmentCount: '1',
+  feePercent: '0',
+  firstDueDate: dayjs().format('YYYY-MM-DD'),
+}
 
 export function ReceivableSection({ serviceId, clientId, suggestedTotal }: ReceivableSectionProps) {
   const { data, isLoading } = useReceivablesByService(serviceId)
   const registerPayment = useRegisterPayment(serviceId)
   const createInstallments = useCreateInstallments(serviceId)
+  const createDownPaymentAndInstallments = useCreateDownPaymentAndInstallments(serviceId)
   const createAtSight = useCreateReceivableAtSight(serviceId)
   const updateReceivable = useUpdateReceivable(serviceId)
   const installmentDialog = useDisclosure()
@@ -45,16 +66,58 @@ export function ReceivableSection({ serviceId, clientId, suggestedTotal }: Recei
   const [atSightAmountNum, setAtSightAmountNum] = useState<number | undefined>(undefined)
   const [atSightDate, setAtSightDate] = useState(() => dayjs().format('YYYY-MM-DD'))
 
-  const totalAmount = Number(inst.totalAmount) || 0
+  const totalAmount = parseBrMoney(inst.totalAmount)
+  const downPaymentNum = inst.mode === 'down_payment' ? parseBrMoney(inst.downPayment) : 0
+  const financedAmount = Math.max(0, totalAmount - downPaymentNum)
   const installmentCount = Math.max(1, Number(inst.installmentCount) || 1)
   const feePercent = Number(inst.feePercent) || 0
 
-  const preview = useMemo(() =>
-    totalAmount > 0
-      ? buildInstallmentsPreview({ totalAmount, installmentCount, feePercent, firstDueDate: inst.firstDueDate })
-      : [],
-    [totalAmount, installmentCount, feePercent, inst.firstDueDate]
+  const previewFull = useMemo(
+    () =>
+      inst.mode === 'full' && totalAmount > 0
+        ? buildInstallmentsPreview({
+            totalAmount,
+            installmentCount,
+            feePercent,
+            firstDueDate: inst.firstDueDate,
+          })
+        : [],
+    [inst.mode, totalAmount, installmentCount, feePercent, inst.firstDueDate],
   )
+
+  const previewFinanced = useMemo(
+    () =>
+      inst.mode === 'down_payment' &&
+      totalAmount > 0 &&
+      downPaymentNum > 0 &&
+      downPaymentNum < totalAmount &&
+      financedAmount > 0
+        ? buildFinancedInstallmentsPreview({
+            financedAmount,
+            installmentCount,
+            feePercent,
+            firstDueDate: inst.firstDueDate,
+          })
+        : [],
+    [
+      inst.mode,
+      totalAmount,
+      downPaymentNum,
+      financedAmount,
+      installmentCount,
+      feePercent,
+      inst.firstDueDate,
+    ],
+  )
+
+  const planTotalCount = inst.mode === 'down_payment' ? 1 + installmentCount : installmentCount
+
+  const downPaymentPlanValid =
+    inst.mode === 'down_payment' &&
+    downPaymentNum > 0 &&
+    downPaymentNum < totalAmount &&
+    financedAmount > 0 &&
+    previewFinanced.length > 0
 
   const handleAtSight = async () => {
     const amt = atSightAmountNum
@@ -71,19 +134,55 @@ export function ReceivableSection({ serviceId, clientId, suggestedTotal }: Recei
 
   const handleCreateInstallments = async () => {
     if (totalAmount <= 0) return
-    await createInstallments.mutateAsync(
-      preview.map(item => ({
-        service_id: serviceId,
+
+    if (inst.mode === 'full') {
+      if (previewFull.length === 0) return
+      await createInstallments.mutateAsync(
+        previewFull.map((item) => ({
+          service_id: serviceId,
+          client_id: clientId,
+          installment_number: item.installmentNumber,
+          installment_count: installmentCount,
+          original_amount: totalAmount / installmentCount,
+          fee_percent: feePercent,
+          final_amount: item.amount,
+          due_date: item.dueDate,
+          description: installmentCount > 1 ? `Parcela ${item.installmentNumber}/${installmentCount}` : undefined,
+        })),
+      )
+    } else {
+      if (!downPaymentPlanValid) {
+        if (downPaymentNum <= 0) {
+          toast.error('Indique o valor da entrada.')
+          return
+        }
+        if (downPaymentNum >= totalAmount) {
+          toast.error('A entrada deve ser menor que o valor total (fica saldo a parcelar).')
+          return
+        }
+        toast.error('Confira valor total, entrada e número de parcelas do saldo.')
+        return
+      }
+      await createDownPaymentAndInstallments.mutateAsync({
         client_id: clientId,
-        installment_number: item.installmentNumber,
-        installment_count: installmentCount,
-        original_amount: totalAmount / installmentCount,
-        fee_percent: feePercent,
-        final_amount: item.amount,
-        due_date: item.dueDate,
-        description: installmentCount > 1 ? `Parcela ${item.installmentNumber}/${installmentCount}` : undefined,
-      }))
-    )
+        downPayment: downPaymentNum,
+        downPaymentDate: inst.downPaymentDate,
+        planTotalCount,
+        parcels: previewFinanced.map((item) => ({
+          service_id: serviceId,
+          client_id: clientId,
+          installment_number: item.installmentNumber + 1,
+          installment_count: planTotalCount,
+          original_amount: financedAmount / installmentCount,
+          fee_percent: feePercent,
+          final_amount: item.amount,
+          due_date: item.dueDate,
+          description:
+            planTotalCount > 1 ? `Parcela ${item.installmentNumber + 1}/${planTotalCount}` : undefined,
+        })),
+      })
+    }
+
     setInst(DEFAULT_INSTALLMENT)
     installmentDialog.close()
     atSightDialog.close()
@@ -243,29 +342,86 @@ export function ReceivableSection({ serviceId, clientId, suggestedTotal }: Recei
       {installmentDialog.isOpen && (
         <div className="rounded-lg border border-border p-4 mb-4 bg-muted/20 space-y-4">
           <p className="typo-body font-medium">Dividir em parcelas</p>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <fieldset className="space-y-2 border-0 p-0 m-0">
+            <legend className="sr-only">Modo de parcelamento</legend>
+            <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center text-sm">
+              <label className="inline-flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="installment-mode"
+                  className="accent-primary"
+                  checked={inst.mode === 'full'}
+                  onChange={() => setInst((i) => ({ ...i, mode: 'full' }))}
+                />
+                Valor integral em parcelas
+              </label>
+              <label className="inline-flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="installment-mode"
+                  className="accent-primary"
+                  checked={inst.mode === 'down_payment'}
+                  onChange={() => setInst((i) => ({ ...i, mode: 'down_payment' }))}
+                />
+                Entrada + parcelas do saldo
+              </label>
+            </div>
+          </fieldset>
+          {inst.mode === 'down_payment' && (
+            <p className="text-xs text-muted-foreground">
+              A entrada fica registada como paga; o saldo (total − entrada) divide-se nas parcelas. Juros (%)
+              aplicam-se só ao saldo financiado.
+            </p>
+          )}
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             <div>
-              <label className="field-label">Valor total *</label>
+              <label className="field-label">Valor total do serviço *</label>
               <AppCurrencyInput
                 value={inst.totalAmount}
-                onValueChange={v => setInst(i => ({ ...i, totalAmount: v.value }))}
+                onValueChange={(v) => setInst((i) => ({ ...i, totalAmount: v.value }))}
                 placeholder="R$ 0,00"
               />
-              {suggestedTotal && suggestedTotal > 0 && Number(inst.totalAmount) === 0 && (
+              {suggestedTotal && suggestedTotal > 0 && parseBrMoney(inst.totalAmount) === 0 && (
                 <button
                   type="button"
-                  onClick={() => setInst(i => ({ ...i, totalAmount: String(suggestedTotal) }))}
+                  onClick={() => setInst((i) => ({ ...i, totalAmount: String(suggestedTotal) }))}
                   className="text-xs text-primary hover:underline mt-1"
                 >
                   Usar total apurado (<AppMoney value={suggestedTotal} size="sm" />)
                 </button>
               )}
             </div>
+
+            {inst.mode === 'down_payment' && (
+              <>
+                <div>
+                  <label className="field-label">Valor da entrada *</label>
+                  <AppCurrencyInput
+                    value={inst.downPayment}
+                    onValueChange={(v) => setInst((i) => ({ ...i, downPayment: v.value }))}
+                    placeholder="R$ 0,00"
+                  />
+                </div>
+                <div>
+                  <label className="field-label">Data da entrada *</label>
+                  <input
+                    type="date"
+                    className="field"
+                    value={inst.downPaymentDate}
+                    onChange={(e) => setInst((i) => ({ ...i, downPaymentDate: e.target.value }))}
+                  />
+                </div>
+              </>
+            )}
+
             <div>
-              <label className="field-label">Nº de parcelas</label>
+              <label className="field-label">
+                {inst.mode === 'down_payment' ? 'Nº parcelas do saldo' : 'Nº de parcelas'}
+              </label>
               <AppDecimalInput
                 value={inst.installmentCount}
-                onValueChange={v => setInst(i => ({ ...i, installmentCount: v.value }))}
+                onValueChange={(v) => setInst((i) => ({ ...i, installmentCount: v.value }))}
                 placeholder="1"
                 decimalScale={0}
               />
@@ -274,24 +430,32 @@ export function ReceivableSection({ serviceId, clientId, suggestedTotal }: Recei
               <label className="field-label">Juros (%)</label>
               <AppDecimalInput
                 value={inst.feePercent}
-                onValueChange={v => setInst(i => ({ ...i, feePercent: v.value }))}
+                onValueChange={(v) => setInst((i) => ({ ...i, feePercent: v.value }))}
                 placeholder="0"
                 suffix=" %"
               />
             </div>
             <div>
-              <label className="field-label">1º vencimento</label>
+              <label className="field-label">
+                {inst.mode === 'down_payment' ? '1º vencimento (parcelas)' : '1º vencimento'}
+              </label>
               <input
                 type="date"
                 value={inst.firstDueDate}
-                onChange={e => setInst(i => ({ ...i, firstDueDate: e.target.value }))}
+                onChange={(e) => setInst((i) => ({ ...i, firstDueDate: e.target.value }))}
                 className="field"
               />
             </div>
           </div>
 
+          {inst.mode === 'down_payment' && totalAmount > 0 && downPaymentNum > 0 && downPaymentNum < totalAmount && (
+            <p className="text-xs text-muted-foreground">
+              Saldo a financiar: <AppMoney value={financedAmount} size="sm" className="font-medium text-foreground" />
+            </p>
+          )}
+
           {/* Preview */}
-          {preview.length > 0 && (
+          {inst.mode === 'full' && previewFull.length > 0 && (
             <AppTable
               columns={[
                 { header: 'Parcela' },
@@ -302,14 +466,63 @@ export function ReceivableSection({ serviceId, clientId, suggestedTotal }: Recei
                 <tr>
                   <td colSpan={2} className="px-3 py-1.5 font-semibold text-xs">Total</td>
                   <td className="px-3 py-1.5 text-right font-semibold">
-                    <AppMoney value={preview.reduce((s, i) => s + i.amount, 0)} size="sm" />
+                    <AppMoney value={previewFull.reduce((s, i) => s + i.amount, 0)} size="sm" />
                   </td>
                 </tr>
               }
             >
-              {preview.map(item => (
+              {previewFull.map((item) => (
                 <AppTableRow key={item.installmentNumber}>
-                  <AppTableCell className="text-muted-foreground">{item.installmentNumber}/{installmentCount}</AppTableCell>
+                  <AppTableCell className="text-muted-foreground">
+                    {item.installmentNumber}/{installmentCount}
+                  </AppTableCell>
+                  <AppTableCell>{dayjs(item.dueDate).format('DD/MM/YYYY')}</AppTableCell>
+                  <AppTableCell align="right" className="font-medium">
+                    <AppMoney value={item.amount} size="sm" />
+                  </AppTableCell>
+                </AppTableRow>
+              ))}
+            </AppTable>
+          )}
+
+          {inst.mode === 'down_payment' && previewFinanced.length > 0 && (
+            <AppTable
+              columns={[
+                { header: 'Item' },
+                { header: 'Vencimento' },
+                { header: 'Valor', align: 'right' },
+              ]}
+              footer={
+                <tr>
+                  <td colSpan={2} className="px-3 py-1.5 font-semibold text-xs">Total a cobrar</td>
+                  <td className="px-3 py-1.5 text-right font-semibold">
+                    <AppMoney
+                      value={downPaymentNum + previewFinanced.reduce((s, i) => s + i.amount, 0)}
+                      size="sm"
+                    />
+                  </td>
+                </tr>
+              }
+            >
+              <AppTableRow key="entrada">
+                <AppTableCell>
+                  <span className="text-muted-foreground">1/{planTotalCount}</span>
+                  {' · '}
+                  <span className="font-medium text-foreground">Entrada</span>
+                  <AppBadge variant="success" className="ml-2 align-middle">
+                    recebida
+                  </AppBadge>
+                </AppTableCell>
+                <AppTableCell>{dayjs(inst.downPaymentDate).format('DD/MM/YYYY')}</AppTableCell>
+                <AppTableCell align="right" className="font-medium">
+                  <AppMoney value={downPaymentNum} size="sm" />
+                </AppTableCell>
+              </AppTableRow>
+              {previewFinanced.map((item) => (
+                <AppTableRow key={item.installmentNumber}>
+                  <AppTableCell className="text-muted-foreground">
+                    {item.installmentNumber + 1}/{planTotalCount} · Saldo parcelado
+                  </AppTableCell>
                   <AppTableCell>{dayjs(item.dueDate).format('DD/MM/YYYY')}</AppTableCell>
                   <AppTableCell align="right" className="font-medium">
                     <AppMoney value={item.amount} size="sm" />
@@ -323,10 +536,13 @@ export function ReceivableSection({ serviceId, clientId, suggestedTotal }: Recei
             <AppButton
               variant="primary"
               size="sm"
-              loading={createInstallments.isPending}
+              loading={createInstallments.isPending || createDownPaymentAndInstallments.isPending}
               loadingText="Salvando..."
               onClick={handleCreateInstallments}
-              disabled={totalAmount <= 0}
+              disabled={
+                totalAmount <= 0
+                || (inst.mode === 'full' ? previewFull.length === 0 : !downPaymentPlanValid)
+              }
             >
               Guardar parcelas
             </AppButton>
@@ -419,8 +635,8 @@ export function ReceivableSection({ serviceId, clientId, suggestedTotal }: Recei
       {!data?.length
         ? (
           <p className="text-sm text-muted-foreground text-center py-4">
-            Nenhum registo ainda. Use <strong className="text-foreground">À vista</strong> se já recebeu tudo, ou{' '}
-            <strong className="text-foreground">Dividir em parcelas</strong>.
+            Nenhum registo ainda. Use <strong className="text-foreground">À vista</strong> se já recebeu tudo,{' '}
+            <strong className="text-foreground">Dividir em parcelas</strong> (integral ou com entrada + saldo), conforme o caso.
           </p>
         )
         : (

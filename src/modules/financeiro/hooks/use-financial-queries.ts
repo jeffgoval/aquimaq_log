@@ -49,6 +49,32 @@ export function useCreateInstallments(serviceId: string) {
   })
 }
 
+export function useCreateDownPaymentAndInstallments(serviceId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (p: {
+      client_id: string
+      downPayment: number
+      downPaymentDate: string
+      planTotalCount: number
+      parcels: ReceivableInsert[]
+    }) =>
+      financialRepository.createDownPaymentAndInstallments({
+        service_id: serviceId,
+        client_id: p.client_id,
+        downPayment: p.downPayment,
+        downPaymentDate: p.downPaymentDate,
+        planTotalCount: p.planTotalCount,
+        parcels: p.parcels,
+      }),
+    onSuccess: () => {
+      invalidateAllReceivables(qc, serviceId)
+      toast.success('Entrada e parcelas registradas!')
+    },
+    onError: (e: Error) => toast.error(parseSupabaseError(e)),
+  })
+}
+
 /** Regista recebível único já quitado (pagamento à vista). */
 export function useCreateReceivableAtSight(serviceId: string) {
   const qc = useQueryClient()
