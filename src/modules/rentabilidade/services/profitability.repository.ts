@@ -16,4 +16,11 @@ export const profitabilityRepository = {
     if (error) throw error
     return data
   },
+
+  /** Uma linha: diesel, manutenção/peças/óleo, operador (toda a frota). */
+  async getFleetSpendByCategory(): Promise<Views<'v_fleet_spend_by_category'>> {
+    const { data, error } = await supabase.from('v_fleet_spend_by_category').select('*').single()
+    if (error) throw error
+    return data
+  },
 }

@@ -11,3 +11,9 @@ export const useClientRevenue = () => useQuery({
   queryKey: queryKeys.clientRevenue,
   queryFn: profitabilityRepository.getClientRevenue,
 })
+
+export const useFleetSpendByCategory = () =>
+  useQuery({
+    queryKey: queryKeys.profitabilityFleetSpend,
+    queryFn: () => profitabilityRepository.getFleetSpendByCategory(),
+  })

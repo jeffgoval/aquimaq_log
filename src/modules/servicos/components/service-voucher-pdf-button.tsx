@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { FileDown } from 'lucide-react'
 import { toast } from 'sonner'
 import { AppButton } from '@/shared/components/app/app-button'
 import type { ServiceWithJoins, WorklogWithOperator } from '@/integrations/supabase/db-types'
@@ -44,9 +43,7 @@ export const ServiceVoucherPdfButton = ({
       onClick={() => void handleClick()}
       loading={loading}
       loadingText="A gerar…"
-      className="gap-2"
     >
-      <FileDown className="h-4 w-4 shrink-0" />
       Comprovante PDF
     </AppButton>
   )

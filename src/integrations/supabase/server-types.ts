@@ -523,6 +523,14 @@ export type Database = {
         }
         Relationships: []
       }
+      v_fleet_spend_by_category: {
+        Row: {
+          spend_diesel: number | null
+          spend_maintenance: number | null
+          spend_operator: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: Record<string, never>
     Enums: Record<string, never>

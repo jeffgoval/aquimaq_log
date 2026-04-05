@@ -1,4 +1,5 @@
-import { useTractorProfitability, useClientRevenue } from '../hooks/use-profitability-queries'
+import { useTractorProfitability, useClientRevenue, useFleetSpendByCategory } from '../hooks/use-profitability-queries'
+import { FleetSpendCategoryChart } from '../components/fleet-spend-category-chart'
 import { AppPageHeader } from '@/shared/components/app/app-page-header'
 import { AppLoadingState } from '@/shared/components/app/app-loading-state'
 import { AppErrorState } from '@/shared/components/app/app-error-state'
@@ -24,6 +25,7 @@ import { ROUTES } from '@/shared/constants/routes'
 export function ProfitabilityPage() {
   const { data, isLoading, isError, error, refetch } = useTractorProfitability()
   const { data: clientData } = useClientRevenue()
+  const fleetSpend = useFleetSpendByCategory()
 
   const totals = data?.reduce(
     (acc, t) => ({
@@ -102,6 +104,14 @@ export function ProfitabilityPage() {
                 />
               </div>
             </div>
+          )}
+
+          {fleetSpend.isError ? (
+            <p className="typo-body text-destructive mb-6 rounded-lg border border-destructive/25 bg-destructive/5 px-4 py-3">
+              Não foi possível carregar o gráfico de gastos por categoria. Confirme se a migração da view está aplicada no Supabase.
+            </p>
+          ) : (
+            <FleetSpendCategoryChart row={fleetSpend.data ?? undefined} isLoading={fleetSpend.isLoading} />
           )}
 
           {/* ── SEÇÃO 2: Cards por Trator ── */}
