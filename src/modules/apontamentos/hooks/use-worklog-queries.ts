@@ -3,9 +3,10 @@ import { toast } from 'sonner'
 import { queryKeys } from '@/integrations/supabase/query-keys'
 import { worklogRepository } from '../services/worklog.repository'
 import { parseSupabaseError } from '@/shared/lib/errors'
-import type { Inserts } from '@/integrations/supabase/db-types'
+import type { Inserts, Updates } from '@/integrations/supabase/db-types'
 
 type WorklogInsert = Inserts<'service_worklogs'>
+type WorklogUpdate = Updates<'service_worklogs'>
 
 export const useWorklogsByService = (serviceId: string) => useQuery({
   queryKey: queryKeys.worklogsByService(serviceId),
@@ -21,6 +22,30 @@ export function useCreateWorklog(serviceId: string) {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.worklogsByService(serviceId) })
       toast.success('Apontamento registrado!')
+    },
+    onError: (e: Error) => toast.error(parseSupabaseError(e)),
+  })
+}
+
+export function useUpdateWorklog(serviceId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: WorklogUpdate }) => worklogRepository.update(id, payload),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.worklogsByService(serviceId) })
+      toast.success('Registo de horímetro atualizado!')
+    },
+    onError: (e: Error) => toast.error(parseSupabaseError(e)),
+  })
+}
+
+export function useDeleteWorklog(serviceId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => worklogRepository.delete(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.worklogsByService(serviceId) })
+      toast.success('Registo removido.')
     },
     onError: (e: Error) => toast.error(parseSupabaseError(e)),
   })

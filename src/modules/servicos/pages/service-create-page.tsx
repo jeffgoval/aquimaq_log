@@ -95,10 +95,13 @@ export function ServiceCreatePage() {
               <label className="field-label">Observações</label>
               <textarea {...register('notes')} rows={2} className="field resize-none" placeholder="Detalhes, condições, localidade..." />
             </div>
+            <p className="sm:col-span-3 typo-caption text-muted-foreground border-t border-border pt-3">
+              Abaixo: <strong className="text-foreground font-medium">conta a receber</strong> (pagamento à vista, pendente ou parcelas).
+            </p>
           </div>
         </div>
 
-        <div className="rounded-xl border border-border bg-card p-6 space-y-4">
+        <div className="rounded-xl border border-border bg-card p-6 space-y-4 border-l-4 border-l-primary/40">
           <div>
             <h2 className="typo-section-title mb-1">Conta a receber do cliente</h2>
             <p className="typo-caption text-muted-foreground">

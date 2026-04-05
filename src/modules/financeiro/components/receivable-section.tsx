@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { useReceivablesByService, useRegisterPayment, useCreateInstallments } from '../hooks/use-financial-queries'
+import { useReceivablesByService, useRegisterPayment, useCreateInstallments, useUpdateReceivable } from '../hooks/use-financial-queries'
 import { AppLoadingState } from '@/shared/components/app/app-loading-state'
 import { AppMoney } from '@/shared/components/app/app-money'
 import { AppBadge } from '@/shared/components/app/app-badge'
@@ -10,7 +10,7 @@ import { useDisclosure } from '@/shared/hooks/use-disclosure'
 import { buildInstallmentsPreview } from '@/features/create-installments/create-installments'
 import { RECEIVABLE_STATUS_LABELS, RECEIVABLE_STATUS_BADGE_VARIANTS } from '@/shared/constants/status'
 import dayjs from '@/shared/lib/dayjs'
-import { DollarSign, Plus } from 'lucide-react'
+import { DollarSign, Plus, Pencil } from 'lucide-react'
 
 interface ReceivableSectionProps {
   serviceId: string
@@ -24,11 +24,16 @@ export function ReceivableSection({ serviceId, clientId, suggestedTotal }: Recei
   const { data, isLoading } = useReceivablesByService(serviceId)
   const registerPayment = useRegisterPayment(serviceId)
   const createInstallments = useCreateInstallments(serviceId)
+  const updateReceivable = useUpdateReceivable(serviceId)
   const installmentDialog = useDisclosure()
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [payAmount, setPayAmount] = useState('')
   const payDialog = useDisclosure()
   const [inst, setInst] = useState(DEFAULT_INSTALLMENT)
+  const [editId, setEditId] = useState<string | null>(null)
+  const [editAmount, setEditAmount] = useState('')
+  const [editDue, setEditDue] = useState('')
+  const [editDesc, setEditDesc] = useState('')
 
   const totalAmount = Number(inst.totalAmount) || 0
   const installmentCount = Math.max(1, Number(inst.installmentCount) || 1)
@@ -72,6 +77,35 @@ export function ReceivableSection({ serviceId, clientId, suggestedTotal }: Recei
     setSelectedId(null)
     payDialog.close()
   }
+
+  const openEdit = (rec: NonNullable<typeof data>[number]) => {
+    setEditId(rec.id)
+    setEditAmount(String(rec.final_amount))
+    setEditDue(rec.due_date.slice(0, 10))
+    setEditDesc(rec.description ?? '')
+    payDialog.close()
+    installmentDialog.close()
+  }
+
+  const handleSaveEdit = async () => {
+    if (!editId) return
+    const amt = Number(editAmount)
+    if (!Number.isFinite(amt) || amt <= 0) return
+    await updateReceivable.mutateAsync({
+      id: editId,
+      payload: {
+        final_amount: amt,
+        original_amount: amt,
+        fee_percent: 0,
+        due_date: editDue,
+        description: editDesc.trim() || null,
+      },
+    })
+    setEditId(null)
+  }
+
+  const canEditReceivable = (rec: NonNullable<typeof data>[number]) =>
+    rec.paid_amount === 0 && rec.status !== 'paid' && rec.status !== 'cancelled'
 
   const totalReceivable = data?.reduce((s, r) => s + r.final_amount, 0) ?? 0
   const totalPaid = data?.reduce((s, r) => s + r.paid_amount, 0) ?? 0
@@ -204,6 +238,42 @@ export function ReceivableSection({ serviceId, clientId, suggestedTotal }: Recei
         </div>
       )}
 
+      {/* Corrigir parcela (sem pagamentos registados) */}
+      {editId && (() => {
+        const rec = data?.find((r) => r.id === editId)
+        if (!rec) return null
+        return (
+          <div className="rounded-lg border border-primary/25 p-4 mb-4 bg-primary/5 space-y-3">
+            <p className="typo-body font-medium">Corrigir parcela</p>
+            <p className="text-xs text-muted-foreground">
+              Só é possível alterar valor e vencimento quando ainda não há pagamento registado nesta linha.
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                <label className="field-label">Valor (R$) *</label>
+                <AppCurrencyInput value={editAmount} onValueChange={(v) => setEditAmount(v.value)} className="field" placeholder="R$ 0,00" />
+              </div>
+              <div>
+                <label className="field-label">Vencimento *</label>
+                <input type="date" className="field" value={editDue} onChange={(e) => setEditDue(e.target.value)} />
+              </div>
+              <div className="sm:col-span-3">
+                <label className="field-label">Descrição</label>
+                <input className="field" value={editDesc} onChange={(e) => setEditDesc(e.target.value)} placeholder="Opcional" />
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <AppButton variant="primary" size="sm" loading={updateReceivable.isPending} loadingText="..." onClick={handleSaveEdit}>
+                Guardar
+              </AppButton>
+              <AppButton variant="ghost" size="sm" onClick={() => setEditId(null)}>
+                Cancelar
+              </AppButton>
+            </div>
+          </div>
+        )
+      })()}
+
       {/* Formulário de pagamento */}
       {payDialog.isOpen && selectedId && (() => {
         const rec = data?.find(r => r.id === selectedId)
@@ -255,9 +325,21 @@ export function ReceivableSection({ serviceId, clientId, suggestedTotal }: Recei
                 <AppBadge variant={RECEIVABLE_STATUS_BADGE_VARIANTS[rec.status] ?? 'default'}>
                   {RECEIVABLE_STATUS_LABELS[rec.status] ?? rec.status}
                 </AppBadge>
+                {canEditReceivable(rec) && (
+                  <button
+                    type="button"
+                    onClick={() => openEdit(rec)}
+                    className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground whitespace-nowrap"
+                  >
+                    <Pencil className="h-3 w-3" />
+                    Corrigir
+                  </button>
+                )}
                 {rec.status !== 'paid' && rec.status !== 'cancelled' && (
                   <button
+                    type="button"
                     onClick={() => {
+                      setEditId(null)
                       setSelectedId(rec.id)
                       setPayAmount(String(rec.final_amount - rec.paid_amount))
                       payDialog.open()

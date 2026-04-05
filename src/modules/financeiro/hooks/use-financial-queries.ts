@@ -3,10 +3,11 @@ import { toast } from 'sonner'
 import { queryKeys } from '@/integrations/supabase/query-keys'
 import { financialRepository } from '../services/financial.repository'
 import { parseSupabaseError } from '@/shared/lib/errors'
-import type { Inserts } from '@/integrations/supabase/db-types'
+import type { Inserts, Updates } from '@/integrations/supabase/db-types'
 
 type PaymentInsert = Inserts<'receivable_payments'>
 type ReceivableInsert = Inserts<'receivables'>
+type ReceivableUpdate = Updates<'receivables'>
 
 export const useReceivables = (filters?: { status?: string }) => useQuery({
   queryKey: [...queryKeys.receivables, filters],
@@ -43,6 +44,19 @@ export function useCreateInstallments(serviceId: string) {
     onSuccess: () => {
       invalidateAllReceivables(qc, serviceId)
       toast.success('Parcelamento registrado!')
+    },
+    onError: (e: Error) => toast.error(parseSupabaseError(e)),
+  })
+}
+
+export function useUpdateReceivable(serviceId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: ReceivableUpdate }) =>
+      financialRepository.updateReceivable(id, payload),
+    onSuccess: () => {
+      invalidateAllReceivables(qc, serviceId)
+      toast.success('Parcela atualizada!')
     },
     onError: (e: Error) => toast.error(parseSupabaseError(e)),
   })

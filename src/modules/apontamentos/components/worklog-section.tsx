@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { toast } from 'sonner'
-import { useWorklogsByService, useCreateWorklog } from '../hooks/use-worklog-queries'
+import { useWorklogsByService, useCreateWorklog, useUpdateWorklog, useDeleteWorklog } from '../hooks/use-worklog-queries'
 import { AppLoadingState } from '@/shared/components/app/app-loading-state'
 import { AppEmptyState } from '@/shared/components/app/app-empty-state'
 import { AppDataCard } from '@/shared/components/app/app-data-card'
@@ -11,7 +11,7 @@ import { AppDecimalInput } from '@/shared/components/app/app-numeric-input'
 import { AppMoney } from '@/shared/components/app/app-money'
 import { useOperatorOptions } from '@/modules/operadores/hooks/use-operator-queries'
 import { computeWorklogLineAmounts } from '@/modules/servicos/lib/service-financial-summary'
-import { Clock, Plus, Tag } from 'lucide-react'
+import { Clock, Plus, Tag, Pencil, Trash2 } from 'lucide-react'
 import dayjs from '@/shared/lib/dayjs'
 
 interface WorklogSectionProps {
@@ -31,10 +31,21 @@ export function WorklogSection({
 }: WorklogSectionProps) {
   const { data, isLoading } = useWorklogsByService(serviceId)
   const createWorklog = useCreateWorklog(serviceId)
+  const updateWorklog = useUpdateWorklog(serviceId)
+  const deleteWorklog = useDeleteWorklog(serviceId)
   const operators = useOperatorOptions()
   const addDialog = useDisclosure()
 
   const [form, setForm] = useState({
+    operator_id: '',
+    work_date: dayjs().format('YYYY-MM-DD'),
+    start_hourmeter: '',
+    end_hourmeter: '',
+    notes: '',
+  })
+
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editForm, setEditForm] = useState({
     operator_id: '',
     work_date: dayjs().format('YYYY-MM-DD'),
     start_hourmeter: '',
@@ -93,6 +104,45 @@ export function WorklogSection({
     addDialog.close()
   }
 
+  const startEdit = (log: NonNullable<typeof data>[number]) => {
+    addDialog.close()
+    setEditingId(log.id)
+    setEditForm({
+      operator_id: log.operator_id ?? '',
+      work_date: log.work_date.slice(0, 10),
+      start_hourmeter: String(log.start_hourmeter),
+      end_hourmeter: String(log.end_hourmeter),
+      notes: log.notes ?? '',
+    })
+  }
+
+  const handleSaveEdit = async () => {
+    if (!editingId) return
+    const start = Number(String(editForm.start_hourmeter).replace(',', '.'))
+    const end = Number(String(editForm.end_hourmeter).replace(',', '.'))
+    if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start) {
+      toast.error('Horímetro final deve ser maior que o inicial.')
+      return
+    }
+    await updateWorklog.mutateAsync({
+      id: editingId,
+      payload: {
+        operator_id: editForm.operator_id || null,
+        work_date: editForm.work_date,
+        start_hourmeter: start,
+        end_hourmeter: end,
+        notes: editForm.notes.trim() || null,
+      },
+    })
+    setEditingId(null)
+  }
+
+  const handleDelete = async (id: string) => {
+    if (!window.confirm('Remover este registo de horímetro?')) return
+    await deleteWorklog.mutateAsync(id)
+    if (editingId === id) setEditingId(null)
+  }
+
   const totalHours = data?.reduce((acc, w) => acc + (w.worked_hours ?? 0), 0) ?? 0
 
   return (
@@ -113,7 +163,10 @@ export function WorklogSection({
         <AppButton
           variant="primary"
           size="sm"
-          onClick={addDialog.toggle}
+          onClick={() => {
+            setEditingId(null)
+            addDialog.toggle()
+          }}
           className="flex items-center gap-1.5 shadow-lg shadow-primary/20 active:scale-95 shrink-0"
         >
           <Plus className="h-3 w-3" />
@@ -214,6 +267,72 @@ export function WorklogSection({
         </div>
       )}
 
+      {editingId && (
+        <div className="rounded-xl border border-primary/25 p-4 mb-5 bg-primary/5 space-y-4">
+          <p className="typo-body font-medium">Editar registo de horímetro</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div>
+              <label className="field-label">Data</label>
+              <input
+                type="date"
+                value={editForm.work_date}
+                onChange={(e) => setEditForm((f) => ({ ...f, work_date: e.target.value }))}
+                className="field"
+              />
+            </div>
+            <div>
+              <label className="field-label">Operador</label>
+              <select
+                value={editForm.operator_id}
+                onChange={(e) => setEditForm((f) => ({ ...f, operator_id: e.target.value }))}
+                className="field"
+              >
+                <option value="">Nenhum</option>
+                {operators.data?.map((o) => (
+                  <option key={o.id} value={o.id}>
+                    {o.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="grid grid-cols-2 gap-2 sm:col-span-2 lg:col-span-1">
+              <div>
+                <label className="field-label">Horímetro inicial</label>
+                <AppDecimalInput
+                  value={editForm.start_hourmeter}
+                  onValueChange={(v) => setEditForm((f) => ({ ...f, start_hourmeter: v.value }))}
+                  placeholder="0,0"
+                />
+              </div>
+              <div>
+                <label className="field-label">Horímetro final</label>
+                <AppDecimalInput
+                  value={editForm.end_hourmeter}
+                  onValueChange={(v) => setEditForm((f) => ({ ...f, end_hourmeter: v.value }))}
+                  placeholder="0,0"
+                />
+              </div>
+            </div>
+            <div className="sm:col-span-2 lg:col-span-3">
+              <label className="field-label">Observações</label>
+              <input
+                value={editForm.notes}
+                onChange={(e) => setEditForm((f) => ({ ...f, notes: e.target.value }))}
+                className="field"
+              />
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <AppButton variant="primary" size="sm" loading={updateWorklog.isPending} loadingText="..." onClick={handleSaveEdit}>
+              Guardar alterações
+            </AppButton>
+            <AppButton variant="ghost" size="sm" onClick={() => setEditingId(null)}>
+              Cancelar
+            </AppButton>
+          </div>
+        </div>
+      )}
+
       {isLoading && <AppLoadingState />}
       {!isLoading && (!data || data.length === 0) ? (
         <AppEmptyState
@@ -229,32 +348,54 @@ export function WorklogSection({
               log.operators?.default_hour_rate,
             )
             return (
-              <AppDataCard
-                key={log.id}
-                title={dayjs(log.work_date).format('DD/MM/YYYY')}
-                subtitle={log.operators?.name || 'Sem operador'}
-                icon={Clock}
-                badge={
-                  <AppBadge variant="success">
-                    {(log.worked_hours ?? 0).toFixed(1)} h
-                  </AppBadge>
-                }
-                items={[
-                  { label: 'Horímetro início', value: `${log.start_hourmeter} h` },
-                  { label: 'Horímetro fim', value: `${log.end_hourmeter} h` },
-                  { label: 'Faturação (cliente)', value: <AppMoney value={line.billingLine} size="sm" /> },
-                  { label: 'Custo operador', value: <AppMoney value={line.operatorCostLine} size="sm" /> },
-                  { label: 'Margem linha', value: <AppMoney value={line.marginLine} size="sm" colored /> },
-                ]}
-                footer={
-                  log.notes ? (
-                    <div className="flex gap-1.5 items-start pt-2 border-t border-border/50">
-                      <Tag className="h-3 w-3 text-muted-foreground mt-0.5 shrink-0" />
-                      <p className="text-xs text-muted-foreground italic line-clamp-2">&ldquo;{log.notes}&rdquo;</p>
+              <div key={log.id} className="relative">
+                <AppDataCard
+                  title={dayjs(log.work_date).format('DD/MM/YYYY')}
+                  subtitle={log.operators?.name || 'Sem operador'}
+                  icon={Clock}
+                  badge={
+                    <AppBadge variant="success">
+                      {(log.worked_hours ?? 0).toFixed(1)} h
+                    </AppBadge>
+                  }
+                  items={[
+                    { label: 'Horímetro início', value: `${log.start_hourmeter} h` },
+                    { label: 'Horímetro fim', value: `${log.end_hourmeter} h` },
+                    { label: 'Faturação (cliente)', value: <AppMoney value={line.billingLine} size="sm" /> },
+                    { label: 'Custo operador', value: <AppMoney value={line.operatorCostLine} size="sm" /> },
+                    { label: 'Margem linha', value: <AppMoney value={line.marginLine} size="sm" colored /> },
+                  ]}
+                  footer={
+                    <div className="space-y-2">
+                      {log.notes ? (
+                        <div className="flex gap-1.5 items-start pt-2 border-t border-border/50">
+                          <Tag className="h-3 w-3 text-muted-foreground mt-0.5 shrink-0" />
+                          <p className="text-xs text-muted-foreground italic line-clamp-2">&ldquo;{log.notes}&rdquo;</p>
+                        </div>
+                      ) : null}
+                      <div className="flex flex-wrap gap-2 pt-1">
+                        <button
+                          type="button"
+                          onClick={() => startEdit(log)}
+                          className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+                        >
+                          <Pencil className="h-3 w-3" />
+                          Editar
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(log.id)}
+                          disabled={deleteWorklog.isPending}
+                          className="inline-flex items-center gap-1 text-xs font-medium text-destructive hover:underline"
+                        >
+                          <Trash2 className="h-3 w-3" />
+                          Apagar
+                        </button>
+                      </div>
                     </div>
-                  ) : undefined
-                }
-              />
+                  }
+                />
+              </div>
             )
           })}
         </div>

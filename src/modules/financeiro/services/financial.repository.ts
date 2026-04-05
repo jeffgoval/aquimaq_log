@@ -1,8 +1,9 @@
 import { supabase } from '@/integrations/supabase/client'
-import type { Tables, Inserts, ReceivableWithClient } from '@/integrations/supabase/db-types'
+import type { Tables, Inserts, Updates, ReceivableWithClient } from '@/integrations/supabase/db-types'
 
 type PaymentInsert = Inserts<'receivable_payments'>
 type ReceivableInsert = Inserts<'receivables'>
+type ReceivableUpdate = Updates<'receivables'>
 
 export const financialRepository = {
   async listReceivables(filters?: { status?: string }): Promise<ReceivableWithClient[]> {
@@ -41,6 +42,12 @@ export const financialRepository = {
   async createInstallments(receivables: ReceivableInsert[]): Promise<void> {
     const { error } = await supabase.from('receivables').insert(receivables)
     if (error) throw error
+  },
+
+  async updateReceivable(id: string, payload: ReceivableUpdate): Promise<Tables<'receivables'>> {
+    const { data, error } = await supabase.from('receivables').update(payload).eq('id', id).select().single()
+    if (error) throw error
+    return data
   },
 
   /** Uma parcela criada e quitada na hora (pagamento à vista). */
