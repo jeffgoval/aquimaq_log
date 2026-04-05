@@ -81,7 +81,7 @@ export const ServiceOperatorPaymentPanel = ({
           className={cn(
             'text-xs font-medium px-3 py-1.5 rounded-full border shrink-0',
             status === 'paid'
-              ? 'border-green-500/40 bg-green-500/10 text-green-800 dark:text-green-200'
+              ? 'border-green-200 bg-green-100 text-green-900 dark:border-green-500/40 dark:bg-green-500/10 dark:text-green-200'
               : 'border-amber-500/40 bg-amber-500/10 text-amber-900 dark:text-amber-100',
           )}
         >

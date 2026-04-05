@@ -211,7 +211,9 @@ export const OperatorLedgerSection = ({ operatorId }: OperatorLedgerSectionProps
                             className={cn(
                               'text-xs font-medium px-2 py-0.5 rounded-md',
                               row.entry_type === 'advance' ? 'bg-amber-500/15 text-amber-800 dark:text-amber-200' : '',
-                              row.entry_type === 'payment' ? 'bg-green-500/15 text-green-800 dark:text-green-200' : '',
+                              row.entry_type === 'payment'
+                                ? 'bg-green-100 text-green-900 dark:bg-green-500/15 dark:text-green-200'
+                                : '',
                               row.entry_type === 'credit' ? 'bg-blue-500/15 text-blue-800 dark:text-blue-200' : '',
                             )}
                           >

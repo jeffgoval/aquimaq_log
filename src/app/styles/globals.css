@@ -77,12 +77,12 @@
     /* Status (amarelo marca = in_progress / pending) */
     --status-draft: 0 0% 42%;
     --status-in-progress: 48 100% 53%;
-    --status-completed: 142 71% 45%;
+    --status-completed: 142 64% 28%;
     --status-cancelled: 0 84% 60%;
 
     --status-pending: 48 100% 53%;
-    --status-partially-paid: 199 89% 48%;
-    --status-paid: 142 71% 45%;
+    --status-partially-paid: 221 64% 33%;
+    --status-paid: 142 64% 28%;
     --status-overdue: 0 84% 60%;
   }
 
@@ -118,12 +118,12 @@
 
     --status-draft: 0 0% 58%;
     --status-in-progress: 48 100% 53%;
-    --status-completed: 142 71% 45%;
+    --status-completed: 142 55% 52%;
     --status-cancelled: 0 72% 51%;
 
     --status-pending: 48 100% 53%;
-    --status-partially-paid: 200 80% 55%;
-    --status-paid: 142 71% 45%;
+    --status-partially-paid: 213 70% 60%;
+    --status-paid: 142 55% 52%;
     --status-overdue: 0 72% 51%;
   }
 

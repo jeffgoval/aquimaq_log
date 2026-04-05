@@ -37,7 +37,9 @@ export function TractorDetailPage() {
       {/* Status badge */}
       <span className={cn(
         'inline-flex text-xs font-medium px-3 py-1 rounded-full mb-6',
-        tractor.is_active ? 'bg-green-400/10 text-green-400' : 'bg-muted text-muted-foreground'
+        tractor.is_active
+          ? 'bg-green-100 text-green-900 dark:bg-green-500/15 dark:text-green-400'
+          : 'bg-muted text-muted-foreground'
       )}>
         {tractor.is_active ? 'Ativo' : 'Inativo'}
       </span>

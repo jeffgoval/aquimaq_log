@@ -279,7 +279,7 @@ export function ReceivableSection({ serviceId, clientId, suggestedTotal }: Recei
 
       {/* Pagamento à vista (sem passar por parcelamento) */}
       {atSightDialog.isOpen && (
-        <div className="rounded-lg border border-green-500/20 p-4 mb-4 bg-green-500/5 space-y-4">
+        <div className="rounded-lg border border-green-200 bg-green-50 dark:border-green-500/25 dark:bg-green-500/5 p-4 mb-4 space-y-4">
           <p className="typo-body font-medium">Pagamento à vista</p>
           <p className="text-xs text-muted-foreground">
             Cliente pagou tudo de uma vez — fica registado como pago no Financeiro.

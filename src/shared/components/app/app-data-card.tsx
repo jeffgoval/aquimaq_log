@@ -35,9 +35,11 @@ export function AppDataCard({
 }: AppDataCardProps) {
   const iconVariants = {
     default: 'bg-primary/10 text-primary',
-    success: 'bg-green-400/10 text-green-400',
+    success:
+      'bg-green-100 text-green-800 dark:bg-green-500/15 dark:text-green-400',
     warning: 'bg-primary/10 text-primary',
-    destructive: 'bg-red-400/10 text-red-400',
+    destructive:
+      'bg-red-100 text-red-800 dark:bg-red-500/15 dark:text-red-400',
   }
 
   return (

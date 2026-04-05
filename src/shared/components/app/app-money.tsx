@@ -20,7 +20,11 @@ export function AppMoney({ value, className, colored, size = 'md' }: AppMoneyPro
       className={cn(
         'font-mono tabular-nums',
         sizeClasses[size],
-        colored && value >= 0 ? 'text-green-400' : colored ? 'text-red-400' : '',
+        colored && value >= 0
+          ? 'text-green-800 dark:text-green-400'
+          : colored
+            ? 'text-red-800 dark:text-red-400'
+            : '',
         className
       )}
     >

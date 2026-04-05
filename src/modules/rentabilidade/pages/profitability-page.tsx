@@ -172,7 +172,9 @@ export function ProfitabilityPage() {
                           {Number(t.total_hours) > 0 && (
                             <div className={cn(
                               'rounded-lg p-3 space-y-2',
-                              isCphOk ? 'bg-green-500/8 border border-green-500/20' : 'bg-destructive/8 border border-destructive/20',
+                              isCphOk
+                                ? 'bg-green-100 border border-green-200 dark:bg-green-500/10 dark:border-green-500/25'
+                                : 'bg-destructive/8 border border-destructive/20',
                             )}>
                               <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                                 Análise por hora trabalhada
@@ -180,7 +182,7 @@ export function ProfitabilityPage() {
                               <div className="grid grid-cols-3 gap-2 text-center">
                                 <div>
                                   <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Receita/h</p>
-                                  <p className={cn('text-sm font-bold tabular-nums', isCphOk ? 'text-green-400' : 'text-destructive')}>
+                                  <p className={cn('text-sm font-bold tabular-nums', isCphOk ? 'text-green-800 dark:text-green-400' : 'text-destructive')}>
                                     <AppMoney value={revPerHour} size="sm" />
                                   </p>
                                 </div>
@@ -192,12 +194,12 @@ export function ProfitabilityPage() {
                                 </div>
                                 <div>
                                   <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Spread/h</p>
-                                  <p className={cn('text-sm font-bold tabular-nums', isCphOk ? 'text-green-400' : 'text-destructive')}>
+                                  <p className={cn('text-sm font-bold tabular-nums', isCphOk ? 'text-green-800 dark:text-green-400' : 'text-destructive')}>
                                     <AppMoney value={revPerHour - cph} size="sm" />
                                   </p>
                                 </div>
                               </div>
-                              <p className={cn('text-xs font-medium leading-snug', isCphOk ? 'text-green-400' : 'text-destructive')}>
+                              <p className={cn('text-xs font-medium leading-snug', isCphOk ? 'text-green-800 dark:text-green-400' : 'text-destructive')}>
                                 {isCphOk
                                   ? `Cada hora trabalhada gera ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(revPerHour - cph)} de lucro líquido.`
                                   : `Atenção: a receita por hora está abaixo do custo real — reajuste o preço cobrado.`}
@@ -218,8 +220,8 @@ export function ProfitabilityPage() {
                               className={cn(
                                 'h-full rounded-full transition-all duration-500',
                                 margin >= 0
-                                  ? 'bg-green-400 shadow-[0_0_8px_rgba(74,222,128,0.4)]'
-                                  : 'bg-red-400',
+                                  ? 'bg-green-600 dark:bg-green-500 shadow-sm'
+                                  : 'bg-red-600 dark:bg-red-500',
                               )}
                               style={{ width: `${Math.min(Math.abs(marginPercent), 100)}%` }}
                             />
@@ -234,7 +236,7 @@ export function ProfitabilityPage() {
                                   Retorno do Investimento
                                 </p>
                                 {recoveryPct >= 100 && (
-                                  <span className="ml-auto text-[10px] font-bold text-green-400 uppercase tracking-wide">Pago!</span>
+                                  <span className="ml-auto text-[10px] font-bold text-green-800 dark:text-green-400 uppercase tracking-wide">Pago!</span>
                                 )}
                               </div>
 
@@ -249,10 +251,10 @@ export function ProfitabilityPage() {
                                     className={cn(
                                       'h-full rounded-full transition-all duration-700',
                                       recoveryPct >= 100
-                                        ? 'bg-green-400 shadow-[0_0_8px_rgba(74,222,128,0.5)]'
+                                        ? 'bg-green-600 dark:bg-green-500'
                                         : recoveryPct >= 50
-                                          ? 'bg-blue-400'
-                                          : 'bg-amber-400',
+                                          ? 'bg-blue-600 dark:bg-blue-500'
+                                          : 'bg-amber-600 dark:bg-amber-500',
                                     )}
                                     style={{ width: `${recoveryPct}%` }}
                                   />
@@ -264,7 +266,7 @@ export function ProfitabilityPage() {
                                 <div className="flex justify-between items-end">
                                   <div>
                                     <p className="text-[10px] text-muted-foreground">Falta gerar via lucro</p>
-                                    <p className="text-sm font-bold tabular-nums text-amber-400">
+                                    <p className="text-sm font-bold tabular-nums text-amber-800 dark:text-amber-400">
                                       <AppMoney value={remaining} size="sm" />
                                     </p>
                                   </div>
@@ -282,7 +284,7 @@ export function ProfitabilityPage() {
                                   )}
                                 </div>
                               ) : (
-                                <p className="text-xs text-green-400 font-medium">
+                                <p className="text-xs text-green-800 dark:text-green-400 font-medium">
                                   Investimento totalmente recuperado via lucro acumulado.
                                 </p>
                               )}
@@ -365,11 +367,11 @@ export function ProfitabilityPage() {
                               <td className="px-4 py-3 text-right tabular-nums font-semibold">
                                 <AppMoney value={billed} size="sm" />
                               </td>
-                              <td className="px-4 py-3 text-right tabular-nums text-green-400 font-medium">
+                              <td className="px-4 py-3 text-right tabular-nums text-green-800 dark:text-green-400 font-medium">
                                 <AppMoney value={received} size="sm" />
                               </td>
                               <td className="px-4 py-3 text-right tabular-nums">
-                                <span className={cn('font-medium', pending > 0 ? 'text-amber-400' : 'text-muted-foreground')}>
+                                <span className={cn('font-medium', pending > 0 ? 'text-amber-800 dark:text-amber-400' : 'text-muted-foreground')}>
                                   <AppMoney value={pending} size="sm" />
                                 </span>
                               </td>
@@ -397,10 +399,10 @@ export function ProfitabilityPage() {
                           <td className="px-4 py-2 text-right font-bold tabular-nums">
                             <AppMoney value={totalBilledClients} size="sm" />
                           </td>
-                          <td className="px-4 py-2 text-right font-semibold tabular-nums text-green-400">
+                          <td className="px-4 py-2 text-right font-semibold tabular-nums text-green-800 dark:text-green-400">
                             <AppMoney value={clientData?.reduce((s, c) => s + Number(c.total_received), 0) ?? 0} size="sm" />
                           </td>
-                          <td className="px-4 py-2 text-right font-semibold tabular-nums text-amber-400">
+                          <td className="px-4 py-2 text-right font-semibold tabular-nums text-amber-800 dark:text-amber-400">
                             <AppMoney value={clientData?.reduce((s, c) => s + Number(c.total_pending), 0) ?? 0} size="sm" />
                           </td>
                           <td className="px-4 py-2 text-xs text-muted-foreground">100%</td>

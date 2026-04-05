@@ -166,7 +166,7 @@ export function ServiceDetailPage() {
           </div>
           <div className={cn(
             'rounded-xl border bg-card p-4 col-span-2 md:col-span-3 lg:col-span-1',
-            marginTotal !== 0 || totalHours > 0 ? 'border-green-500/20' : 'border-border',
+            marginTotal !== 0 || totalHours > 0 ? 'border-green-200 dark:border-green-500/25' : 'border-border',
           )}
           >
             <p className="typo-caption mb-1">Margem estimada</p>

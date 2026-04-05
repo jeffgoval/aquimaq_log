@@ -11,10 +11,13 @@ interface AppBadgeProps {
 export function AppBadge({ children, variant = 'default', className }: AppBadgeProps) {
   const variants = {
     default: 'bg-muted text-muted-foreground',
-    success: 'bg-green-400/10 text-green-400',
-    destructive: 'bg-red-400/10 text-red-400',
+    success:
+      'bg-green-100 text-green-900 dark:bg-green-500/15 dark:text-green-400',
+    destructive:
+      'bg-red-100 text-red-800 dark:bg-red-500/15 dark:text-red-400',
     warning: 'bg-primary/10 text-primary',
-    info: 'bg-blue-400/10 text-blue-400',
+    info:
+      'bg-blue-100 text-blue-800 dark:bg-blue-500/15 dark:text-blue-400',
     outline: 'border border-border text-muted-foreground',
   }
 

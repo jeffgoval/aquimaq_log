@@ -30,7 +30,7 @@ export function ForgotPasswordPage() {
       </p>
 
       {isSubmitSuccessful ? (
-        <p className="text-sm text-green-400 bg-green-400/10 rounded-lg p-4">
+        <p className="text-sm text-green-800 bg-green-100 dark:text-green-400 dark:bg-green-500/15 rounded-lg p-4">
           Verifique sua caixa de e-mail para o link de recuperação.
         </p>
       ) : (

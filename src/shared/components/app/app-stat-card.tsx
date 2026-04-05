@@ -50,7 +50,9 @@ export function AppStatCard({
           <span
             className={cn(
               'typo-caption font-medium',
-              trend.value >= 0 ? 'text-green-400' : 'text-red-400'
+              trend.value >= 0
+                ? 'text-green-800 dark:text-green-400'
+                : 'text-red-800 dark:text-red-400'
             )}
           >
             {trend.value >= 0 ? '+' : ''}{trend.value}%

@@ -8,7 +8,6 @@ import { useMachineCosts } from '@/modules/custos/hooks/use-cost-queries'
 import { Building2, ClipboardList, DollarSign, AlertTriangle, Wallet } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { ROUTES } from '@/shared/constants/routes'
-import { cn } from '@/shared/lib/cn'
 
 export function DashboardPage() {
   const clients = useClientList()
@@ -106,7 +105,7 @@ export function DashboardPage() {
                   <p className="typo-body font-medium text-foreground">{s.clients?.name}</p>
                   <p className="typo-caption font-semibold uppercase tracking-wide mt-0.5">{s.tractors?.name}</p>
                 </div>
-                <span className={cn('typo-caption font-medium px-2 py-0.5 rounded-full bg-slate-400/10 text-slate-400')}>Em aberto</span>
+                <span className="typo-caption font-medium px-2 py-0.5 rounded-full bg-slate-100 text-slate-800 dark:bg-slate-500/15 dark:text-slate-400">Em aberto</span>
               </Link>
             ))}
           </div>
