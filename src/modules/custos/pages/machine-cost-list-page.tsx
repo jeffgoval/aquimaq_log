@@ -81,6 +81,7 @@ export function MachineCostListPage() {
 
   useEffect(() => {
     if (!addDialog.isOpen || !tractorOptionsSorted.length) return
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setForm((f) => {
       if (f.tractor_id) return f
       const id = getPreferredTractorId(tractorOptionsSorted)

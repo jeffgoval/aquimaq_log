@@ -20,6 +20,7 @@ export const ServiceOwnerDiscountCard = ({
   const [amount, setAmount] = useState<number | undefined>(savedAmount)
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setAmount(savedAmount)
   }, [savedAmount, serviceId])
 

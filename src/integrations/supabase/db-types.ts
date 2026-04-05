@@ -1,4 +1,3 @@
-import { supabase } from '@/integrations/supabase/client'
 import type { Database } from './server-types'
 
 export type Tables<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Row']

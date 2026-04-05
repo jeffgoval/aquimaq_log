@@ -44,7 +44,7 @@ export function Sidebar() {
               )
             }
           >
-            <item.icon className={cn("h-4 w-4 shrink-0", ({ isActive }: any) => isActive ? 'text-primary-foreground' : 'text-muted-foreground')} />
+            <item.icon className="h-4 w-4 shrink-0" />
             {item.label}
           </NavLink>
         ))}

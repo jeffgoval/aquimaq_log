@@ -69,11 +69,13 @@ export function WorklogSection({
 
   useEffect(() => {
     if (!addDialog.isOpen || !defaultOperatorId) return
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setForm((f) => (f.operator_id ? f : { ...f, operator_id: defaultOperatorId }))
   }, [addDialog.isOpen, defaultOperatorId])
 
   useEffect(() => {
     if (!addDialog.isOpen) return
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setForm((f) => ({ ...f, work_date: defaultAddWorkDate }))
     setAddFormOtherDay(false)
   }, [addDialog.isOpen, defaultAddWorkDate])

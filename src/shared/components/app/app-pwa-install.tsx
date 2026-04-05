@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { Download, Share, X } from 'lucide-react'
-import { cn } from '@/shared/lib/cn'
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>
@@ -15,11 +14,12 @@ export function AppPwaInstall() {
 
   useEffect(() => {
     // Detect if already installed (standalone mode)
-    const isStandaloneMode = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone
-    setIsStandalone(isStandaloneMode)
+    const isStandaloneMode = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as Navigator & { standalone?: boolean }).standalone
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsStandalone(!!isStandaloneMode)
 
     // Detect iOS
-    const isIosDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream
+    const isIosDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as Window & { MSStream?: unknown }).MSStream
     setIsIOS(isIosDevice)
 
     // Capture the installation prompt (non-iOS)
