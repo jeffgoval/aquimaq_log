@@ -53,15 +53,6 @@ export function LoginPage() {
         >
           Entrar
         </AppButton>
-
-        <div className="text-center mt-6">
-          <p className="text-sm text-muted-foreground">
-            Ainda não tem conta?{' '}
-            <Link to={ROUTES.REGISTER} className="text-primary hover:underline font-medium">
-              Criar agora
-            </Link>
-          </p>
-        </div>
       </form>
     </div>
   )

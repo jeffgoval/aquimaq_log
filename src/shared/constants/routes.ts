@@ -1,7 +1,6 @@
 export const ROUTES = {
   // Auth
   LOGIN: '/login',
-  REGISTER: '/cadastro',
   FORGOT_PASSWORD: '/forgot-password',
   RESET_PASSWORD: '/reset-password',
 

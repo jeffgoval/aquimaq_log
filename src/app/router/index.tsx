@@ -8,7 +8,6 @@ import { ROUTES } from '@/shared/constants/routes'
 
 // Lazy-loaded pages
 const LoginPage               = lazy(() => import('@/modules/auth/pages/login-page').then(m => ({ default: m.LoginPage })))
-const RegisterPage            = lazy(() => import('@/modules/auth/pages/register-page').then(m => ({ default: m.RegisterPage })))
 const ForgotPasswordPage      = lazy(() => import('@/modules/auth/pages/forgot-password-page').then(m => ({ default: m.ForgotPasswordPage })))
 const ResetPasswordPage       = lazy(() => import('@/modules/auth/pages/reset-password-page').then(m => ({ default: m.ResetPasswordPage })))
 const AccountSettingsPage     = lazy(() => import('@/modules/conta/pages/account-settings-page').then(m => ({ default: m.AccountSettingsPage })))
@@ -45,7 +44,6 @@ const router = createBrowserRouter([
     element: <AuthLayout />,
     children: [
       { path: ROUTES.LOGIN, element: <Suspense fallback={<Fallback />}><LoginPage /></Suspense> },
-      { path: ROUTES.REGISTER, element: <Suspense fallback={<Fallback />}><RegisterPage /></Suspense> },
       { path: ROUTES.FORGOT_PASSWORD, element: <Suspense fallback={<Fallback />}><ForgotPasswordPage /></Suspense> },
       { path: ROUTES.RESET_PASSWORD, element: <Suspense fallback={<Fallback />}><ResetPasswordPage /></Suspense> },
     ],
