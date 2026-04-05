@@ -13,6 +13,12 @@ export const ROUTES = {
   TRACTOR_DETAIL: (id: string) => `/tratores/${id}`,
   TRACTOR_EDIT: (id: string) => `/tratores/${id}/editar`,
 
+  // Trucks
+  TRUCKS: '/guinchos',
+  TRUCK_NEW: '/guinchos/novo',
+  TRUCK_DETAIL: (id: string) => `/guinchos/${id}`,
+  TRUCK_EDIT: (id: string) => `/guinchos/${id}/editar`,
+
   // Operators
   OPERATORS: '/operadores',
   OPERATOR_NEW: '/operadores/novo',

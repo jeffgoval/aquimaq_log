@@ -18,7 +18,8 @@ type ServiceWorklogStatus = 'draft' | 'in_progress' | 'completed' | 'cancelled'
 
 interface WorklogSectionProps {
   serviceId: string
-  tractorId: string
+  vehicleId: string
+  isTruck?: boolean
   /** Estado do serviço: encerrados só permitem alterar observações nas linhas (histórico financeiro protegido). */
   serviceStatus: ServiceWorklogStatus
   /** Pré-seleciona o operador no novo registo (ex.: último operador já apontado neste serviço). */
@@ -31,7 +32,8 @@ interface WorklogSectionProps {
 
 export function WorklogSection({
   serviceId,
-  tractorId,
+  vehicleId,
+  isTruck = false,
   serviceStatus,
   defaultOperatorId,
   serviceDate,
@@ -48,8 +50,8 @@ export function WorklogSection({
   const [form, setForm] = useState({
     operator_id: '',
     work_date: dayjs().format('YYYY-MM-DD'),
-    start_hourmeter: '',
-    end_hourmeter: '',
+    start_value: '',
+    end_value: '',
     notes: '',
   })
 
@@ -71,8 +73,8 @@ export function WorklogSection({
   const [editForm, setEditForm] = useState({
     operator_id: '',
     work_date: dayjs().format('YYYY-MM-DD'),
-    start_hourmeter: '',
-    end_hourmeter: '',
+    start_value: '',
+    end_value: '',
     notes: '',
   })
 
@@ -96,20 +98,20 @@ export function WorklogSection({
   }, [form.operator_id, operators.data])
 
   const preview = useMemo(() => {
-    const start = Number(String(form.start_hourmeter).replace(',', '.'))
-    const end = Number(String(form.end_hourmeter).replace(',', '.'))
+    const start = Number(String(form.start_value).replace(',', '.'))
+    const end = Number(String(form.end_value).replace(',', '.'))
     if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start) {
       return null
     }
-    const hours = end - start
-    return computeWorklogLineAmounts(hours, contractedHourRate, selectedOperatorRate)
-  }, [form.start_hourmeter, form.end_hourmeter, contractedHourRate, selectedOperatorRate])
+    const amount = end - start
+    return computeWorklogLineAmounts(amount, contractedHourRate, selectedOperatorRate)
+  }, [form.start_value, form.end_value, contractedHourRate, selectedOperatorRate])
 
   const handleAdd = async () => {
-    const start = Number(String(form.start_hourmeter).replace(',', '.'))
-    const end = Number(String(form.end_hourmeter).replace(',', '.'))
+    const start = Number(String(form.start_value).replace(',', '.'))
+    const end = Number(String(form.end_value).replace(',', '.'))
     if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start) {
-      toast.error('Horímetro final deve ser maior que o inicial.')
+      toast.error(`${isTruck ? 'Odômetro' : 'Horímetro'} final deve ser maior que o inicial.`)
       return
     }
     if (!form.operator_id) {
@@ -121,18 +123,21 @@ export function WorklogSection({
       serviceYmd && !addFormOtherDay ? serviceYmd : form.work_date
 
     await createWorklog.mutateAsync({
-      tractor_id: tractorId,
+      tractor_id: !isTruck ? vehicleId : null,
+      truck_id: isTruck ? vehicleId : null,
       operator_id: form.operator_id || null,
       work_date: workDateSubmit,
-      start_hourmeter: start,
-      end_hourmeter: end,
+      start_hourmeter: !isTruck ? start : null,
+      end_hourmeter: !isTruck ? end : null,
+      start_odometer: isTruck ? start : null,
+      end_odometer: isTruck ? end : null,
       notes: form.notes || null,
     })
     setForm({
       operator_id: defaultOperatorId ?? '',
       work_date: defaultAddWorkDate,
-      start_hourmeter: '',
-      end_hourmeter: '',
+      start_value: '',
+      end_value: '',
       notes: '',
     })
     addDialog.close()
@@ -146,18 +151,18 @@ export function WorklogSection({
     setEditForm({
       operator_id: log.operator_id ?? '',
       work_date: log.work_date.slice(0, 10),
-      start_hourmeter: String(log.start_hourmeter),
-      end_hourmeter: String(log.end_hourmeter),
+      start_value: String(isTruck ? log.start_odometer : log.start_hourmeter),
+      end_value: String(isTruck ? log.end_odometer : log.end_hourmeter),
       notes: log.notes ?? '',
     })
   }
 
   const handleSaveEdit = async () => {
     if (!editingId) return
-    const start = Number(String(editForm.start_hourmeter).replace(',', '.'))
-    const end = Number(String(editForm.end_hourmeter).replace(',', '.'))
+    const start = Number(String(editForm.start_value).replace(',', '.'))
+    const end = Number(String(editForm.end_value).replace(',', '.'))
     if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start) {
-      toast.error('Horímetro final deve ser maior que o inicial.')
+      toast.error(`${isTruck ? 'Odômetro' : 'Horímetro'} final deve ser maior que o inicial.`)
       return
     }
     await updateWorklog.mutateAsync({
@@ -165,8 +170,10 @@ export function WorklogSection({
       payload: {
         operator_id: editForm.operator_id || null,
         work_date: editForm.work_date,
-        start_hourmeter: start,
-        end_hourmeter: end,
+        start_hourmeter: !isTruck ? start : null,
+        end_hourmeter: !isTruck ? end : null,
+        start_odometer: isTruck ? start : null,
+        end_odometer: isTruck ? end : null,
         notes: editForm.notes.trim() || null,
       },
     })
@@ -196,22 +203,22 @@ export function WorklogSection({
     setNotesOnlyDraft('')
   }
 
-  const totalHours = data?.reduce((acc, w) => acc + (w.worked_hours ?? 0), 0) ?? 0
+  const totalQuantities = data?.reduce((acc, w) => acc + (isTruck ? (w.end_odometer ?? 0) - (w.start_odometer ?? 0) : (w.worked_hours ?? 0)), 0) ?? 0
 
   return (
     <div className="rounded-xl border border-border bg-card p-4 lg:p-6 shadow-sm">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between mb-5">
         <div>
-          <h2 className="typo-section-title">Horímetro do trator</h2>
+          <h2 className="typo-section-title">{isTruck ? 'Odômetro e deslocamento' : 'Horímetro do trator'}</h2>
           <p className="typo-body-muted text-sm mt-1 max-w-xl">
             {serviceLocked
-              ? 'Serviço encerrado: horas e horímetro não podem ser alterados. Pode acrescentar ou corrigir observações em cada linha abaixo.'
-              : 'Registe a leitura inicial e final do horímetro em cada dia ou turno; as horas são calculadas automaticamente.'}
+              ? `Serviço encerrado: horas e ${isTruck ? 'odômetro' : 'horímetro'} não podem ser alterados. Pode acrescentar ou corrigir observações em cada linha abaixo.`
+              : `Registe a leitura inicial e final do ${isTruck ? 'odômetro' : 'horímetro'} em cada dia ou turno; os valores são calculados automaticamente.`}
           </p>
-          {totalHours > 0 && (
+          {totalQuantities > 0 && (
             <div className="flex items-center gap-1.5 mt-2">
               <div className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_10px_#ffcd1175]" />
-              <p className="typo-body font-semibold text-foreground">Total: {totalHours.toFixed(1)} h registadas</p>
+              <p className="typo-body font-semibold text-foreground">Total: {totalQuantities.toFixed(1)} {isTruck ? 'km' : 'h'} registadas</p>
             </div>
           )}
         </div>
@@ -294,22 +301,22 @@ export function WorklogSection({
             </div>
             <div className="grid grid-cols-2 gap-2 sm:col-span-2 lg:col-span-1">
               <div>
-                <label className="field-label" title="Horímetro inicial">
-                  Horímetro inicial
+                <label className="field-label" title={isTruck ? "Odômetro inicial" : "Horímetro inicial"}>
+                  {isTruck ? 'Odômetro inicial' : 'Horímetro inicial'}
                 </label>
                 <AppDecimalInput
-                  value={form.start_hourmeter}
-                  onValueChange={(v) => setForm((f) => ({ ...f, start_hourmeter: v.value }))}
+                  value={form.start_value}
+                  onValueChange={(v) => setForm((f) => ({ ...f, start_value: v.value }))}
                   placeholder="0,0"
                 />
               </div>
               <div>
-                <label className="field-label" title="Horímetro final">
-                  Horímetro final
+                <label className="field-label" title={isTruck ? "Odômetro final" : "Horímetro final"}>
+                  {isTruck ? 'Odômetro final' : 'Horímetro final'}
                 </label>
                 <AppDecimalInput
-                  value={form.end_hourmeter}
-                  onValueChange={(v) => setForm((f) => ({ ...f, end_hourmeter: v.value }))}
+                  value={form.end_value}
+                  onValueChange={(v) => setForm((f) => ({ ...f, end_value: v.value }))}
                   placeholder="0,0"
                 />
               </div>
@@ -329,7 +336,7 @@ export function WorklogSection({
             <div className="rounded-lg border border-border/80 bg-card/80 px-4 py-3 text-sm space-y-1">
               <p className="font-medium text-foreground">Pré-visualização deste registo</p>
               <p className="text-muted-foreground">
-                Horas: <span className="font-semibold text-foreground">{(Number(String(form.end_hourmeter).replace(',', '.')) - Number(String(form.start_hourmeter).replace(',', '.'))).toFixed(2)} h</span>
+                {isTruck ? 'Distância' : 'Horas'}: <span className="font-semibold text-foreground">{(Number(String(form.end_value).replace(',', '.')) - Number(String(form.start_value).replace(',', '.'))).toFixed(2)} {isTruck ? 'km' : 'h'}</span>
                 {' · '}
                 Faturação (cliente): <AppMoney value={preview.billingLine} size="sm" />
                 {' · '}
@@ -419,18 +426,18 @@ export function WorklogSection({
             </div>
             <div className="grid grid-cols-2 gap-2 sm:col-span-2 lg:col-span-1">
               <div>
-                <label className="field-label">Horímetro inicial</label>
+                <label className="field-label">{isTruck ? 'Odômetro inicial' : 'Horímetro inicial'}</label>
                 <AppDecimalInput
-                  value={editForm.start_hourmeter}
-                  onValueChange={(v) => setEditForm((f) => ({ ...f, start_hourmeter: v.value }))}
+                  value={editForm.start_value}
+                  onValueChange={(v) => setEditForm((f) => ({ ...f, start_value: v.value }))}
                   placeholder="0,0"
                 />
               </div>
               <div>
-                <label className="field-label">Horímetro final</label>
+                <label className="field-label">{isTruck ? 'Odômetro final' : 'Horímetro final'}</label>
                 <AppDecimalInput
-                  value={editForm.end_hourmeter}
-                  onValueChange={(v) => setEditForm((f) => ({ ...f, end_hourmeter: v.value }))}
+                  value={editForm.end_value}
+                  onValueChange={(v) => setEditForm((f) => ({ ...f, end_value: v.value }))}
                   placeholder="0,0"
                 />
               </div>
@@ -485,8 +492,8 @@ export function WorklogSection({
                     </AppBadge>
                   }
                   items={[
-                    { label: 'Horímetro início', value: `${log.start_hourmeter} h` },
-                    { label: 'Horímetro fim', value: `${log.end_hourmeter} h` },
+                    { label: isTruck ? 'Odômetro início' : 'Horímetro início', value: `${isTruck ? log.start_odometer : log.start_hourmeter} ${isTruck ? 'km' : 'h'}` },
+                    { label: isTruck ? 'Odômetro fim' : 'Horímetro fim', value: `${isTruck ? log.end_odometer : log.end_hourmeter} ${isTruck ? 'km' : 'h'}` },
                     { label: 'Faturação (cliente)', value: <AppMoney value={line.billingLine} size="sm" /> },
                     { label: 'Custo operador', value: <AppMoney value={line.operatorCostLine} size="sm" /> },
                     { label: 'Margem linha', value: <AppMoney value={line.marginLine} size="sm" colored /> },

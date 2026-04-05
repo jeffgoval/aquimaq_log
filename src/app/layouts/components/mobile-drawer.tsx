@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from 'react-router-dom'
-import { X, LogOut, Tractor, LayoutDashboard, Users, Building2, Store, ClipboardList, DollarSign, Wrench, TrendingUp, UserCircle } from 'lucide-react'
+import { X, LogOut, Tractor, Truck, LayoutDashboard, Users, Building2, Store, ClipboardList, DollarSign, Wrench, TrendingUp, UserCircle } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
 import { ROUTES } from '@/shared/constants/routes'
 import { supabase } from '@/integrations/supabase/client'
@@ -8,6 +8,7 @@ import { toast } from 'sonner'
 const ALL_NAV = [
   { label: 'Dashboard',     href: ROUTES.DASHBOARD,     icon: LayoutDashboard, end: true },
   { label: 'Tratores',      href: ROUTES.TRACTORS,      icon: Tractor,         end: false },
+  { label: 'Guinchos',      href: ROUTES.TRUCKS,        icon: Truck,           end: false },
   { label: 'Operadores',    href: ROUTES.OPERATORS,     icon: Users,           end: false },
   { label: 'Clientes',      href: ROUTES.CLIENTS,       icon: Building2,       end: false },
   { label: 'Fornecedores',  href: ROUTES.SUPPLIERS,     icon: Store,           end: false },

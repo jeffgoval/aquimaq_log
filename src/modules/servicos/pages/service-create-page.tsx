@@ -7,8 +7,10 @@ import { AppButton } from '@/shared/components/app/app-button'
 import { ROUTES } from '@/shared/constants/routes'
 
 export function ServiceCreatePage() {
-  const { form, onSubmit, isSubmitting, clients, tractors } = useCreateServiceController()
-  const { register, control, formState: { errors } } = form
+  const { form, onSubmit, isSubmitting, clients, tractors, trucks } = useCreateServiceController()
+  const { register, control, watch, formState: { errors } } = form
+
+  const vehicleType = watch('vehicle_type')
 
   return (
     <div className="max-w-2xl">
@@ -34,13 +36,34 @@ export function ServiceCreatePage() {
                 </Link>
               </p>
             </div>
-            <div>
-              <label className="field-label">Trator *</label>
-              <select {...register('tractor_id')} className="field">
-                <option value="">Selecione...</option>
-                {tractors.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
-              </select>
-              {errors.tractor_id && <p className="field-error">{errors.tractor_id.message}</p>}
+            <div className="sm:col-span-2">
+              <label className="field-label flex gap-4">
+                <span className="flex-1">Tipo de Máquina/Veículo *</span>
+                <label className="flex items-center gap-1.5 cursor-pointer font-normal">
+                  <input type="radio" value="tractor" {...register('vehicle_type')} className="accent-primary" /> Trator
+                </label>
+                <label className="flex items-center gap-1.5 cursor-pointer font-normal">
+                  <input type="radio" value="truck" {...register('vehicle_type')} className="accent-primary" /> Guincho / Caminhão
+                </label>
+              </label>
+
+              {vehicleType === 'tractor' ? (
+                <>
+                  <select {...register('tractor_id')} className="field mt-1.5">
+                    <option value="">Selecione o trator...</option>
+                    {tractors.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+                  </select>
+                  {errors.tractor_id && <p className="field-error">{errors.tractor_id.message}</p>}
+                </>
+              ) : (
+                <>
+                  <select {...register('truck_id')} className="field mt-1.5">
+                    <option value="">Selecione o guincho...</option>
+                    {trucks.map(t => <option key={t.id} value={t.id}>{t.name} {t.plate ? `(${t.plate})` : ''}</option>)}
+                  </select>
+                  {errors.truck_id && <p className="field-error">{errors.truck_id.message}</p>}
+                </>
+              )}
             </div>
             <div>
               <label className="field-label">Data *</label>
@@ -66,6 +89,39 @@ export function ServiceCreatePage() {
               <label className="field-label">Observações</label>
               <textarea {...register('notes')} rows={2} className="field resize-none" placeholder="Detalhes, condições, localidade..." />
             </div>
+            {vehicleType === 'truck' && (
+              <>
+                <div className="sm:col-span-3 pt-2 border-t border-border mt-2">
+                  <h3 className="typo-section-title text-sm mb-3">Dados Logísticos (Guincho)</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                      <label className="field-label">Forma de Cobrança</label>
+                      <select {...register('charge_type')} className="field">
+                        <option value="por_hora">Por Hora</option>
+                        <option value="por_km">Por KM Rodado</option>
+                        <option value="valor_fixo">Valor Fixo</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="field-label">Placa do Socorrido</label>
+                      <input {...register('towed_vehicle_plate')} className="field uppercase" placeholder="ABC1D23" />
+                    </div>
+                    <div>
+                      <label className="field-label">Marca/Modelo</label>
+                      <input {...register('towed_vehicle_brand')} className="field" placeholder="Ex: VW Gol" />
+                    </div>
+                    <div className="sm:col-span-1.5">
+                      <label className="field-label">Origem</label>
+                      <input {...register('origin_location')} className="field" placeholder="Local de embarque" />
+                    </div>
+                    <div className="sm:col-span-1.5">
+                      <label className="field-label">Destino</label>
+                      <input {...register('destination_location')} className="field" placeholder="Local de desembarque" />
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </div>
 

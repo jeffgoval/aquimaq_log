@@ -8,6 +8,7 @@ import { queryKeys } from '@/integrations/supabase/query-keys'
 import { removeReceiptAtPathIfExists, uploadMachineCostReceipt } from '@/integrations/supabase/receipts-storage'
 import { compressImageToJpeg } from '@/shared/lib/image-compress'
 import { useTractorOptions } from '@/modules/tratores/hooks/use-tractor-queries'
+import { useTrucks } from '@/modules/caminhoes/hooks/use-truck-queries'
 import { useSupplierOptions } from '@/modules/fornecedores/hooks/use-supplier-queries'
 import { ROUTES } from '@/shared/constants/routes'
 import { AppPageHeader } from '@/shared/components/app/app-page-header'
@@ -80,6 +81,7 @@ export function MachineCostListPage() {
   const [sortMode, setSortMode] = useState<CostSortMode>('event_desc')
   const { data, isLoading, isError, error, refetch } = useMachineCosts()
   const tractors = useTractorOptions()
+  const trucks = useTrucks()
   const suppliers = useSupplierOptions()
   const createCost = useCreateCost()
   const addDialog = useDisclosure()
@@ -88,7 +90,8 @@ export function MachineCostListPage() {
   const [selectedCost, setSelectedCost] = useState<MachineCostWithTractor | null>(null)
 
   const [form, setForm] = useState({
-    tractor_id: '',
+    vehicle_type: 'tractor' as 'tractor' | 'truck',
+    vehicle_id: '',
     supplier_id: '',
     cost_type: 'fuel' as const,
     amount: '',
@@ -102,18 +105,19 @@ export function MachineCostListPage() {
     if (!addDialog.isOpen || !tractorOptionsSorted.length) return
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setForm((f) => {
-      if (f.tractor_id) return f
+      if (f.vehicle_id) return f
       const id = getPreferredTractorId(tractorOptionsSorted)
-      return id ? { ...f, tractor_id: id } : f
+      return id ? { ...f, vehicle_id: id, vehicle_type: 'tractor' as const } : f
     })
   }, [addDialog.isOpen, tractorOptionsSorted])
 
   const filtered = data?.filter((c) => {
     const q = search.toLowerCase()
     const supplierLabel = c.suppliers?.name || c.supplier_name || ''
+    const vehicleLabel = c.tractors?.name || c.trucks?.name || ''
     return (
       c.description?.toLowerCase().includes(q) ||
-      c.tractors?.name.toLowerCase().includes(q) ||
+      vehicleLabel.toLowerCase().includes(q) ||
       supplierLabel.toLowerCase().includes(q)
     )
   })
@@ -124,12 +128,13 @@ export function MachineCostListPage() {
   }, [filtered, sortMode])
 
   const handleAdd = async () => {
-    if (!form.tractor_id || !form.amount) return
+    if (!form.vehicle_id || !form.amount) return
     const amount = parseMoneyInput(form.amount)
     if (!Number.isFinite(amount) || amount <= 0) return
     try {
       const row = await createCost.mutateAsync({
-        tractor_id: form.tractor_id,
+        tractor_id: form.vehicle_type === 'tractor' ? form.vehicle_id : null,
+        truck_id: form.vehicle_type === 'truck' ? form.vehicle_id : null,
         supplier_id: form.supplier_id || null,
         cost_type: form.cost_type as never,
         amount,
@@ -155,7 +160,8 @@ export function MachineCostListPage() {
     }
     setReceiptFile(null)
     setForm({
-      tractor_id: '',
+      vehicle_type: 'tractor',
+      vehicle_id: '',
       supplier_id: '',
       cost_type: 'fuel',
       amount: '',
@@ -218,14 +224,25 @@ export function MachineCostListPage() {
           <h2 className="typo-section-title text-muted-foreground">Novo registro de custo</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             <div>
-              <label className="field-label">Trator *</label>
-              <select value={form.tractor_id} onChange={e => setForm(f => ({ ...f, tractor_id: e.target.value }))} className="field">
-                <option value="">Selecione...</option>
-                {tractorOptionsSorted.map((t) => (
-                  <option key={t.id} value={t.id}>
-                    {t.name}
-                  </option>
-                ))}
+              <label className="field-label">Veículo *</label>
+              <select 
+                value={form.vehicle_type} 
+                onChange={e => setForm(f => ({ ...f, vehicle_type: e.target.value as 'tractor'|'truck', vehicle_id: '' }))} 
+                className="field mb-2"
+              >
+                <option value="tractor">Trator</option>
+                <option value="truck">Guincho</option>
+              </select>
+              <select value={form.vehicle_id} onChange={e => setForm(f => ({ ...f, vehicle_id: e.target.value }))} className="field">
+                <option value="">Selecione o veículo...</option>
+                {form.vehicle_type === 'tractor' 
+                  ? tractorOptionsSorted.map((t) => (
+                      <option key={t.id} value={t.id}>{t.name}</option>
+                    ))
+                  : trucks.data?.map((t) => (
+                      <option key={t.id} value={t.id}>{t.name}</option>
+                    ))
+                }
               </select>
             </div>
             <div>
@@ -321,7 +338,7 @@ export function MachineCostListPage() {
                   <AppDataCard
                     key={cost.id}
                     onClick={() => setSelectedCost(cost)}
-                    title={cost.tractors?.name || 'Maquinário'}
+                    title={cost.tractors?.name || cost.trucks?.name || 'Maquinário'}
                     subtitle={dayjs(cost.cost_date).format('DD [de] MMMM')}
                     icon={Wrench}
                     badge={

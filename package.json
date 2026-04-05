@@ -10,8 +10,9 @@
     "preview": "vite preview",
     "test": "vitest",
     "test:run": "vitest run",
-    "db:push": "npx supabase link --project-ref hziovsgaqmrwthnlqobd && npx supabase db push",
-    "db:status": "npx supabase link --project-ref hziovsgaqmrwthnlqobd && npx supabase migration list"
+    "db:push": "node scripts/db-guard.js && npx supabase db push",
+    "db:status": "node scripts/db-guard.js && npx supabase migration list",
+    "db:types": "node scripts/db-guard.js && npx supabase gen types typescript --project-id hziovsgaqmrwthnlqobd > src/integrations/supabase/server-types.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

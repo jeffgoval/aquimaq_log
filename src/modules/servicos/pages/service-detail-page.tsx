@@ -97,7 +97,7 @@ export function ServiceDetailPage() {
         backTo={ROUTES.SERVICES}
         backLabel="Voltar aos serviços"
         title={service.clients?.name ?? 'Serviço'}
-        description={`${service.tractors?.name} · ${dayjs(service.service_date).format('DD/MM/YYYY')}`}
+        description={`${service.tractors?.name || service.trucks?.name || ''} · ${dayjs(service.service_date).format('DD/MM/YYYY')}`}
         actions={
           <div className="flex flex-wrap items-center gap-2">
             <ServiceVoucherPdfButton service={service} worklogs={worklogs ?? []} summary={summary} />
@@ -199,8 +199,9 @@ export function ServiceDetailPage() {
 
       <WorklogSection
         serviceId={service.id}
-        tractorId={service.tractor_id}
-        serviceStatus={service.status}
+        vehicleId={service.tractor_id ?? service.truck_id ?? ''}
+        isTruck={!!service.truck_id}
+        serviceStatus={service.status as any}
         defaultOperatorId={defaultOperatorFromWorklogs}
         serviceDate={service.service_date}
         contractedHourRate={service.contracted_hour_rate}
@@ -221,11 +222,20 @@ export function ServiceDetailPage() {
               value: <LaborOperatorsInService attribution={laborOperatorAttribution} />,
             },
             { label: 'Data', value: dayjs(service.service_date).format('DD/MM/YYYY') },
-            { label: 'Custo/h do trator (referência)', value: service.tractors?.standard_hour_cost != null ? <AppMoney value={Number(service.tractors.standard_hour_cost)} size="sm" /> : '—' },
+            service.tractors 
+              ? { label: 'Custo/h base (referência)', value: service.tractors?.standard_hour_cost != null ? <AppMoney value={Number(service.tractors.standard_hour_cost)} size="sm" /> : '—' }
+              : { label: 'Custo/h base', value: '—' },
+            ...(service.truck_id ? [
+              { label: 'Placa Veíc. Socorrido', value: service.towed_vehicle_plate || '—' },
+              { label: 'Modelo Socorrido', value: service.towed_vehicle_brand ? `${service.towed_vehicle_brand} ${service.towed_vehicle_model || ''}` : service.towed_vehicle_model || '—' },
+              { label: 'Origem', value: service.origin_location || '—' },
+              { label: 'Destino', value: service.destination_location || '—' },
+              { label: 'Cobrança', value: service.charge_type?.replace('_', ' ') || 'por hora' }
+            ] : []),
           ].map(({ label, value }) => (
             <div key={label}>
-              <dt className="typo-caption">{label}</dt>
-              <dd className="font-medium mt-1">{value}</dd>
+              <dt className="typo-caption truncate">{label}</dt>
+              <dd className="font-medium mt-1 uppercase text-sm">{value}</dd>
             </div>
           ))}
         </dl>

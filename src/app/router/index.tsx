@@ -16,6 +16,10 @@ const TractorListPage         = lazy(() => import('@/modules/tratores/pages/trac
 const TractorCreatePage       = lazy(() => import('@/modules/tratores/pages/tractor-create-page').then(m => ({ default: m.TractorCreatePage })))
 const TractorDetailPage       = lazy(() => import('@/modules/tratores/pages/tractor-detail-page').then(m => ({ default: m.TractorDetailPage })))
 const TractorEditPage         = lazy(() => import('@/modules/tratores/pages/tractor-edit-page').then(m => ({ default: m.TractorEditPage })))
+const TruckListPage           = lazy(() => import('@/modules/caminhoes/pages/truck-list-page').then(m => ({ default: m.TruckListPage })))
+const TruckCreatePage         = lazy(() => import('@/modules/caminhoes/pages/truck-create-page').then(m => ({ default: m.TruckCreatePage })))
+const TruckDetailPage         = lazy(() => import('@/modules/caminhoes/pages/truck-detail-page').then(m => ({ default: m.TruckDetailPage })))
+const TruckEditPage           = lazy(() => import('@/modules/caminhoes/pages/truck-edit-page').then(m => ({ default: m.TruckEditPage })))
 const OperatorListPage        = lazy(() => import('@/modules/operadores/pages/operator-list-page').then(m => ({ default: m.OperatorListPage })))
 const OperatorCreatePage      = lazy(() => import('@/modules/operadores/pages/operator-create-page').then(m => ({ default: m.OperatorCreatePage })))
 const OperatorDetailPage      = lazy(() => import('@/modules/operadores/pages/operator-detail-page').then(m => ({ default: m.OperatorDetailPage })))
@@ -60,6 +64,10 @@ const router = createBrowserRouter([
           { path: ROUTES.TRACTOR_NEW,        element: <Suspense fallback={<Fallback />}><TractorCreatePage /></Suspense> },
           { path: '/tratores/:id',           element: <Suspense fallback={<Fallback />}><TractorDetailPage /></Suspense> },
           { path: '/tratores/:id/editar',    element: <Suspense fallback={<Fallback />}><TractorEditPage /></Suspense> },
+          { path: ROUTES.TRUCKS,             element: <Suspense fallback={<Fallback />}><TruckListPage /></Suspense> },
+          { path: ROUTES.TRUCK_NEW,          element: <Suspense fallback={<Fallback />}><TruckCreatePage /></Suspense> },
+          { path: '/guinchos/:id',           element: <Suspense fallback={<Fallback />}><TruckDetailPage /></Suspense> },
+          { path: '/guinchos/:id/editar',    element: <Suspense fallback={<Fallback />}><TruckEditPage /></Suspense> },
           { path: ROUTES.OPERATORS,          element: <Suspense fallback={<Fallback />}><OperatorListPage /></Suspense> },
           { path: ROUTES.OPERATOR_NEW,       element: <Suspense fallback={<Fallback />}><OperatorCreatePage /></Suspense> },
           { path: '/operadores/:id/editar',  element: <Suspense fallback={<Fallback />}><OperatorEditPage /></Suspense> },

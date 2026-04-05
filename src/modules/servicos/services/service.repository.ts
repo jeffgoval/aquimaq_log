@@ -8,7 +8,7 @@ export const serviceRepository = {
   async list(): Promise<ServiceWithJoins[]> {
     const { data, error } = await supabase
       .from('services')
-      .select('*, clients(name), tractors(name, standard_hour_cost)')
+      .select('*, clients(name), tractors(name, standard_hour_cost), trucks(name)')
       .order('created_at', { ascending: false })
     if (error) throw error
     return (data ?? []) as ServiceWithJoins[]
@@ -17,7 +17,7 @@ export const serviceRepository = {
   async getById(id: string): Promise<ServiceWithJoins> {
     const { data, error } = await supabase
       .from('services')
-      .select('*, clients(name), tractors(name, standard_hour_cost)')
+      .select('*, clients(name), tractors(name, standard_hour_cost), trucks(name)')
       .eq('id', id)
       .single()
     if (error) throw error

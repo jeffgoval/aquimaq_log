@@ -37,14 +37,14 @@ export const ServiceOperatorPaymentPanel = ({
   const form = useForm<ServiceOperatorPaymentForm>({
     resolver: zodResolver(serviceOperatorPaymentSchema),
     defaultValues: {
-      operator_payment_status: service.operator_payment_status ?? 'pending',
+      operator_payment_status: (service.operator_payment_status as 'pending' | 'paid') ?? 'pending',
       operator_payment_date: service.operator_payment_date ?? '',
     },
   })
 
   useEffect(() => {
     form.reset({
-      operator_payment_status: service.operator_payment_status ?? 'pending',
+      operator_payment_status: (service.operator_payment_status as 'pending' | 'paid') ?? 'pending',
       operator_payment_date: service.operator_payment_date ?? '',
     })
   }, [service.id, service.operator_payment_status, service.operator_payment_date, form.reset])

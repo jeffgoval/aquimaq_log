@@ -16,13 +16,13 @@ const COST_TYPE_LABELS = { fuel: '⛽ Combustível', oil: '🛢️ Óleo', parts
 
 type MachineCostRow = Tables<'machine_costs'>
 
-const STATUS_LABELS: Record<MachineCostRow['status'], string> = {
+const STATUS_LABELS: Record<NonNullable<MachineCostRow['status']>, string> = {
   pending: 'Pendente',
   paid: 'Pago',
   cancelled: 'Cancelado',
 }
 
-const STATUS_OPTIONS: MachineCostRow['status'][] = ['pending', 'paid', 'cancelled']
+const STATUS_OPTIONS: NonNullable<MachineCostRow['status']>[] = ['pending', 'paid', 'cancelled']
 
 export interface MachineCostDetailPanelProps {
   cost: MachineCostWithTractor
@@ -111,7 +111,7 @@ export const MachineCostDetailPanel = ({ cost, onClose, onCostUpdated }: Machine
         <div className="flex items-start justify-between gap-3 border-b border-border px-4 py-4 shrink-0">
           <div className="min-w-0">
             <h2 id="cost-panel-title" className="typo-section-title truncate">
-              {cost.tractors?.name ?? 'Custo'}
+              {cost.tractors?.name || cost.trucks?.name || 'Custo'}
             </h2>
             <p className="text-sm text-muted-foreground mt-0.5">
               {dayjs(cost.cost_date).format('DD/MM/YYYY')} · {typeLabel}
@@ -137,8 +137,8 @@ export const MachineCostDetailPanel = ({ cost, onClose, onCostUpdated }: Machine
               <select
                 id="cost-panel-status"
                 className="field mt-1 w-full"
-                value={paymentStatus}
-                onChange={(e) => setPaymentStatus(e.target.value as MachineCostRow['status'])}
+                value={paymentStatus || ''}
+                onChange={(e) => setPaymentStatus(e.target.value as NonNullable<MachineCostRow['status']>)}
                 disabled={updateCost.isPending}
               >
                 {STATUS_OPTIONS.map((key) => (

@@ -3,10 +3,11 @@ import { toast } from 'sonner'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useForm, Controller, type Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { createServiceSchema, type CreateServiceInput } from '../schemas/service.schema'
+import { editServiceSchema, type EditServiceInput } from '../schemas/service.schema'
 import { useService, useUpdateService } from '../hooks/use-service-queries'
 import { useClientOptions } from '@/modules/clientes/hooks/use-client-queries'
 import { useTractorOptions } from '@/modules/tratores/hooks/use-tractor-queries'
+import { useTrucks } from '@/modules/caminhoes/hooks/use-truck-queries'
 import { ROUTES } from '@/shared/constants/routes'
 import { AppPageHeader } from '@/shared/components/app/app-page-header'
 import { AppButton } from '@/shared/components/app/app-button'
@@ -30,6 +31,7 @@ export function ServiceEditPage() {
   const update = useUpdateService(id ?? '')
   const clients = useClientOptions()
   const tractors = useTractorOptions()
+  const trucksList = useTrucks()
 
   const locked = useMemo(
     () => service?.status === 'completed' || service?.status === 'cancelled',
@@ -38,19 +40,29 @@ export function ServiceEditPage() {
 
   const [receiptFile, setReceiptFile] = useState<File | null>(null)
 
-  const form = useForm<CreateServiceInput>({
-    resolver: zodResolver(createServiceSchema) as Resolver<CreateServiceInput>,
+  const form = useForm<EditServiceInput>({
+    resolver: zodResolver(editServiceSchema) as Resolver<EditServiceInput>,
   })
-  const { register, control, formState: { errors }, reset } = form
+  const { register, control, watch, formState: { errors }, reset } = form
+  
+  const vehicleType = watch('vehicle_type')
 
   useEffect(() => {
     if (!service) return
     reset({
       client_id: service.client_id,
-      tractor_id: service.tractor_id,
+      tractor_id: service.tractor_id ?? undefined,
+      truck_id: service.truck_id ?? undefined,
+      vehicle_type: service.tractor_id ? 'tractor' : 'truck',
       service_date: service.service_date.slice(0, 10),
       contracted_hour_rate: service.contracted_hour_rate,
       notes: service.notes ?? '',
+      charge_type: (service.charge_type as 'valor_fixo' | 'por_km' | 'por_hora') ?? undefined,
+      towed_vehicle_plate: service.towed_vehicle_plate ?? undefined,
+      towed_vehicle_brand: service.towed_vehicle_brand ?? undefined,
+      towed_vehicle_model: service.towed_vehicle_model ?? undefined,
+      origin_location: service.origin_location ?? undefined,
+      destination_location: service.destination_location ?? undefined,
     })
   }, [service, reset])
 
@@ -75,13 +87,21 @@ export function ServiceEditPage() {
       if (locked) {
         await update.mutateAsync({ notes: v.notes?.trim() || null, ...receiptExtra })
       } else {
+        const isTruck = v.vehicle_type === 'truck'
         await update.mutateAsync({
           client_id: v.client_id,
-          tractor_id: v.tractor_id,
+          tractor_id: !isTruck ? v.tractor_id || null : null,
+          truck_id: isTruck ? v.truck_id || null : null,
           primary_operator_id: null,
           service_date: v.service_date,
           contracted_hour_rate: v.contracted_hour_rate,
           notes: v.notes?.trim() || null,
+          charge_type: isTruck ? v.charge_type || undefined : undefined,
+          towed_vehicle_plate: isTruck ? v.towed_vehicle_plate?.toUpperCase() || undefined : undefined,
+          towed_vehicle_brand: isTruck ? v.towed_vehicle_brand || undefined : undefined,
+          towed_vehicle_model: isTruck ? v.towed_vehicle_model || undefined : undefined,
+          origin_location: isTruck ? v.origin_location || undefined : undefined,
+          destination_location: isTruck ? v.destination_location || undefined : undefined,
           ...receiptExtra,
         })
       }
@@ -101,8 +121,11 @@ export function ServiceEditPage() {
 
   const clientList = clients.data ?? []
   const tractorList = tractors.data ?? []
+  const trucks = trucksList.data ?? []
   const lockedClientName = clientList.find((c) => c.id === service.client_id)?.name ?? '—'
-  const lockedTractorName = tractorList.find((t) => t.id === service.tractor_id)?.name ?? '—'
+  const lockedTractorName = tractorList.find((t) => t.id === service.tractor_id)?.name ?? ''
+  const lockedTruckName = trucks.find((t) => t.id === service.truck_id)?.name ?? ''
+  const lockedVehicle = lockedTractorName || lockedTruckName || '—'
 
   return (
     <div className="max-w-2xl">
@@ -136,8 +159,8 @@ export function ServiceEditPage() {
                   <p className={cn('typo-body rounded-lg border border-border bg-muted/30 px-3 py-2')}>{lockedClientName}</p>
                 </div>
                 <div>
-                  <p className="field-label">Trator</p>
-                  <p className={cn('typo-body rounded-lg border border-border bg-muted/30 px-3 py-2')}>{lockedTractorName}</p>
+                  <p className="field-label">Veículo</p>
+                  <p className={cn('typo-body rounded-lg border border-border bg-muted/30 px-3 py-2')}>{lockedVehicle}</p>
                 </div>
                 <div>
                   <p className="field-label">Data</p>
@@ -171,17 +194,38 @@ export function ServiceEditPage() {
                     </Link>
                   </p>
                 </div>
-                <div>
-                  <label className="field-label">Trator *</label>
-                  <select {...register('tractor_id')} className="field">
-                    <option value="">Selecione...</option>
-                    {tractorList.map((t) => (
-                      <option key={t.id} value={t.id}>
-                        {t.name}
-                      </option>
-                    ))}
-                  </select>
-                  {errors.tractor_id && <p className="field-error">{errors.tractor_id.message}</p>}
+                <div className="sm:col-span-2">
+                  <label className="field-label flex gap-4">
+                    <span className="flex-1">Tipo de Máquina/Veículo *</span>
+                    <label className="flex items-center gap-1.5 cursor-pointer font-normal">
+                      <input type="radio" value="tractor" {...register('vehicle_type')} className="accent-primary" /> Trator
+                    </label>
+                    <label className="flex items-center gap-1.5 cursor-pointer font-normal">
+                      <input type="radio" value="truck" {...register('vehicle_type')} className="accent-primary" /> Guincho / Caminhão
+                    </label>
+                  </label>
+
+                  {vehicleType === 'tractor' ? (
+                    <>
+                      <select {...register('tractor_id')} className="field mt-1.5">
+                        <option value="">Selecione o trator...</option>
+                        {tractorList.map((t) => (
+                          <option key={t.id} value={t.id}>{t.name}</option>
+                        ))}
+                      </select>
+                      {errors.tractor_id && <p className="field-error">{errors.tractor_id.message}</p>}
+                    </>
+                  ) : (
+                    <>
+                      <select {...register('truck_id')} className="field mt-1.5">
+                        <option value="">Selecione o guincho...</option>
+                        {trucks.map((t) => (
+                          <option key={t.id} value={t.id}>{t.name} {t.plate ? `(${t.plate})` : ''}</option>
+                        ))}
+                      </select>
+                      {errors.truck_id && <p className="field-error">{errors.truck_id.message}</p>}
+                    </>
+                  )}
                 </div>
                 <div>
                   <label className="field-label">Data *</label>
@@ -203,6 +247,37 @@ export function ServiceEditPage() {
                   />
                   {errors.contracted_hour_rate && <p className="field-error">{errors.contracted_hour_rate.message}</p>}
                 </div>
+                {vehicleType === 'truck' && (
+                  <div className="sm:col-span-3 pt-2 border-t border-border mt-2">
+                    <h3 className="typo-section-title text-sm mb-3">Dados Logísticos (Guincho)</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      <div>
+                        <label className="field-label">Forma de Cobrança</label>
+                        <select {...register('charge_type')} className="field">
+                          <option value="por_hora">Por Hora</option>
+                          <option value="por_km">Por KM Rodado</option>
+                          <option value="valor_fixo">Valor Fixo</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="field-label">Placa do Socorrido</label>
+                        <input {...register('towed_vehicle_plate')} className="field uppercase" placeholder="ABC1D23" />
+                      </div>
+                      <div>
+                        <label className="field-label">Marca/Modelo</label>
+                        <input {...register('towed_vehicle_brand')} className="field" placeholder="Ex: VW Gol" />
+                      </div>
+                      <div className="sm:col-span-1.5">
+                        <label className="field-label">Origem</label>
+                        <input {...register('origin_location')} className="field" placeholder="Local de embarque" />
+                      </div>
+                      <div className="sm:col-span-1.5">
+                        <label className="field-label">Destino</label>
+                        <input {...register('destination_location')} className="field" placeholder="Local de desembarque" />
+                      </div>
+                    </div>
+                  </div>
+                )}
               </>
             )}
             <div className="sm:col-span-3">

@@ -10,13 +10,11 @@ select
     select sum(mc.amount)
     from public.machine_costs mc
     where mc.cost_type = 'fuel'
-      and mc.status is distinct from 'cancelled'
   ), 0)::numeric(14, 2) as spend_diesel,
   coalesce((
     select sum(mc.amount)
     from public.machine_costs mc
     where mc.cost_type in ('oil', 'parts', 'maintenance', 'other')
-      and mc.status is distinct from 'cancelled'
   ), 0)::numeric(14, 2) as spend_maintenance,
   coalesce((
     select sum(sw.worked_hours * o.default_hour_rate)

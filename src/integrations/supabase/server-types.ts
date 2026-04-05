@@ -1,525 +1,784 @@
-export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "14.5"
+  }
   public: {
     Tables: {
-      clients: {
+      audit_log: {
         Row: {
-          id: string
-          name: string
-          document: string | null
-          phone: string | null
-          email: string | null
-          notes: string | null
-          is_active: boolean
+          action: string
           created_at: string
-          updated_at: string
+          id: string
+          new_row: Json | null
+          old_row: Json | null
+          record_id: string
+          table_name: string
+          user_id: string | null
         }
         Insert: {
-          id?: string
-          name: string
-          document?: string | null
-          phone?: string | null
-          email?: string | null
-          notes?: string | null
-          is_active?: boolean
+          action: string
           created_at?: string
-          updated_at?: string
+          id?: string
+          new_row?: Json | null
+          old_row?: Json | null
+          record_id: string
+          table_name: string
+          user_id?: string | null
         }
         Update: {
-          id?: string
-          name?: string
-          document?: string | null
-          phone?: string | null
-          email?: string | null
-          notes?: string | null
-          is_active?: boolean
+          action?: string
           created_at?: string
-          updated_at?: string
+          id?: string
+          new_row?: Json | null
+          old_row?: Json | null
+          record_id?: string
+          table_name?: string
+          user_id?: string | null
         }
         Relationships: []
       }
       client_error_logs: {
         Row: {
-          id: string
-          user_id: string | null
+          app_version: string | null
+          component_stack: string | null
+          created_at: string
           error_message: string
           error_stack: string | null
-          component_stack: string | null
+          id: string
           page_url: string | null
           user_agent: string | null
-          app_version: string | null
-          created_at: string
+          user_id: string | null
         }
         Insert: {
-          id?: string
-          user_id?: string | null
+          app_version?: string | null
+          component_stack?: string | null
+          created_at?: string
           error_message: string
           error_stack?: string | null
-          component_stack?: string | null
+          id?: string
           page_url?: string | null
           user_agent?: string | null
-          app_version?: string | null
-          created_at?: string
+          user_id?: string | null
         }
         Update: {
-          id?: string
-          user_id?: string | null
+          app_version?: string | null
+          component_stack?: string | null
+          created_at?: string
           error_message?: string
           error_stack?: string | null
-          component_stack?: string | null
+          id?: string
           page_url?: string | null
           user_agent?: string | null
-          app_version?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      clients: {
+        Row: {
+          created_at: string
+          document: string | null
+          email: string | null
+          id: string
+          is_active: boolean
+          name: string
+          notes: string | null
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
           created_at?: string
+          document?: string | null
+          email?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          notes?: string | null
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          document?: string | null
+          email?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
       machine_costs: {
         Row: {
-          id: string
-          tractor_id: string
-          service_id: string | null
-          supplier_id: string | null
-          cost_date: string
-          cost_type: 'fuel' | 'oil' | 'parts' | 'maintenance' | 'other'
           amount: number
-          description: string | null
-          supplier_name: string | null
-          status: 'pending' | 'paid' | 'cancelled'
-          due_date: string | null
+          cost_date: string
+          cost_type: string
           created_at: string
+          description: string | null
+          due_date: string | null
+          id: string
           receipt_storage_path: string | null
+          service_id: string | null
+          status: string | null
+          supplier_id: string | null
+          supplier_name: string | null
+          tractor_id: string | null
+          truck_id: string | null
         }
         Insert: {
-          id?: string
-          tractor_id: string
-          service_id?: string | null
-          supplier_id?: string | null
-          cost_date: string
-          cost_type: 'fuel' | 'oil' | 'parts' | 'maintenance' | 'other'
           amount: number
-          description?: string | null
-          supplier_name?: string | null
-          status?: 'pending' | 'paid' | 'cancelled'
-          due_date?: string | null
+          cost_date: string
+          cost_type: string
           created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
           receipt_storage_path?: string | null
+          service_id?: string | null
+          status?: string | null
+          supplier_id?: string | null
+          supplier_name?: string | null
+          tractor_id?: string | null
+          truck_id?: string | null
         }
         Update: {
-          id?: string
-          tractor_id?: string
-          service_id?: string | null
-          supplier_id?: string | null
-          cost_date?: string
-          cost_type?: 'fuel' | 'oil' | 'parts' | 'maintenance' | 'other'
           amount?: number
-          description?: string | null
-          supplier_name?: string | null
-          status?: 'pending' | 'paid' | 'cancelled'
-          due_date?: string | null
+          cost_date?: string
+          cost_type?: string
           created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
           receipt_storage_path?: string | null
+          service_id?: string | null
+          status?: string | null
+          supplier_id?: string | null
+          supplier_name?: string | null
+          tractor_id?: string | null
+          truck_id?: string | null
         }
         Relationships: [
-          { foreignKeyName: 'machine_costs_tractor_id_fkey'; columns: ['tractor_id']; referencedRelation: 'tractors'; referencedColumns: ['id'] },
-          { foreignKeyName: 'machine_costs_service_id_fkey'; columns: ['service_id']; referencedRelation: 'services'; referencedColumns: ['id'] },
-          { foreignKeyName: 'machine_costs_supplier_id_fkey'; columns: ['supplier_id']; referencedRelation: 'suppliers'; referencedColumns: ['id'] },
+          {
+            foreignKeyName: "machine_costs_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "machine_costs_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "machine_costs_tractor_id_fkey"
+            columns: ["tractor_id"]
+            isOneToOne: false
+            referencedRelation: "tractors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "machine_costs_tractor_id_fkey"
+            columns: ["tractor_id"]
+            isOneToOne: false
+            referencedRelation: "v_tractor_profitability"
+            referencedColumns: ["tractor_id"]
+          },
+          {
+            foreignKeyName: "machine_costs_truck_id_fkey"
+            columns: ["truck_id"]
+            isOneToOne: false
+            referencedRelation: "trucks"
+            referencedColumns: ["id"]
+          },
         ]
       }
       operator_ledger: {
         Row: {
+          amount: number
+          created_at: string
+          entry_date: string
+          entry_type: string
           id: string
+          notes: string | null
           operator_id: string
           service_id: string | null
-          entry_type: 'advance' | 'payment' | 'credit'
-          amount: number
-          entry_date: string
-          notes: string | null
-          created_at: string
         }
         Insert: {
+          amount: number
+          created_at?: string
+          entry_date: string
+          entry_type: string
           id?: string
+          notes?: string | null
           operator_id: string
           service_id?: string | null
-          entry_type: 'advance' | 'payment' | 'credit'
-          amount: number
-          entry_date: string
-          notes?: string | null
-          created_at?: string
         }
         Update: {
+          amount?: number
+          created_at?: string
+          entry_date?: string
+          entry_type?: string
           id?: string
+          notes?: string | null
           operator_id?: string
           service_id?: string | null
-          entry_type?: 'advance' | 'payment' | 'credit'
-          amount?: number
-          entry_date?: string
-          notes?: string | null
-          created_at?: string
         }
         Relationships: [
-          { foreignKeyName: 'operator_ledger_operator_id_fkey'; columns: ['operator_id']; referencedRelation: 'operators'; referencedColumns: ['id'] },
-          { foreignKeyName: 'operator_ledger_service_id_fkey'; columns: ['service_id']; referencedRelation: 'services'; referencedColumns: ['id'] },
+          {
+            foreignKeyName: "operator_ledger_operator_id_fkey"
+            columns: ["operator_id"]
+            isOneToOne: false
+            referencedRelation: "operators"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "operator_ledger_operator_id_fkey"
+            columns: ["operator_id"]
+            isOneToOne: false
+            referencedRelation: "v_operator_financial_balance"
+            referencedColumns: ["operator_id"]
+          },
+          {
+            foreignKeyName: "operator_ledger_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
         ]
       }
       operators: {
         Row: {
-          id: string
-          name: string
-          phone: string | null
-          document: string | null
-          default_hour_rate: number
-          is_active: boolean
-          notes: string | null
+          cnh: string | null
+          cnh_expiration: string | null
           created_at: string
+          default_hour_rate: number
+          document: string | null
+          id: string
+          is_active: boolean
+          name: string
+          notes: string | null
+          phone: string | null
           updated_at: string
         }
         Insert: {
-          id?: string
-          name: string
-          phone?: string | null
-          document?: string | null
-          default_hour_rate?: number
-          is_active?: boolean
-          notes?: string | null
+          cnh?: string | null
+          cnh_expiration?: string | null
           created_at?: string
+          default_hour_rate?: number
+          document?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          notes?: string | null
+          phone?: string | null
           updated_at?: string
         }
         Update: {
-          id?: string
-          name?: string
-          phone?: string | null
-          document?: string | null
-          default_hour_rate?: number
-          is_active?: boolean
-          notes?: string | null
+          cnh?: string | null
+          cnh_expiration?: string | null
           created_at?: string
+          default_hour_rate?: number
+          document?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          notes?: string | null
+          phone?: string | null
           updated_at?: string
         }
         Relationships: []
       }
       receivable_payments: {
         Row: {
-          id: string
-          receivable_id: string
           amount: number
+          created_at: string
+          id: string
+          notes: string | null
           payment_date: string
           payment_method: string | null
-          notes: string | null
-          created_at: string
+          receivable_id: string
         }
         Insert: {
-          id?: string
-          receivable_id: string
           amount: number
+          created_at?: string
+          id?: string
+          notes?: string | null
           payment_date: string
           payment_method?: string | null
-          notes?: string | null
-          created_at?: string
+          receivable_id: string
         }
         Update: {
-          id?: string
-          receivable_id?: string
           amount?: number
+          created_at?: string
+          id?: string
+          notes?: string | null
           payment_date?: string
           payment_method?: string | null
-          notes?: string | null
-          created_at?: string
+          receivable_id?: string
         }
         Relationships: [
-          { foreignKeyName: 'receivable_payments_receivable_id_fkey'; columns: ['receivable_id']; referencedRelation: 'receivables'; referencedColumns: ['id'] },
+          {
+            foreignKeyName: "receivable_payments_receivable_id_fkey"
+            columns: ["receivable_id"]
+            isOneToOne: false
+            referencedRelation: "receivables"
+            referencedColumns: ["id"]
+          },
         ]
       }
       receivables: {
         Row: {
-          id: string
-          service_id: string | null
           client_id: string
-          installment_number: number
-          installment_count: number
-          original_amount: number
+          created_at: string
+          description: string | null
+          due_date: string
           fee_percent: number
           final_amount: number
+          id: string
+          installment_count: number
+          installment_number: number
+          original_amount: number
           paid_amount: number
-          due_date: string
-          status: 'pending' | 'partially_paid' | 'paid' | 'overdue' | 'cancelled'
-          description: string | null
-          created_at: string
+          service_id: string | null
+          status: string
           updated_at: string
         }
         Insert: {
-          id?: string
-          service_id?: string | null
           client_id: string
-          installment_number?: number
-          installment_count?: number
-          original_amount: number
+          created_at?: string
+          description?: string | null
+          due_date: string
           fee_percent?: number
           final_amount: number
+          id?: string
+          installment_count?: number
+          installment_number?: number
+          original_amount: number
           paid_amount?: number
-          due_date: string
-          status?: 'pending' | 'partially_paid' | 'paid' | 'overdue' | 'cancelled'
-          description?: string | null
-          created_at?: string
+          service_id?: string | null
+          status?: string
           updated_at?: string
         }
         Update: {
-          id?: string
-          service_id?: string | null
           client_id?: string
-          installment_number?: number
-          installment_count?: number
-          original_amount?: number
+          created_at?: string
+          description?: string | null
+          due_date?: string
           fee_percent?: number
           final_amount?: number
+          id?: string
+          installment_count?: number
+          installment_number?: number
+          original_amount?: number
           paid_amount?: number
-          due_date?: string
-          status?: 'pending' | 'partially_paid' | 'paid' | 'overdue' | 'cancelled'
-          description?: string | null
-          created_at?: string
+          service_id?: string | null
+          status?: string
           updated_at?: string
         }
         Relationships: [
-          { foreignKeyName: 'receivables_service_id_fkey'; columns: ['service_id']; referencedRelation: 'services'; referencedColumns: ['id'] },
-          { foreignKeyName: 'receivables_client_id_fkey'; columns: ['client_id']; referencedRelation: 'clients'; referencedColumns: ['id'] },
+          {
+            foreignKeyName: "receivables_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "receivables_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "v_client_revenue"
+            referencedColumns: ["client_id"]
+          },
+          {
+            foreignKeyName: "receivables_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
         ]
       }
       service_worklogs: {
         Row: {
-          id: string
-          service_id: string
-          tractor_id: string
-          operator_id: string | null
-          work_date: string
-          start_hourmeter: number
-          end_hourmeter: number
-          worked_hours: number | null
-          notes: string | null
           created_at: string
+          end_hourmeter: number | null
+          end_odometer: number | null
+          id: string
+          notes: string | null
+          operator_id: string | null
+          service_id: string
+          start_hourmeter: number | null
+          start_odometer: number | null
+          tractor_id: string | null
+          truck_id: string | null
+          work_date: string
+          worked_hours: number | null
+          worked_km: number | null
         }
         Insert: {
-          id?: string
-          service_id: string
-          tractor_id: string
-          operator_id?: string | null
-          work_date: string
-          start_hourmeter: number
-          end_hourmeter: number
-          notes?: string | null
           created_at?: string
+          end_hourmeter?: number | null
+          end_odometer?: number | null
+          id?: string
+          notes?: string | null
+          operator_id?: string | null
+          service_id: string
+          start_hourmeter?: number | null
+          start_odometer?: number | null
+          tractor_id?: string | null
+          truck_id?: string | null
+          work_date: string
+          worked_hours?: number | null
+          worked_km?: number | null
         }
         Update: {
-          id?: string
-          service_id?: string
-          tractor_id?: string
-          operator_id?: string | null
-          work_date?: string
-          start_hourmeter?: number
-          end_hourmeter?: number
-          notes?: string | null
           created_at?: string
+          end_hourmeter?: number | null
+          end_odometer?: number | null
+          id?: string
+          notes?: string | null
+          operator_id?: string | null
+          service_id?: string
+          start_hourmeter?: number | null
+          start_odometer?: number | null
+          tractor_id?: string | null
+          truck_id?: string | null
+          work_date?: string
+          worked_hours?: number | null
+          worked_km?: number | null
         }
         Relationships: [
-          { foreignKeyName: 'service_worklogs_service_id_fkey'; columns: ['service_id']; referencedRelation: 'services'; referencedColumns: ['id'] },
-          { foreignKeyName: 'service_worklogs_tractor_id_fkey'; columns: ['tractor_id']; referencedRelation: 'tractors'; referencedColumns: ['id'] },
-          { foreignKeyName: 'service_worklogs_operator_id_fkey'; columns: ['operator_id']; referencedRelation: 'operators'; referencedColumns: ['id'] },
+          {
+            foreignKeyName: "service_worklogs_operator_id_fkey"
+            columns: ["operator_id"]
+            isOneToOne: false
+            referencedRelation: "operators"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_worklogs_operator_id_fkey"
+            columns: ["operator_id"]
+            isOneToOne: false
+            referencedRelation: "v_operator_financial_balance"
+            referencedColumns: ["operator_id"]
+          },
+          {
+            foreignKeyName: "service_worklogs_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_worklogs_tractor_id_fkey"
+            columns: ["tractor_id"]
+            isOneToOne: false
+            referencedRelation: "tractors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_worklogs_tractor_id_fkey"
+            columns: ["tractor_id"]
+            isOneToOne: false
+            referencedRelation: "v_tractor_profitability"
+            referencedColumns: ["tractor_id"]
+          },
+          {
+            foreignKeyName: "service_worklogs_truck_id_fkey"
+            columns: ["truck_id"]
+            isOneToOne: false
+            referencedRelation: "trucks"
+            referencedColumns: ["id"]
+          },
         ]
       }
       services: {
         Row: {
-          id: string
+          charge_type: string
           client_id: string
-          tractor_id: string
-          primary_operator_id: string | null
-          service_date: string
           contracted_hour_rate: number
-          owner_discount_amount: number
-          expected_hours: number | null
-          status: 'draft' | 'in_progress' | 'completed' | 'cancelled'
-          operator_payment_status: 'pending' | 'paid'
-          operator_payment_date: string | null
-          notes: string | null
           created_at: string
-          updated_at: string
+          destination_location: string | null
+          expected_hours: number | null
+          id: string
+          notes: string | null
+          operator_payment_date: string | null
+          operator_payment_status: string
+          origin_location: string | null
+          owner_discount_amount: number
+          primary_operator_id: string | null
           receipt_storage_path: string | null
+          service_date: string
+          status: string
+          towed_vehicle_brand: string | null
+          towed_vehicle_model: string | null
+          towed_vehicle_plate: string | null
+          tractor_id: string | null
+          truck_id: string | null
+          updated_at: string
         }
         Insert: {
-          id?: string
+          charge_type?: string
           client_id: string
-          tractor_id: string
-          primary_operator_id?: string | null
-          service_date: string
           contracted_hour_rate?: number
-          owner_discount_amount?: number
-          expected_hours?: number | null
-          status?: 'draft' | 'in_progress' | 'completed' | 'cancelled'
-          operator_payment_status?: 'pending' | 'paid'
-          operator_payment_date?: string | null
-          notes?: string | null
           created_at?: string
-          updated_at?: string
+          destination_location?: string | null
+          expected_hours?: number | null
+          id?: string
+          notes?: string | null
+          operator_payment_date?: string | null
+          operator_payment_status?: string
+          origin_location?: string | null
+          owner_discount_amount?: number
+          primary_operator_id?: string | null
           receipt_storage_path?: string | null
+          service_date: string
+          status?: string
+          towed_vehicle_brand?: string | null
+          towed_vehicle_model?: string | null
+          towed_vehicle_plate?: string | null
+          tractor_id?: string | null
+          truck_id?: string | null
+          updated_at?: string
         }
         Update: {
-          id?: string
+          charge_type?: string
           client_id?: string
-          tractor_id?: string
-          primary_operator_id?: string | null
-          service_date?: string
           contracted_hour_rate?: number
-          owner_discount_amount?: number
-          expected_hours?: number | null
-          status?: 'draft' | 'in_progress' | 'completed' | 'cancelled'
-          operator_payment_status?: 'pending' | 'paid'
-          operator_payment_date?: string | null
-          notes?: string | null
           created_at?: string
-          updated_at?: string
+          destination_location?: string | null
+          expected_hours?: number | null
+          id?: string
+          notes?: string | null
+          operator_payment_date?: string | null
+          operator_payment_status?: string
+          origin_location?: string | null
+          owner_discount_amount?: number
+          primary_operator_id?: string | null
           receipt_storage_path?: string | null
+          service_date?: string
+          status?: string
+          towed_vehicle_brand?: string | null
+          towed_vehicle_model?: string | null
+          towed_vehicle_plate?: string | null
+          tractor_id?: string | null
+          truck_id?: string | null
+          updated_at?: string
         }
         Relationships: [
-          { foreignKeyName: 'services_client_id_fkey'; columns: ['client_id']; referencedRelation: 'clients'; referencedColumns: ['id'] },
-          { foreignKeyName: 'services_tractor_id_fkey'; columns: ['tractor_id']; referencedRelation: 'tractors'; referencedColumns: ['id'] },
-          { foreignKeyName: 'services_primary_operator_id_fkey'; columns: ['primary_operator_id']; referencedRelation: 'operators'; referencedColumns: ['id'] },
+          {
+            foreignKeyName: "services_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "services_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "v_client_revenue"
+            referencedColumns: ["client_id"]
+          },
+          {
+            foreignKeyName: "services_primary_operator_id_fkey"
+            columns: ["primary_operator_id"]
+            isOneToOne: false
+            referencedRelation: "operators"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "services_primary_operator_id_fkey"
+            columns: ["primary_operator_id"]
+            isOneToOne: false
+            referencedRelation: "v_operator_financial_balance"
+            referencedColumns: ["operator_id"]
+          },
+          {
+            foreignKeyName: "services_tractor_id_fkey"
+            columns: ["tractor_id"]
+            isOneToOne: false
+            referencedRelation: "tractors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "services_tractor_id_fkey"
+            columns: ["tractor_id"]
+            isOneToOne: false
+            referencedRelation: "v_tractor_profitability"
+            referencedColumns: ["tractor_id"]
+          },
+          {
+            foreignKeyName: "services_truck_id_fkey"
+            columns: ["truck_id"]
+            isOneToOne: false
+            referencedRelation: "trucks"
+            referencedColumns: ["id"]
+          },
         ]
       }
       suppliers: {
         Row: {
-          id: string
-          name: string
           address: string | null
-          phone: string | null
           cnpj: string | null
-          is_active: boolean
-          notes: string | null
           created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          notes: string | null
+          phone: string | null
           updated_at: string
         }
         Insert: {
-          id?: string
-          name: string
           address?: string | null
-          phone?: string | null
           cnpj?: string | null
-          is_active?: boolean
-          notes?: string | null
           created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          notes?: string | null
+          phone?: string | null
           updated_at?: string
         }
         Update: {
-          id?: string
-          name?: string
           address?: string | null
-          phone?: string | null
           cnpj?: string | null
-          is_active?: boolean
-          notes?: string | null
           created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          notes?: string | null
+          phone?: string | null
           updated_at?: string
         }
         Relationships: []
       }
       tractors: {
         Row: {
-          id: string
-          name: string
-          plate: string | null
           brand: string | null
-          model: string | null
-          purchase_value: number
-          residual_value: number
-          useful_life_hours: number
-          standard_hour_cost: number | null
+          created_at: string
+          id: string
           is_active: boolean
+          model: string | null
+          name: string
           notes: string | null
           oil_change_interval_hours: number | null
           oil_change_last_done_hourmeter: number | null
+          plate: string | null
+          purchase_value: number
+          residual_value: number
+          standard_hour_cost: number | null
+          updated_at: string
+          useful_life_hours: number
+        }
+        Insert: {
+          brand?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          model?: string | null
+          name: string
+          notes?: string | null
+          oil_change_interval_hours?: number | null
+          oil_change_last_done_hourmeter?: number | null
+          plate?: string | null
+          purchase_value?: number
+          residual_value?: number
+          standard_hour_cost?: number | null
+          updated_at?: string
+          useful_life_hours?: number
+        }
+        Update: {
+          brand?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          model?: string | null
+          name?: string
+          notes?: string | null
+          oil_change_interval_hours?: number | null
+          oil_change_last_done_hourmeter?: number | null
+          plate?: string | null
+          purchase_value?: number
+          residual_value?: number
+          standard_hour_cost?: number | null
+          updated_at?: string
+          useful_life_hours?: number
+        }
+        Relationships: []
+      }
+      trucks: {
+        Row: {
+          brand: string | null
           created_at: string
+          current_odometer: number
+          id: string
+          is_active: boolean
+          model: string | null
+          name: string
+          notes: string | null
+          plate: string | null
+          purchase_value: number
+          residual_value: number
           updated_at: string
         }
         Insert: {
-          id?: string
-          name: string
-          plate?: string | null
           brand?: string | null
+          created_at?: string
+          current_odometer?: number
+          id?: string
+          is_active?: boolean
           model?: string | null
+          name: string
+          notes?: string | null
+          plate?: string | null
           purchase_value?: number
           residual_value?: number
-          useful_life_hours?: number
-          is_active?: boolean
-          notes?: string | null
-          oil_change_interval_hours?: number | null
-          oil_change_last_done_hourmeter?: number | null
-          created_at?: string
           updated_at?: string
         }
         Update: {
-          id?: string
-          name?: string
-          plate?: string | null
           brand?: string | null
+          created_at?: string
+          current_odometer?: number
+          id?: string
+          is_active?: boolean
           model?: string | null
+          name?: string
+          notes?: string | null
+          plate?: string | null
           purchase_value?: number
           residual_value?: number
-          useful_life_hours?: number
-          is_active?: boolean
-          notes?: string | null
-          oil_change_interval_hours?: number | null
-          oil_change_last_done_hourmeter?: number | null
-          created_at?: string
           updated_at?: string
         }
         Relationships: []
       }
     }
     Views: {
-      v_operator_financial_balance: {
-        Row: {
-          operator_id: string | null
-          operator_name: string | null
-          total_hours_worked: number | null
-          total_earned: number | null
-          total_advances: number | null
-          total_payments: number | null
-          current_balance: number | null
-        }
-        Relationships: []
-      }
-      v_tractor_profitability: {
-        Row: {
-          tractor_id: string | null
-          tractor_name: string | null
-          purchase_value: number | null
-          residual_value: number | null
-          useful_life_hours: number | null
-          total_hours: number | null
-          depreciation_cost: number | null
-          operational_cost: number | null
-          operator_cost: number | null
-          gross_revenue: number | null
-          revenue_per_hour: number | null
-          cost_per_hour: number | null
-          net_margin: number | null
-        }
-        Relationships: []
-      }
-      v_tractor_latest_hourmeter: {
-        Row: {
-          tractor_id: string | null
-          latest_hourmeter: number | null
-        }
-        Relationships: []
-      }
       v_client_revenue: {
         Row: {
           client_id: string | null
           client_name: string | null
           service_count: number | null
           total_billed: number | null
-          total_received: number | null
-          total_pending: number | null
           total_overdue: number | null
+          total_pending: number | null
+          total_received: number | null
         }
         Relationships: []
       }
@@ -531,9 +790,190 @@ export type Database = {
         }
         Relationships: []
       }
+      v_operator_financial_balance: {
+        Row: {
+          current_balance: number | null
+          operator_id: string | null
+          operator_name: string | null
+          total_advances: number | null
+          total_earned: number | null
+          total_hours_worked: number | null
+          total_payments: number | null
+        }
+        Relationships: []
+      }
+      v_tractor_latest_hourmeter: {
+        Row: {
+          latest_hourmeter: number | null
+          tractor_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_worklogs_tractor_id_fkey"
+            columns: ["tractor_id"]
+            isOneToOne: false
+            referencedRelation: "tractors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_worklogs_tractor_id_fkey"
+            columns: ["tractor_id"]
+            isOneToOne: false
+            referencedRelation: "v_tractor_profitability"
+            referencedColumns: ["tractor_id"]
+          },
+        ]
+      }
+      v_tractor_profitability: {
+        Row: {
+          cost_per_hour: number | null
+          depreciation_cost: number | null
+          gross_revenue: number | null
+          net_margin: number | null
+          operational_cost: number | null
+          operator_cost: number | null
+          purchase_value: number | null
+          residual_value: number | null
+          revenue_per_hour: number | null
+          total_hours: number | null
+          tractor_id: string | null
+          tractor_name: string | null
+          useful_life_hours: number | null
+        }
+        Relationships: []
+      }
     }
-    Functions: Record<string, never>
-    Enums: Record<string, never>
-    CompositeTypes: Record<string, never>
+    Functions: {
+      mark_overdue_receivables: { Args: never; Returns: undefined }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
   }
 }
+
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
+
+export type Tables<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+      Row: infer R
+    }
+    ? R
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+        Row: infer R
+      }
+      ? R
+      : never
+    : never
+
+export type TablesInsert<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Insert: infer I
+    }
+    ? I
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Insert: infer I
+      }
+      ? I
+      : never
+    : never
+
+export type TablesUpdate<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Update: infer U
+    }
+    ? U
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Update: infer U
+      }
+      ? U
+      : never
+    : never
+
+export type Enums<
+  DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
+    | { schema: keyof DatabaseWithoutInternals },
+  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    : never = never,
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+    : never
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof DatabaseWithoutInternals },
+  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never = never,
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+    : never
+
+export const Constants = {
+  public: {
+    Enums: {},
+  },
+} as const
