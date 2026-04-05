@@ -30,12 +30,17 @@ function previewFromPrincipal(
 
   const totalWithFee = principalTotal * (1 + feePercent / 100)
   const baseInstallment = totalWithFee / installmentCount
+  const baseRounded = Number(baseInstallment.toFixed(2))
 
-  return Array.from({ length: installmentCount }, (_, i) => ({
-    installmentNumber: i + 1,
-    amount: Number(baseInstallment.toFixed(2)),
-    dueDate: addMonths(firstDueDate, i),
-  }))
+  return Array.from({ length: installmentCount }, (_, i) => {
+    const isLast = i === installmentCount - 1
+    // A última parcela absorve a diferença de arredondamento para que
+    // a soma exata bata com totalWithFee arredondado a 2 casas.
+    const amount = isLast
+      ? Number((totalWithFee - baseRounded * (installmentCount - 1)).toFixed(2))
+      : baseRounded
+    return { installmentNumber: i + 1, amount, dueDate: addMonths(firstDueDate, i) }
+  })
 }
 
 export function buildInstallmentsPreview({

@@ -21,6 +21,7 @@ export const queryKeys = {
   supplierOptions: ['supplier-options'] as const,
   machineCostsByTractor: (tractorId: string) => ['machine-costs', 'tractor', tractorId] as const,
   profitability: ['profitability'] as const,
+  clientRevenue: ['client-revenue'] as const,
   financialLedger: ['financial-ledger'] as const,
   documents: ['documents'] as const,
   domainEvents: ['domain-events'] as const,

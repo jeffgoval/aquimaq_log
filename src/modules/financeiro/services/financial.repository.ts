@@ -7,6 +7,8 @@ type ReceivableUpdate = Updates<'receivables'>
 
 export const financialRepository = {
   async listReceivables(filters?: { status?: string }): Promise<ReceivableWithClient[]> {
+    // Atualiza em batch qualquer parcela vencida antes de devolver os dados.
+    await supabase.rpc('mark_overdue_receivables')
     let query = supabase
       .from('receivables')
       .select('*, clients(name), services(service_date)')

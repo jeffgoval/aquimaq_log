@@ -445,8 +445,23 @@ export type Database = {
           total_hours: number | null
           depreciation_cost: number | null
           operational_cost: number | null
+          operator_cost: number | null
           gross_revenue: number | null
-          estimated_margin: number | null
+          revenue_per_hour: number | null
+          cost_per_hour: number | null
+          net_margin: number | null
+        }
+        Relationships: []
+      }
+      v_client_revenue: {
+        Row: {
+          client_id: string | null
+          client_name: string | null
+          service_count: number | null
+          total_billed: number | null
+          total_received: number | null
+          total_pending: number | null
+          total_overdue: number | null
         }
         Relationships: []
       }

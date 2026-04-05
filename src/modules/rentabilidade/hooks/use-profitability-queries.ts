@@ -6,3 +6,8 @@ export const useTractorProfitability = () => useQuery({
   queryKey: queryKeys.profitability,
   queryFn: profitabilityRepository.getTractorProfitability,
 })
+
+export const useClientRevenue = () => useQuery({
+  queryKey: queryKeys.clientRevenue,
+  queryFn: profitabilityRepository.getClientRevenue,
+})

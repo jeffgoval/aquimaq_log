@@ -1,5 +1,3 @@
-import { useTractorList } from '@/modules/tratores/hooks/use-tractor-queries'
-import { useOperatorList } from '@/modules/operadores/hooks/use-operator-queries'
 import { useClientList } from '@/modules/clientes/hooks/use-client-queries'
 import { useServiceList } from '@/modules/servicos/hooks/use-service-queries'
 import { useReceivables } from '@/modules/financeiro/hooks/use-financial-queries'
@@ -7,14 +5,12 @@ import { AppPageHeader } from '@/shared/components/app/app-page-header'
 import { AppStatCard } from '@/shared/components/app/app-stat-card'
 import { AppMoney } from '@/shared/components/app/app-money'
 import { useMachineCosts } from '@/modules/custos/hooks/use-cost-queries'
-import { Tractor, Users, Building2, ClipboardList, DollarSign, AlertTriangle, Wallet } from 'lucide-react'
+import { Building2, ClipboardList, DollarSign, AlertTriangle, Wallet } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { ROUTES } from '@/shared/constants/routes'
 import { cn } from '@/shared/lib/cn'
 
 export function DashboardPage() {
-  const tractors = useTractorList()
-  const operators = useOperatorList()
   const clients = useClientList()
   const services = useServiceList()
   const receivables = useReceivables()

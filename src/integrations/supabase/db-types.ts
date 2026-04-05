@@ -26,3 +26,5 @@ export type MachineCostWithTractor = Tables<'machine_costs'> & {
   services: { service_date: string } | null
   suppliers: { name: string; cnpj: string | null } | null
 }
+
+export type ClientRevenueRow = Views<'v_client_revenue'>
