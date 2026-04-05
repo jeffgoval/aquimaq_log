@@ -22,6 +22,12 @@ on conflict (id) do update set
   file_size_limit = excluded.file_size_limit,
   allowed_mime_types = excluded.allowed_mime_types;
 
+-- Idempotente se correres este bloco manualmente no SQL Editor
+drop policy if exists "receipts_select_authenticated" on storage.objects;
+drop policy if exists "receipts_insert_authenticated" on storage.objects;
+drop policy if exists "receipts_update_authenticated" on storage.objects;
+drop policy if exists "receipts_delete_authenticated" on storage.objects;
+
 create policy "receipts_select_authenticated"
   on storage.objects for select
   to authenticated
