@@ -9,6 +9,7 @@ export type Updates<T extends keyof Database['public']['Tables']> = Database['pu
 export type ServiceWithJoins = Tables<'services'> & {
   clients: { name: string } | null
   tractors: { name: string; standard_hour_cost: number | null } | null
+  trucks: { name: string } | null
 }
 
 export type WorklogWithOperator = Tables<'service_worklogs'> & {
@@ -22,6 +23,7 @@ export type ReceivableWithClient = Tables<'receivables'> & {
 
 export type MachineCostWithTractor = Tables<'machine_costs'> & {
   tractors: { name: string } | null
+  trucks: { name: string } | null
   services: { service_date: string } | null
   suppliers: { name: string; cnpj: string | null } | null
 }
