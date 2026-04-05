@@ -38,7 +38,6 @@ export function ServiceEditPage() {
       tractor_id: service.tractor_id,
       service_date: service.service_date.slice(0, 10),
       contracted_hour_rate: service.contracted_hour_rate,
-      owner_discount_amount: service.owner_discount_amount ?? 0,
       notes: service.notes ?? '',
     })
   }, [service, reset])
@@ -54,7 +53,6 @@ export function ServiceEditPage() {
         primary_operator_id: null,
         service_date: v.service_date,
         contracted_hour_rate: v.contracted_hour_rate,
-        owner_discount_amount: v.owner_discount_amount ?? 0,
         notes: v.notes?.trim() || null,
       })
     }
@@ -133,27 +131,6 @@ export function ServiceEditPage() {
                 )}
               />
               {errors.contracted_hour_rate && <p className="field-error">{errors.contracted_hour_rate.message}</p>}
-            </div>
-            <div>
-              <label className="field-label">Desconto (dono), R$</label>
-              <Controller
-                name="owner_discount_amount"
-                control={control}
-                render={({ field: { onChange, value } }) => (
-                  <AppCurrencyInput
-                    value={value ?? ''}
-                    onValueChange={(v) => onChange(v.floatValue ?? 0)}
-                    placeholder="R$ 0,00"
-                    disabled={locked}
-                  />
-                )}
-              />
-              {errors.owner_discount_amount && (
-                <p className="field-error">{errors.owner_discount_amount.message}</p>
-              )}
-              <p className="typo-caption text-muted-foreground mt-1">
-                Abate da faturação bruta (horas × taxa). O custo do operador nos apontamentos não muda.
-              </p>
             </div>
             <div className="sm:col-span-3">
               <label className="field-label">Observações</label>

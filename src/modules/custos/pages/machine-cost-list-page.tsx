@@ -17,6 +17,7 @@ import { AppSearchInput } from '@/shared/components/app/app-search-input'
 import { AppDataCard } from '@/shared/components/app/app-data-card'
 import { Plus, Wrench } from 'lucide-react'
 import dayjs from '@/shared/lib/dayjs'
+import { parseMoneyInput } from '@/shared/lib/currency'
 import { getPreferredTractorId, sortTractorsForSelect } from '@/shared/lib/tractors-select'
 
 const COST_TYPE_LABELS = { fuel: '⛽ Combustível', oil: '🛢️ Óleo', parts: '🔧 Peças', maintenance: '🔩 Manutenção', other: '📋 Outro' }
@@ -104,11 +105,13 @@ export function MachineCostListPage() {
 
   const handleAdd = async () => {
     if (!form.tractor_id || !form.amount) return
+    const amount = parseMoneyInput(form.amount)
+    if (!Number.isFinite(amount) || amount <= 0) return
     await createCost.mutateAsync({
       tractor_id: form.tractor_id,
       supplier_id: form.supplier_id || null,
       cost_type: form.cost_type as never,
-      amount: Number(form.amount),
+      amount,
       description: form.description || null,
       supplier_name: null,
       cost_date: form.cost_date,

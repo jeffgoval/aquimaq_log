@@ -19,6 +19,7 @@ import { buildInstallmentsPreview, buildFinancedInstallmentsPreview } from '@/fe
 import { RECEIVABLE_STATUS_LABELS, RECEIVABLE_STATUS_BADGE_VARIANTS } from '@/shared/constants/status'
 import dayjs from '@/shared/lib/dayjs'
 import { Banknote, DollarSign, Layers, Plus, Pencil } from 'lucide-react'
+import { formatMoneyInputValue, parseMoneyInput } from '@/shared/lib/currency'
 
 interface ReceivableSectionProps {
   serviceId: string
@@ -27,14 +28,6 @@ interface ReceivableSectionProps {
 }
 
 type InstallmentFormMode = 'full' | 'down_payment'
-
-/** Valor vindo do AppCurrencyInput (ex.: 1.500,00). */
-const parseBrMoney = (raw: unknown): number => {
-  if (raw == null || raw === '') return 0
-  const s = String(raw).replace(/\s/g, '').replace(/R\$\s*/i, '').replace(/\./g, '').replace(',', '.')
-  const n = Number(s)
-  return Number.isFinite(n) ? n : 0
-}
 
 const DEFAULT_INSTALLMENT = {
   mode: 'full' as InstallmentFormMode,
@@ -66,8 +59,8 @@ export function ReceivableSection({ serviceId, clientId, suggestedTotal }: Recei
   const [atSightAmountNum, setAtSightAmountNum] = useState<number | undefined>(undefined)
   const [atSightDate, setAtSightDate] = useState(() => dayjs().format('YYYY-MM-DD'))
 
-  const totalAmount = parseBrMoney(inst.totalAmount)
-  const downPaymentNum = inst.mode === 'down_payment' ? parseBrMoney(inst.downPayment) : 0
+  const totalAmount = parseMoneyInput(inst.totalAmount)
+  const downPaymentNum = inst.mode === 'down_payment' ? parseMoneyInput(inst.downPayment) : 0
   const financedAmount = Math.max(0, totalAmount - downPaymentNum)
   const installmentCount = Math.max(1, Number(inst.installmentCount) || 1)
   const feePercent = Number(inst.feePercent) || 0
@@ -190,9 +183,11 @@ export function ReceivableSection({ serviceId, clientId, suggestedTotal }: Recei
 
   const handlePay = async () => {
     if (!selectedId || !payAmount) return
+    const paid = parseMoneyInput(payAmount)
+    if (!Number.isFinite(paid) || paid <= 0) return
     await registerPayment.mutateAsync({
       receivable_id: selectedId,
-      amount: Number(payAmount),
+      amount: paid,
       payment_date: dayjs().format('YYYY-MM-DD'),
       payment_method: 'dinheiro',
     })
@@ -203,7 +198,7 @@ export function ReceivableSection({ serviceId, clientId, suggestedTotal }: Recei
 
   const openEdit = (rec: NonNullable<typeof data>[number]) => {
     setEditId(rec.id)
-    setEditAmount(String(rec.final_amount))
+    setEditAmount(formatMoneyInputValue(rec.final_amount))
     setEditDue(rec.due_date.slice(0, 10))
     setEditDesc(rec.description ?? '')
     payDialog.close()
@@ -213,7 +208,7 @@ export function ReceivableSection({ serviceId, clientId, suggestedTotal }: Recei
 
   const handleSaveEdit = async () => {
     if (!editId) return
-    const amt = Number(editAmount)
+    const amt = parseMoneyInput(editAmount)
     if (!Number.isFinite(amt) || amt <= 0) return
     await updateReceivable.mutateAsync({
       id: editId,
@@ -382,10 +377,12 @@ export function ReceivableSection({ serviceId, clientId, suggestedTotal }: Recei
                 onValueChange={(v) => setInst((i) => ({ ...i, totalAmount: v.value }))}
                 placeholder="R$ 0,00"
               />
-              {suggestedTotal && suggestedTotal > 0 && parseBrMoney(inst.totalAmount) === 0 && (
+              {suggestedTotal && suggestedTotal > 0 && parseMoneyInput(inst.totalAmount) === 0 && (
                 <button
                   type="button"
-                  onClick={() => setInst((i) => ({ ...i, totalAmount: String(suggestedTotal) }))}
+                  onClick={() =>
+                    setInst((i) => ({ ...i, totalAmount: formatMoneyInputValue(suggestedTotal) }))
+                  }
                   className="text-xs text-primary hover:underline mt-1"
                 >
                   Usar total apurado (<AppMoney value={suggestedTotal} size="sm" />)
@@ -601,7 +598,7 @@ export function ReceivableSection({ serviceId, clientId, suggestedTotal }: Recei
         const rec = data?.find(r => r.id === selectedId)
         if (!rec) return null
         const remaining = rec.final_amount - rec.paid_amount
-        const inputVal = Number(payAmount)
+        const inputVal = parseMoneyInput(payAmount)
         return (
           <div className="rounded-lg border border-border p-4 mb-4 bg-muted/20 space-y-3">
             <p className="typo-body font-medium">Registrar pagamento</p>
@@ -668,7 +665,7 @@ export function ReceivableSection({ serviceId, clientId, suggestedTotal }: Recei
                     onClick={() => {
                       setEditId(null)
                       setSelectedId(rec.id)
-                      setPayAmount(String(rec.final_amount - rec.paid_amount))
+                      setPayAmount(formatMoneyInputValue(rec.final_amount - rec.paid_amount))
                       payDialog.open()
                     }}
                     className="flex items-center gap-1 text-xs text-primary hover:underline whitespace-nowrap"

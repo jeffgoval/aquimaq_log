@@ -19,6 +19,7 @@ import {
   getLaborOperatorAttributionFromWorklogs,
 } from '../lib/service-financial-summary'
 import { ServiceOperatorPaymentPanel } from '../components/service-operator-payment-panel'
+import { ServiceOwnerDiscountCard } from '../components/service-owner-discount-card'
 
 const LaborOperatorsInService = ({ attribution }: { attribution: LaborOperatorAttribution }) => {
   if (attribution.kind === 'none') {
@@ -177,10 +178,16 @@ export function ServiceDetailPage() {
               )
               : <p className="typo-body-muted text-sm">—</p>}
             {totalHours > 0 && (
-              <p className="typo-caption text-muted-foreground mt-1">Lucro bruto (faturação − mão de obra apontada)</p>
+              <p className="typo-caption text-muted-foreground mt-1">Lucro bruto (faturação líquida − mão de obra apontada)</p>
             )}
           </div>
         </div>
+
+        <ServiceOwnerDiscountCard
+          serviceId={service.id}
+          savedAmount={service.owner_discount_amount ?? 0}
+          locked={service.status === 'completed' || service.status === 'cancelled'}
+        />
       </div>
 
       <WorklogSection
@@ -207,12 +214,6 @@ export function ServiceDetailPage() {
             },
             { label: 'Data', value: dayjs(service.service_date).format('DD/MM/YYYY') },
             { label: 'Custo/h do trator (referência)', value: service.tractors?.standard_hour_cost != null ? <AppMoney value={Number(service.tractors.standard_hour_cost)} size="sm" /> : '—' },
-            {
-              label: 'Desconto (dono)',
-              value: (service.owner_discount_amount ?? 0) > 0
-                ? <AppMoney value={service.owner_discount_amount ?? 0} size="sm" />
-                : '—',
-            },
           ].map(({ label, value }) => (
             <div key={label}>
               <dt className="typo-caption">{label}</dt>

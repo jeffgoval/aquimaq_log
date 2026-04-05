@@ -14,7 +14,7 @@ export function ServiceCreatePage() {
     <div className="max-w-2xl">
       <AppPageHeader
         title="Novo Serviço"
-        description="Cadastre o trabalho. Pagamento à vista ou parcelas regista-se na ficha do serviço, em Contas a receber."
+        description="Cadastre o trabalho. Desconto do dono (R$) e contas a receber ficam na ficha do serviço depois de criar."
       />
       <form onSubmit={onSubmit} className="space-y-6">
         <div className="rounded-xl border border-border bg-card p-6 space-y-4">
@@ -59,26 +59,6 @@ export function ServiceCreatePage() {
                 )}
               />
               {errors.contracted_hour_rate && <p className="field-error">{errors.contracted_hour_rate.message}</p>}
-            </div>
-            <div>
-              <label className="field-label">Desconto (dono), R$</label>
-              <Controller
-                name="owner_discount_amount"
-                control={control}
-                render={({ field: { onChange, value } }) => (
-                  <AppCurrencyInput
-                    value={value ?? ''}
-                    onValueChange={(v) => onChange(v.floatValue ?? 0)}
-                    placeholder="R$ 0,00"
-                  />
-                )}
-              />
-              {errors.owner_discount_amount && (
-                <p className="field-error">{errors.owner_discount_amount.message}</p>
-              )}
-              <p className="typo-caption text-muted-foreground mt-1">
-                Valor fixo a abater da faturação por horas (não altera custo de mão de obra nos apontamentos).
-              </p>
             </div>
             <div className="sm:col-span-3">
               <label className="field-label">Observações</label>

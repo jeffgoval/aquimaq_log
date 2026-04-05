@@ -16,7 +16,7 @@ export function useCreateServiceController() {
 
   const form = useForm<CreateServiceInput>({
     resolver: zodResolver(createServiceSchema) as Resolver<CreateServiceInput>,
-    defaultValues: { service_date: dayjs().format('YYYY-MM-DD'), owner_discount_amount: 0 },
+    defaultValues: { service_date: dayjs().format('YYYY-MM-DD') },
   })
 
   const onSubmit = form.handleSubmit(async (values) => {
@@ -26,7 +26,7 @@ export function useCreateServiceController() {
       primary_operator_id: null,
       service_date: values.service_date,
       contracted_hour_rate: values.contracted_hour_rate,
-      owner_discount_amount: values.owner_discount_amount ?? 0,
+      owner_discount_amount: 0,
       notes: values.notes || null,
       status: 'draft',
     })
