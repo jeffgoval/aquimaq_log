@@ -23,17 +23,14 @@ export function SupplierDetailPage() {
   return (
     <div className="max-w-2xl space-y-6">
       <AppPageHeader
+        backTo={ROUTES.SUPPLIERS}
+        backLabel="Voltar aos fornecedores"
         title={supplier.name}
         description={supplier.cnpj || undefined}
         actions={
-          <div className="flex items-center gap-2">
-            <Link to={ROUTES.SUPPLIER_EDIT(supplier.id)} className="flex items-center gap-2 bg-secondary text-foreground font-medium px-4 py-2 rounded-lg hover:bg-secondary/70 transition-colors text-sm">
-              Editar
-            </Link>
-            <Link to={ROUTES.SUPPLIERS} className="text-sm text-muted-foreground hover:text-foreground transition-colors px-2">
-              ← Lista
-            </Link>
-          </div>
+          <Link to={ROUTES.SUPPLIER_EDIT(supplier.id)} className="flex items-center gap-2 bg-secondary text-foreground font-medium px-4 py-2 rounded-lg hover:bg-secondary/70 transition-colors text-sm">
+            Editar
+          </Link>
         }
       />
 

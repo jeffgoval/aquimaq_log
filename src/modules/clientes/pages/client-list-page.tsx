@@ -25,6 +25,8 @@ export function ClientListPage() {
   return (
     <div>
       <AppPageHeader
+        backTo={ROUTES.DASHBOARD}
+        backLabel="Voltar ao início"
         title="Clientes"
         description="Gestão de clientes e parceiros"
         actions={

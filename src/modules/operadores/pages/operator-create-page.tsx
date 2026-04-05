@@ -21,7 +21,7 @@ export function OperatorCreatePage() {
 
   return (
     <div className="max-w-2xl">
-      <AppPageHeader title="Novo Operador" />
+      <AppPageHeader backTo={ROUTES.OPERATORS} backLabel="Voltar aos operadores" title="Novo Operador" />
       <form onSubmit={onSubmit} className="space-y-6">
         <div className="rounded-xl border border-border bg-card p-6 space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

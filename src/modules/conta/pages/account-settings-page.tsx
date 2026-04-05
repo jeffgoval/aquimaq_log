@@ -7,6 +7,7 @@ import {
   useAccountProfileController,
   useAccountPasswordController,
 } from '../hooks/use-account-settings-controller'
+import { ROUTES } from '@/shared/constants/routes'
 
 export function AccountSettingsPage() {
   const { user, isLoading } = useAuth()
@@ -27,6 +28,8 @@ export function AccountSettingsPage() {
   return (
     <div className="max-w-2xl space-y-8">
       <AppPageHeader
+        backTo={ROUTES.DASHBOARD}
+        backLabel="Voltar ao início"
         title="Minha conta"
         description="Dados do perfil e segurança da sua conta."
       />

@@ -26,6 +26,8 @@ export function OperatorListPage() {
   return (
     <div>
       <AppPageHeader
+        backTo={ROUTES.DASHBOARD}
+        backLabel="Voltar ao início"
         title="Operadores"
         description="Gestão de operadores e equipe"
         actions={

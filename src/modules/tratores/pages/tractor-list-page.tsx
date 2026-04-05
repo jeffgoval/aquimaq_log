@@ -27,6 +27,8 @@ export function TractorListPage() {
   return (
     <div>
       <AppPageHeader
+        backTo={ROUTES.DASHBOARD}
+        backLabel="Voltar ao início"
         title="Tratores"
         description="Gestão da frota e custos operacionais"
         actions={

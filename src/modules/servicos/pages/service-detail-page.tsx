@@ -20,6 +20,7 @@ import {
 } from '../lib/service-financial-summary'
 import { ServiceOperatorPaymentPanel } from '../components/service-operator-payment-panel'
 import { ServiceOwnerDiscountCard } from '../components/service-owner-discount-card'
+import { ReceiptViewButton } from '@/shared/components/receipts'
 
 const LaborOperatorsInService = ({ attribution }: { attribution: LaborOperatorAttribution }) => {
   if (attribution.kind === 'none') {
@@ -92,6 +93,8 @@ export function ServiceDetailPage() {
   return (
     <div className="space-y-6">
       <AppPageHeader
+        backTo={ROUTES.SERVICES}
+        backLabel="Voltar aos serviços"
         title={service.clients?.name ?? 'Serviço'}
         description={`${service.tractors?.name} · ${dayjs(service.service_date).format('DD/MM/YYYY')}`}
         actions={
@@ -100,7 +103,9 @@ export function ServiceDetailPage() {
               to={ROUTES.SERVICE_EDIT(service.id)}
               className="flex items-center gap-2 bg-secondary text-foreground font-medium px-4 py-2 rounded-lg hover:bg-secondary/70 transition-colors text-sm"
             >
-              Editar
+              {service.status === 'completed' || service.status === 'cancelled'
+                ? 'Notas e recibo'
+                : 'Editar'}
             </Link>
             <span className={cn('text-xs font-medium px-3 py-1.5 rounded-full border', SERVICE_STATUS_COLORS[service.status])}>
               {SERVICE_STATUS_LABELS[service.status]}
@@ -193,6 +198,7 @@ export function ServiceDetailPage() {
       <WorklogSection
         serviceId={service.id}
         tractorId={service.tractor_id}
+        serviceStatus={service.status}
         defaultOperatorId={defaultOperatorFromWorklogs}
         serviceDate={service.service_date}
         contractedHourRate={service.contracted_hour_rate}
@@ -222,6 +228,12 @@ export function ServiceDetailPage() {
           ))}
         </dl>
         {service.notes && <p className="mt-4 pt-4 border-t border-border typo-body-muted">{service.notes}</p>}
+        {service.receipt_storage_path ? (
+          <div className="mt-4 pt-4 border-t border-border flex flex-wrap items-center gap-3">
+            <span className="typo-caption">Recibo anexado</span>
+            <ReceiptViewButton storagePath={service.receipt_storage_path} variant="secondary" size="sm" />
+          </div>
+        ) : null}
       </div>
 
       <ReceivableSection

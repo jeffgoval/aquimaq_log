@@ -11,6 +11,7 @@ import { AppDataCard } from '@/shared/components/app/app-data-card'
 import { cn } from '@/shared/lib/cn'
 import { RECEIVABLE_STATUS_LABELS, RECEIVABLE_STATUS_BADGE_VARIANTS } from '@/shared/constants/status'
 import dayjs from '@/shared/lib/dayjs'
+import { ROUTES } from '@/shared/constants/routes'
 import { DollarSign } from 'lucide-react'
 
 const FILTER_LABELS: Record<string, string> = {
@@ -35,6 +36,8 @@ export function ReceivableListPage() {
   return (
     <div>
       <AppPageHeader
+        backTo={ROUTES.DASHBOARD}
+        backLabel="Voltar ao início"
         title="Contas a receber"
         description={`Parcelas e pendências do cliente · Em aberto: ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalPending)}`}
       />

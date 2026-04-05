@@ -59,7 +59,12 @@ export function SupplierEditPage() {
 
   return (
     <div className="max-w-2xl">
-      <AppPageHeader title="Editar Fornecedor" description={supplier?.name} />
+      <AppPageHeader
+        backTo={id ? ROUTES.SUPPLIER_DETAIL(id) : ROUTES.SUPPLIERS}
+        backLabel="Voltar ao fornecedor"
+        title="Editar Fornecedor"
+        description={supplier?.name}
+      />
       <form onSubmit={onSubmit} className="space-y-6">
         <div className="rounded-xl border border-border bg-card p-6 space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

@@ -14,9 +14,13 @@ import { computeWorklogLineAmounts } from '@/modules/servicos/lib/service-financ
 import { Clock, Plus, Tag, Pencil, Trash2 } from 'lucide-react'
 import dayjs from '@/shared/lib/dayjs'
 
+type ServiceWorklogStatus = 'draft' | 'in_progress' | 'completed' | 'cancelled'
+
 interface WorklogSectionProps {
   serviceId: string
   tractorId: string
+  /** Estado do serviço: encerrados só permitem alterar observações nas linhas (histórico financeiro protegido). */
+  serviceStatus: ServiceWorklogStatus
   /** Pré-seleciona o operador no novo registo (ex.: último operador já apontado neste serviço). */
   defaultOperatorId?: string
   /** Data do serviço (ISO); evita pedir outra data no horímetro — só mostra picker em «É outro dia». */
@@ -28,10 +32,12 @@ interface WorklogSectionProps {
 export function WorklogSection({
   serviceId,
   tractorId,
+  serviceStatus,
   defaultOperatorId,
   serviceDate,
   contractedHourRate,
 }: WorklogSectionProps) {
+  const serviceLocked = serviceStatus === 'completed' || serviceStatus === 'cancelled'
   const { data, isLoading } = useWorklogsByService(serviceId)
   const createWorklog = useCreateWorklog(serviceId)
   const updateWorklog = useUpdateWorklog(serviceId)
@@ -57,6 +63,9 @@ export function WorklogSection({
 
   /** Com data do serviço conhecida, o registo usa esse dia por defeito; só mostra o date picker se o utilizador escolher outro dia. */
   const [addFormOtherDay, setAddFormOtherDay] = useState(false)
+
+  const [notesOnlyId, setNotesOnlyId] = useState<string | null>(null)
+  const [notesOnlyDraft, setNotesOnlyDraft] = useState('')
 
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editForm, setEditForm] = useState({
@@ -131,6 +140,8 @@ export function WorklogSection({
 
   const startEdit = (log: NonNullable<typeof data>[number]) => {
     addDialog.close()
+    setNotesOnlyId(null)
+    setNotesOnlyDraft('')
     setEditingId(log.id)
     setEditForm({
       operator_id: log.operator_id ?? '',
@@ -168,6 +179,23 @@ export function WorklogSection({
     if (editingId === id) setEditingId(null)
   }
 
+  const openNotesOnly = (log: NonNullable<typeof data>[number]) => {
+    addDialog.close()
+    setEditingId(null)
+    setNotesOnlyId(log.id)
+    setNotesOnlyDraft(log.notes ?? '')
+  }
+
+  const handleSaveNotesOnly = async () => {
+    if (!notesOnlyId) return
+    await updateWorklog.mutateAsync({
+      id: notesOnlyId,
+      payload: { notes: notesOnlyDraft.trim() || null },
+    })
+    setNotesOnlyId(null)
+    setNotesOnlyDraft('')
+  }
+
   const totalHours = data?.reduce((acc, w) => acc + (w.worked_hours ?? 0), 0) ?? 0
 
   return (
@@ -176,7 +204,9 @@ export function WorklogSection({
         <div>
           <h2 className="typo-section-title">Horímetro do trator</h2>
           <p className="typo-body-muted text-sm mt-1 max-w-xl">
-            Registe a leitura inicial e final do horímetro em cada dia ou turno; as horas são calculadas automaticamente.
+            {serviceLocked
+              ? 'Serviço encerrado: horas e horímetro não podem ser alterados. Pode acrescentar ou corrigir observações em cada linha abaixo.'
+              : 'Registe a leitura inicial e final do horímetro em cada dia ou turno; as horas são calculadas automaticamente.'}
           </p>
           {totalHours > 0 && (
             <div className="flex items-center gap-1.5 mt-2">
@@ -185,21 +215,23 @@ export function WorklogSection({
             </div>
           )}
         </div>
-        <AppButton
-          variant="primary"
-          size="sm"
-          onClick={() => {
-            setEditingId(null)
-            addDialog.toggle()
-          }}
-          className="flex items-center gap-1.5 shadow-lg shadow-primary/20 active:scale-95 shrink-0"
-        >
-          <Plus className="h-3 w-3" />
-          Novo registo
-        </AppButton>
+        {!serviceLocked ? (
+          <AppButton
+            variant="primary"
+            size="sm"
+            onClick={() => {
+              setEditingId(null)
+              addDialog.toggle()
+            }}
+            className="flex items-center gap-1.5 shadow-lg shadow-primary/20 active:scale-95 shrink-0"
+          >
+            <Plus className="h-3 w-3" />
+            Novo registo
+          </AppButton>
+        ) : null}
       </div>
 
-      {addDialog.isOpen && (
+      {!serviceLocked && addDialog.isOpen ? (
         <div className="rounded-xl border border-border p-4 mb-5 bg-muted/10 space-y-4 animate-in fade-in slide-in-from-top-2">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             <div>
@@ -324,9 +356,40 @@ export function WorklogSection({
             </AppButton>
           </div>
         </div>
+      ) : null}
+
+      {notesOnlyId && (
+        <div className="rounded-xl border border-border p-4 mb-5 bg-card space-y-3">
+          <p className="typo-body font-medium">Observações deste lançamento</p>
+          <p className="text-xs text-muted-foreground">
+            Só o texto abaixo é guardado; horímetro e datas permanecem bloqueados neste serviço encerrado.
+          </p>
+          <textarea
+            value={notesOnlyDraft}
+            onChange={(e) => setNotesOnlyDraft(e.target.value)}
+            rows={3}
+            className="field resize-none"
+            placeholder="Ex.: turno da manhã, abastecimento no posto X…"
+          />
+          <div className="flex flex-wrap gap-2">
+            <AppButton variant="primary" size="sm" loading={updateWorklog.isPending} loadingText="…" onClick={handleSaveNotesOnly}>
+              Guardar observação
+            </AppButton>
+            <AppButton
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setNotesOnlyId(null)
+                setNotesOnlyDraft('')
+              }}
+            >
+              Cancelar
+            </AppButton>
+          </div>
+        </div>
       )}
 
-      {editingId && (
+      {!serviceLocked && editingId ? (
         <div className="rounded-xl border border-primary/25 p-4 mb-5 bg-primary/5 space-y-4">
           <p className="typo-body font-medium">Editar registo de horímetro</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -390,13 +453,17 @@ export function WorklogSection({
             </AppButton>
           </div>
         </div>
-      )}
+      ) : null}
 
       {isLoading && <AppLoadingState />}
       {!isLoading && (!data || data.length === 0) ? (
         <AppEmptyState
           title="Nenhum registo de horímetro"
-          description="Adicione a leitura inicial e final do horímetro do trator para apurar horas e valores."
+          description={
+            serviceLocked
+              ? 'Não há linhas de apontamento. Use «Editar serviço» para observações gerais ou anexar recibo.'
+              : 'Adicione a leitura inicial e final do horímetro do trator para apurar horas e valores.'
+          }
         />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -433,23 +500,36 @@ export function WorklogSection({
                         </div>
                       ) : null}
                       <div className="flex flex-wrap gap-2 pt-1">
-                        <button
-                          type="button"
-                          onClick={() => startEdit(log)}
-                          className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
-                        >
-                          <Pencil className="h-3 w-3" />
-                          Editar
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleDelete(log.id)}
-                          disabled={deleteWorklog.isPending}
-                          className="inline-flex items-center gap-1 text-xs font-medium text-destructive hover:underline"
-                        >
-                          <Trash2 className="h-3 w-3" />
-                          Apagar
-                        </button>
+                        {serviceLocked ? (
+                          <button
+                            type="button"
+                            onClick={() => openNotesOnly(log)}
+                            className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+                          >
+                            <Pencil className="h-3 w-3" />
+                            {log.notes ? 'Editar observação' : 'Adicionar observação'}
+                          </button>
+                        ) : (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => startEdit(log)}
+                              className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+                            >
+                              <Pencil className="h-3 w-3" />
+                              Editar
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleDelete(log.id)}
+                              disabled={deleteWorklog.isPending}
+                              className="inline-flex items-center gap-1 text-xs font-medium text-destructive hover:underline"
+                            >
+                              <Trash2 className="h-3 w-3" />
+                              Apagar
+                            </button>
+                          </>
+                        )}
                       </div>
                     </div>
                   }

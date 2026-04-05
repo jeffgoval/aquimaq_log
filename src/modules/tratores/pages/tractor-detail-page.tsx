@@ -21,6 +21,8 @@ export function TractorDetailPage() {
   return (
     <div>
       <AppPageHeader
+        backTo={ROUTES.TRACTORS}
+        backLabel="Voltar aos tratores"
         title={tractor.name}
         description={[tractor.brand, tractor.model, tractor.plate].filter(Boolean).join(' · ')}
         actions={

@@ -89,6 +89,7 @@ export type Database = {
           status: 'pending' | 'paid' | 'cancelled'
           due_date: string | null
           created_at: string
+          receipt_storage_path: string | null
         }
         Insert: {
           id?: string
@@ -103,6 +104,7 @@ export type Database = {
           status?: 'pending' | 'paid' | 'cancelled'
           due_date?: string | null
           created_at?: string
+          receipt_storage_path?: string | null
         }
         Update: {
           id?: string
@@ -117,6 +119,7 @@ export type Database = {
           status?: 'pending' | 'paid' | 'cancelled'
           due_date?: string | null
           created_at?: string
+          receipt_storage_path?: string | null
         }
         Relationships: [
           { foreignKeyName: 'machine_costs_tractor_id_fkey'; columns: ['tractor_id']; referencedRelation: 'tractors'; referencedColumns: ['id'] },
@@ -339,6 +342,7 @@ export type Database = {
           notes: string | null
           created_at: string
           updated_at: string
+          receipt_storage_path: string | null
         }
         Insert: {
           id?: string
@@ -355,6 +359,7 @@ export type Database = {
           notes?: string | null
           created_at?: string
           updated_at?: string
+          receipt_storage_path?: string | null
         }
         Update: {
           id?: string
@@ -371,6 +376,7 @@ export type Database = {
           notes?: string | null
           created_at?: string
           updated_at?: string
+          receipt_storage_path?: string | null
         }
         Relationships: [
           { foreignKeyName: 'services_client_id_fkey'; columns: ['client_id']; referencedRelation: 'clients'; referencedColumns: ['id'] },

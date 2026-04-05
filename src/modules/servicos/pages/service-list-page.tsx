@@ -32,6 +32,8 @@ export function ServiceListPage() {
   return (
     <div>
       <AppPageHeader
+        backTo={ROUTES.DASHBOARD}
+        backLabel="Voltar ao início"
         title="Serviços"
         description="Acompanhamento de serviços e apontamentos"
         actions={

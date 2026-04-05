@@ -22,6 +22,8 @@ export function OperatorDetailPage() {
   return (
     <div>
       <AppPageHeader
+        backTo={ROUTES.OPERATORS}
+        backLabel="Voltar aos operadores"
         title={operator.name}
         description={operator.phone || undefined}
         actions={

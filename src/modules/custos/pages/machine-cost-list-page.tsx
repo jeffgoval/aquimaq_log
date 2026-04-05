@@ -1,6 +1,12 @@
 import { useState, useMemo, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 import { useMachineCosts, useCreateCost } from '../hooks/use-cost-queries'
+import { costRepository } from '../services/cost.repository'
+import { queryKeys } from '@/integrations/supabase/query-keys'
+import { uploadMachineCostReceipt } from '@/integrations/supabase/receipts-storage'
+import { compressImageToJpeg } from '@/shared/lib/image-compress'
 import { useTractorOptions } from '@/modules/tratores/hooks/use-tractor-queries'
 import { useSupplierOptions } from '@/modules/fornecedores/hooks/use-supplier-queries'
 import { ROUTES } from '@/shared/constants/routes'
@@ -15,7 +21,10 @@ import { useDisclosure } from '@/shared/hooks/use-disclosure'
 import { AppBadge } from '@/shared/components/app/app-badge'
 import { AppSearchInput } from '@/shared/components/app/app-search-input'
 import { AppDataCard } from '@/shared/components/app/app-data-card'
-import { Plus, Wrench } from 'lucide-react'
+import { ChevronRight, Plus, Wrench } from 'lucide-react'
+import type { MachineCostWithTractor } from '@/integrations/supabase/db-types'
+import { MachineCostDetailPanel } from '../components/machine-cost-detail-panel'
+import { ReceiptPhotoPicker, ReceiptViewButton } from '@/shared/components/receipts'
 import dayjs from '@/shared/lib/dayjs'
 import { parseMoneyInput } from '@/shared/lib/currency'
 import { getPreferredTractorId, sortTractorsForSelect } from '@/shared/lib/tractors-select'
@@ -60,6 +69,7 @@ function compareCosts(a: { id: string; created_at: string; cost_date: string; am
 }
 
 export function MachineCostListPage() {
+  const queryClient = useQueryClient()
   const [search, setSearch] = useState('')
   const [sortMode, setSortMode] = useState<CostSortMode>('event_desc')
   const { data, isLoading, isError, error, refetch } = useMachineCosts()
@@ -67,6 +77,9 @@ export function MachineCostListPage() {
   const suppliers = useSupplierOptions()
   const createCost = useCreateCost()
   const addDialog = useDisclosure()
+
+  const [receiptFile, setReceiptFile] = useState<File | null>(null)
+  const [selectedCost, setSelectedCost] = useState<MachineCostWithTractor | null>(null)
 
   const [form, setForm] = useState({
     tractor_id: '',
@@ -108,15 +121,31 @@ export function MachineCostListPage() {
     if (!form.tractor_id || !form.amount) return
     const amount = parseMoneyInput(form.amount)
     if (!Number.isFinite(amount) || amount <= 0) return
-    await createCost.mutateAsync({
-      tractor_id: form.tractor_id,
-      supplier_id: form.supplier_id || null,
-      cost_type: form.cost_type as never,
-      amount,
-      description: form.description || null,
-      supplier_name: null,
-      cost_date: form.cost_date,
-    })
+    try {
+      const row = await createCost.mutateAsync({
+        tractor_id: form.tractor_id,
+        supplier_id: form.supplier_id || null,
+        cost_type: form.cost_type as never,
+        amount,
+        description: form.description.trim() || null,
+        supplier_name: null,
+        cost_date: form.cost_date,
+      })
+      if (receiptFile) {
+        try {
+          const blob = await compressImageToJpeg(receiptFile)
+          const path = await uploadMachineCostReceipt(row.id, blob)
+          await costRepository.update(row.id, { receipt_storage_path: path })
+          await queryClient.invalidateQueries({ queryKey: queryKeys.machineCosts })
+        } catch {
+          toast.warning('Custo salvo, mas a foto da notinha não foi enviada.')
+        }
+      }
+      toast.success('Custo registrado!')
+    } catch {
+      return
+    }
+    setReceiptFile(null)
     setForm({
       tractor_id: '',
       supplier_id: '',
@@ -133,6 +162,8 @@ export function MachineCostListPage() {
   return (
     <div>
       <AppPageHeader
+        backTo={ROUTES.DASHBOARD}
+        backLabel="Voltar ao início"
         title="Custos de Máquina"
         description={`Investimento total: ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(total)}`}
         actions={
@@ -223,6 +254,23 @@ export function MachineCostListPage() {
                 </Link>
               </p>
             </div>
+            <div className="sm:col-span-2 lg:col-span-3">
+              <label className="field-label">Descrição / observação</label>
+              <textarea
+                value={form.description}
+                onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+                rows={2}
+                className="field resize-none"
+                placeholder="Ex: litros, posto, NF…"
+              />
+            </div>
+            <div className="sm:col-span-2 lg:col-span-3">
+              <ReceiptPhotoPicker
+                file={receiptFile}
+                onChange={setReceiptFile}
+                disabled={createCost.isPending}
+              />
+            </div>
           </div>
           <div className="flex items-center gap-3 pt-2">
             <AppButton
@@ -234,7 +282,16 @@ export function MachineCostListPage() {
             >
               Salvar Custo
             </AppButton>
-            <AppButton variant="ghost" size="md" onClick={addDialog.close}>Cancelar</AppButton>
+            <AppButton
+              variant="ghost"
+              size="md"
+              onClick={() => {
+                setReceiptFile(null)
+                addDialog.close()
+              }}
+            >
+              Cancelar
+            </AppButton>
           </div>
         </div>
       )}
@@ -247,32 +304,49 @@ export function MachineCostListPage() {
               title={search.trim() ? 'Nenhum resultado para a busca' : 'Nenhum custo registrado'}
             />
           )
-          : <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            {sortedFiltered?.map(cost => (
-              <AppDataCard
-                key={cost.id}
-                title={cost.tractors?.name || 'Maquinário'}
-                subtitle={dayjs(cost.cost_date).format('DD [de] MMMM')}
-                icon={Wrench}
-                badge={
-                  <AppBadge variant="default">
-                    {COST_TYPE_LABELS[cost.cost_type as keyof typeof COST_TYPE_LABELS].split(' ')[1]}
-                  </AppBadge>
-                }
-                items={[
-                  { label: 'Valor', value: <AppMoney value={cost.amount} size="sm" /> },
-                  { label: 'Fornecedor', value: cost.suppliers?.name || cost.supplier_name || '—' },
-                ]}
-                footer={
-                  cost.description ? (
-                    <p className="text-xs text-muted-foreground mt-1 line-clamp-1 italic border-t border-border/50 pt-2">
-                      "{cost.description}"
-                    </p>
-                  ) : undefined
-                }
-              />
-            ))}
-          </div>
+          : (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {sortedFiltered?.map((cost) => (
+                  <AppDataCard
+                    key={cost.id}
+                    onClick={() => setSelectedCost(cost)}
+                    title={cost.tractors?.name || 'Maquinário'}
+                    subtitle={dayjs(cost.cost_date).format('DD [de] MMMM')}
+                    icon={Wrench}
+                    badge={
+                      <AppBadge variant="default">
+                        {COST_TYPE_LABELS[cost.cost_type as keyof typeof COST_TYPE_LABELS].split(' ')[1]}
+                      </AppBadge>
+                    }
+                    items={[
+                      { label: 'Valor', value: <AppMoney value={cost.amount} size="sm" /> },
+                      { label: 'Fornecedor', value: cost.suppliers?.name || cost.supplier_name || '—' },
+                    ]}
+                    footer={
+                      <div className="space-y-2 border-t border-border/50 pt-2">
+                        {cost.receipt_storage_path ? (
+                          <div className="w-fit" onClick={(e) => e.stopPropagation()}>
+                            <ReceiptViewButton storagePath={cost.receipt_storage_path} variant="secondary" size="sm" />
+                          </div>
+                        ) : null}
+                        {cost.description ? (
+                          <p className="text-xs text-muted-foreground line-clamp-2 italic">"{cost.description}"</p>
+                        ) : null}
+                        <p className="flex items-center gap-1 text-xs font-semibold text-primary">
+                          <ChevronRight className="h-3.5 w-3.5 shrink-0" aria-hidden />
+                          Abrir ficha — observação e notinha
+                        </p>
+                      </div>
+                    }
+                  />
+                ))}
+              </div>
+              {selectedCost ? (
+                <MachineCostDetailPanel key={selectedCost.id} cost={selectedCost} onClose={() => setSelectedCost(null)} />
+              ) : null}
+            </>
+          )
       )}
     </div>
   )

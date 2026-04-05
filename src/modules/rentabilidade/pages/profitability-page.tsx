@@ -19,6 +19,7 @@ import {
   Target,
 } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
+import { ROUTES } from '@/shared/constants/routes'
 
 export function ProfitabilityPage() {
   const { data, isLoading, isError, error, refetch } = useTractorProfitability()
@@ -49,6 +50,8 @@ export function ProfitabilityPage() {
   return (
     <div>
       <AppPageHeader
+        backTo={ROUTES.DASHBOARD}
+        backLabel="Voltar ao início"
         title="Rentabilidade"
         description="Análise completa por máquina: receita, depreciação, custos operacionais e mão de obra. CPH (Custo por Hora) é o indicador central de precificação."
       />

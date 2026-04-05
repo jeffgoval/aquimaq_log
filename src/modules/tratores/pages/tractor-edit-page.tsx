@@ -1,4 +1,5 @@
 import { useParams } from 'react-router-dom'
+import { ROUTES } from '@/shared/constants/routes'
 import { AppPageHeader } from '@/shared/components/app/app-page-header'
 import { AppLoadingState } from '@/shared/components/app/app-loading-state'
 import { AppErrorState } from '@/shared/components/app/app-error-state'
@@ -16,7 +17,12 @@ export function TractorEditPage() {
 
   return (
     <div className="max-w-2xl">
-      <AppPageHeader title="Editar Trator" description={tractor?.name} />
+      <AppPageHeader
+        backTo={tractor ? ROUTES.TRACTOR_DETAIL(tractor.id) : ROUTES.TRACTORS}
+        backLabel="Voltar ao trator"
+        title="Editar Trator"
+        description={tractor?.name}
+      />
       <TractorForm controller={controller} />
     </div>
   )

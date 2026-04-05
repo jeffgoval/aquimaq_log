@@ -26,6 +26,8 @@ export function SupplierListPage() {
   return (
     <div>
       <AppPageHeader
+        backTo={ROUTES.DASHBOARD}
+        backLabel="Voltar ao início"
         title="Fornecedores"
         description="Cadastro para uso nos custos de máquina"
         actions={

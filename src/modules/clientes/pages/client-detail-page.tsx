@@ -16,6 +16,8 @@ export function ClientDetailPage() {
   return (
     <div>
       <AppPageHeader
+        backTo={ROUTES.CLIENTS}
+        backLabel="Voltar aos clientes"
         title={client.name}
         description={client.document || undefined}
         actions={

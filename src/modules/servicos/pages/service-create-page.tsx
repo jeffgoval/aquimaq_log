@@ -13,6 +13,8 @@ export function ServiceCreatePage() {
   return (
     <div className="max-w-2xl">
       <AppPageHeader
+        backTo={ROUTES.SERVICES}
+        backLabel="Voltar aos serviços"
         title="Novo Serviço"
         description="Cadastre o trabalho. Desconto do dono (R$) e contas a receber ficam na ficha do serviço depois de criar."
       />
