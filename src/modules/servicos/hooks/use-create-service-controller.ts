@@ -18,10 +18,11 @@ export function useCreateServiceController() {
 
   const form = useForm<CreateServiceInput>({
     resolver: zodResolver(createServiceSchema) as Resolver<CreateServiceInput>,
-    defaultValues: { 
+    defaultValues: {
       service_date: dayjs().format('YYYY-MM-DD'),
       vehicle_type: 'tractor',
       charge_type: 'por_hora',
+      contracted_hour_rate: 0,
     },
   })
 

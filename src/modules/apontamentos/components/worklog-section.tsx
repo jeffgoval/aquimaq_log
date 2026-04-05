@@ -468,11 +468,13 @@ export function WorklogSection({
       {isLoading && <AppLoadingState />}
       {!isLoading && (!data || data.length === 0) ? (
         <AppEmptyState
-          title="Nenhum registo de horímetro"
+          title={isTruck ? 'Nenhum registo de odômetro' : 'Nenhum registo de horímetro'}
           description={
             serviceLocked
               ? 'Não há linhas de apontamento. Use «Editar serviço» para observações gerais ou anexar recibo.'
-              : 'Adicione a leitura inicial e final do horímetro do trator para apurar horas e valores.'
+              : isTruck
+                ? 'Adicione a leitura inicial e final do odômetro para apurar km rodados e valores.'
+                : 'Adicione a leitura inicial e final do horímetro do trator para apurar horas e valores.'
           }
         />
       ) : (
