@@ -442,6 +442,9 @@ export type Database = {
         Row: {
           tractor_id: string | null
           tractor_name: string | null
+          purchase_value: number | null
+          residual_value: number | null
+          useful_life_hours: number | null
           total_hours: number | null
           depreciation_cost: number | null
           operational_cost: number | null

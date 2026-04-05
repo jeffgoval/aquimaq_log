@@ -16,6 +16,7 @@ import {
   Users,
   AlertTriangle,
   Building2,
+  Target,
 } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
 
@@ -118,6 +119,17 @@ export function ProfitabilityPage() {
                   const marginPercent = revenue > 0 ? (margin / revenue) * 100 : 0
                   const isCphOk = revPerHour >= cph
 
+                  const purchaseValue = Number(t.purchase_value ?? 0)
+                  const residualValue = Number(t.residual_value ?? 0)
+                  const depreciableValue = purchaseValue - residualValue
+                  const recovered = Math.max(0, margin)
+                  const recoveryPct = depreciableValue > 0 ? Math.min((recovered / depreciableValue) * 100, 100) : 0
+                  const remaining = Math.max(0, depreciableValue - recovered)
+                  const spreadPerHour = revPerHour - cph
+                  const hoursToPayback = spreadPerHour > 0 && remaining > 0
+                    ? Math.ceil(remaining / spreadPerHour)
+                    : null
+
                   return (
                     <AppDataCard
                       key={t.tractor_id}
@@ -211,6 +223,70 @@ export function ProfitabilityPage() {
                               style={{ width: `${Math.min(Math.abs(marginPercent), 100)}%` }}
                             />
                           </div>
+
+                          {/* Retorno do Investimento (Payback) */}
+                          {depreciableValue > 0 && (
+                            <div className="rounded-lg border border-border/60 bg-muted/10 p-3 space-y-2">
+                              <div className="flex items-center gap-1.5">
+                                <Target className="h-3.5 w-3.5 text-muted-foreground" />
+                                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                                  Retorno do Investimento
+                                </p>
+                                {recoveryPct >= 100 && (
+                                  <span className="ml-auto text-[10px] font-bold text-green-400 uppercase tracking-wide">Pago!</span>
+                                )}
+                              </div>
+
+                              {/* Barra de progresso do payback */}
+                              <div className="space-y-1">
+                                <div className="flex justify-between text-[10px] text-muted-foreground">
+                                  <span>Recuperado: <span className="font-semibold text-foreground">{recoveryPct.toFixed(1)}%</span></span>
+                                  <span><AppMoney value={recovered} size="sm" /> / <AppMoney value={depreciableValue} size="sm" /></span>
+                                </div>
+                                <div className="h-2 rounded-full bg-muted overflow-hidden">
+                                  <div
+                                    className={cn(
+                                      'h-full rounded-full transition-all duration-700',
+                                      recoveryPct >= 100
+                                        ? 'bg-green-400 shadow-[0_0_8px_rgba(74,222,128,0.5)]'
+                                        : recoveryPct >= 50
+                                          ? 'bg-blue-400'
+                                          : 'bg-amber-400',
+                                    )}
+                                    style={{ width: `${recoveryPct}%` }}
+                                  />
+                                </div>
+                              </div>
+
+                              {/* Falta recuperar + projeção */}
+                              {recoveryPct < 100 ? (
+                                <div className="flex justify-between items-end">
+                                  <div>
+                                    <p className="text-[10px] text-muted-foreground">Falta recuperar</p>
+                                    <p className="text-sm font-bold tabular-nums text-amber-400">
+                                      <AppMoney value={remaining} size="sm" />
+                                    </p>
+                                  </div>
+                                  {hoursToPayback !== null ? (
+                                    <div className="text-right">
+                                      <p className="text-[10px] text-muted-foreground">Projeção</p>
+                                      <p className="text-xs font-semibold text-muted-foreground">
+                                        ~{hoursToPayback.toLocaleString('pt-BR')}h adicionais
+                                      </p>
+                                    </div>
+                                  ) : (
+                                    <p className="text-[10px] text-destructive font-medium max-w-[120px] text-right leading-tight">
+                                      Reajuste o preço para viabilizar o payback
+                                    </p>
+                                  )}
+                                </div>
+                              ) : (
+                                <p className="text-xs text-green-400 font-medium">
+                                  Investimento totalmente recuperado via lucro acumulado.
+                                </p>
+                              )}
+                            </div>
+                          )}
                         </div>
                       }
                     />
