@@ -121,10 +121,11 @@ export function ProfitabilityPage() {
 
                   const purchaseValue = Number(t.purchase_value ?? 0)
                   const residualValue = Number(t.residual_value ?? 0)
-                  const depreciableValue = purchaseValue - residualValue
                   const recovered = Math.max(0, margin)
-                  const recoveryPct = depreciableValue > 0 ? Math.min((recovered / depreciableValue) * 100, 100) : 0
-                  const remaining = Math.max(0, depreciableValue - recovered)
+                  // Payback pelo valor total pago (fluxo de caixa do dono).
+                  // O residual_value é mostrado como nota — será recuperado na revenda.
+                  const recoveryPct = purchaseValue > 0 ? Math.min((recovered / purchaseValue) * 100, 100) : 0
+                  const remaining = Math.max(0, purchaseValue - recovered)
                   const spreadPerHour = revPerHour - cph
                   const hoursToPayback = spreadPerHour > 0 && remaining > 0
                     ? Math.ceil(remaining / spreadPerHour)
@@ -225,7 +226,7 @@ export function ProfitabilityPage() {
                           </div>
 
                           {/* Retorno do Investimento (Payback) */}
-                          {depreciableValue > 0 && (
+                          {purchaseValue > 0 && (
                             <div className="rounded-lg border border-border/60 bg-muted/10 p-3 space-y-2">
                               <div className="flex items-center gap-1.5">
                                 <Target className="h-3.5 w-3.5 text-muted-foreground" />
@@ -241,7 +242,7 @@ export function ProfitabilityPage() {
                               <div className="space-y-1">
                                 <div className="flex justify-between text-[10px] text-muted-foreground">
                                   <span>Recuperado: <span className="font-semibold text-foreground">{recoveryPct.toFixed(1)}%</span></span>
-                                  <span><AppMoney value={recovered} size="sm" /> / <AppMoney value={depreciableValue} size="sm" /></span>
+                                  <span><AppMoney value={recovered} size="sm" /> / <AppMoney value={purchaseValue} size="sm" /></span>
                                 </div>
                                 <div className="h-2 rounded-full bg-muted overflow-hidden">
                                   <div
@@ -262,7 +263,7 @@ export function ProfitabilityPage() {
                               {recoveryPct < 100 ? (
                                 <div className="flex justify-between items-end">
                                   <div>
-                                    <p className="text-[10px] text-muted-foreground">Falta recuperar</p>
+                                    <p className="text-[10px] text-muted-foreground">Falta gerar via lucro</p>
                                     <p className="text-sm font-bold tabular-nums text-amber-400">
                                       <AppMoney value={remaining} size="sm" />
                                     </p>
@@ -283,6 +284,17 @@ export function ProfitabilityPage() {
                               ) : (
                                 <p className="text-xs text-green-400 font-medium">
                                   Investimento totalmente recuperado via lucro acumulado.
+                                </p>
+                              )}
+
+                              {/* Nota sobre valor residual */}
+                              {residualValue > 0 && (
+                                <p className="text-[10px] text-muted-foreground/70 leading-tight border-t border-border/40 pt-1.5">
+                                  Na revenda, você deve recuperar mais{' '}
+                                  <span className="font-semibold text-muted-foreground">
+                                    <AppMoney value={residualValue} size="sm" />
+                                  </span>{' '}
+                                  pelo valor residual da máquina.
                                 </p>
                               )}
                             </div>
