@@ -1,5 +1,11 @@
 import { useState, useMemo } from 'react'
-import { useReceivablesByService, useRegisterPayment, useCreateInstallments, useUpdateReceivable } from '../hooks/use-financial-queries'
+import {
+  useReceivablesByService,
+  useRegisterPayment,
+  useCreateInstallments,
+  useUpdateReceivable,
+  useCreateReceivableAtSight,
+} from '../hooks/use-financial-queries'
 import { AppLoadingState } from '@/shared/components/app/app-loading-state'
 import { AppMoney } from '@/shared/components/app/app-money'
 import { AppBadge } from '@/shared/components/app/app-badge'
@@ -10,7 +16,7 @@ import { useDisclosure } from '@/shared/hooks/use-disclosure'
 import { buildInstallmentsPreview } from '@/features/create-installments/create-installments'
 import { RECEIVABLE_STATUS_LABELS, RECEIVABLE_STATUS_BADGE_VARIANTS } from '@/shared/constants/status'
 import dayjs from '@/shared/lib/dayjs'
-import { DollarSign, Plus, Pencil } from 'lucide-react'
+import { Banknote, DollarSign, Layers, Plus, Pencil } from 'lucide-react'
 
 interface ReceivableSectionProps {
   serviceId: string
@@ -24,8 +30,10 @@ export function ReceivableSection({ serviceId, clientId, suggestedTotal }: Recei
   const { data, isLoading } = useReceivablesByService(serviceId)
   const registerPayment = useRegisterPayment(serviceId)
   const createInstallments = useCreateInstallments(serviceId)
+  const createAtSight = useCreateReceivableAtSight(serviceId)
   const updateReceivable = useUpdateReceivable(serviceId)
   const installmentDialog = useDisclosure()
+  const atSightDialog = useDisclosure()
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [payAmount, setPayAmount] = useState('')
   const payDialog = useDisclosure()
@@ -34,6 +42,8 @@ export function ReceivableSection({ serviceId, clientId, suggestedTotal }: Recei
   const [editAmount, setEditAmount] = useState('')
   const [editDue, setEditDue] = useState('')
   const [editDesc, setEditDesc] = useState('')
+  const [atSightAmountNum, setAtSightAmountNum] = useState<number | undefined>(undefined)
+  const [atSightDate, setAtSightDate] = useState(() => dayjs().format('YYYY-MM-DD'))
 
   const totalAmount = Number(inst.totalAmount) || 0
   const installmentCount = Math.max(1, Number(inst.installmentCount) || 1)
@@ -45,6 +55,19 @@ export function ReceivableSection({ serviceId, clientId, suggestedTotal }: Recei
       : [],
     [totalAmount, installmentCount, feePercent, inst.firstDueDate]
   )
+
+  const handleAtSight = async () => {
+    const amt = atSightAmountNum
+    if (amt == null || !Number.isFinite(amt) || amt <= 0) return
+    await createAtSight.mutateAsync({
+      client_id: clientId,
+      amount: amt,
+      payment_date: atSightDate,
+    })
+    setAtSightAmountNum(undefined)
+    setAtSightDate(dayjs().format('YYYY-MM-DD'))
+    atSightDialog.close()
+  }
 
   const handleCreateInstallments = async () => {
     if (totalAmount <= 0) return
@@ -63,6 +86,7 @@ export function ReceivableSection({ serviceId, clientId, suggestedTotal }: Recei
     )
     setInst(DEFAULT_INSTALLMENT)
     installmentDialog.close()
+    atSightDialog.close()
   }
 
   const handlePay = async () => {
@@ -85,6 +109,7 @@ export function ReceivableSection({ serviceId, clientId, suggestedTotal }: Recei
     setEditDesc(rec.description ?? '')
     payDialog.close()
     installmentDialog.close()
+    atSightDialog.close()
   }
 
   const handleSaveEdit = async () => {
@@ -114,7 +139,7 @@ export function ReceivableSection({ serviceId, clientId, suggestedTotal }: Recei
 
   return (
     <div className="rounded-xl border border-border bg-card p-6">
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between mb-4">
         <div>
           <h2 className="typo-section-title">Contas a receber</h2>
           <p className="typo-caption text-muted-foreground mt-0.5 max-w-md">
@@ -126,20 +151,98 @@ export function ReceivableSection({ serviceId, clientId, suggestedTotal }: Recei
             </p>
           )}
         </div>
-        <AppButton
-          variant="primary"
-          size="sm"
-          onClick={installmentDialog.toggle}
-          className="flex items-center gap-1.5"
-        >
-          <Plus className="h-3.5 w-3.5" />Novo parcelamento
-        </AppButton>
+        <div className="flex flex-wrap items-stretch sm:items-center gap-2 shrink-0">
+          <AppButton
+            variant="success"
+            size="sm"
+            onClick={() => {
+              setEditId(null)
+              payDialog.close()
+              installmentDialog.close()
+              atSightDialog.toggle()
+            }}
+            className="flex items-center gap-1.5"
+          >
+            <Banknote className="h-3.5 w-3.5" />
+            À vista
+          </AppButton>
+          <AppButton
+            variant="secondary"
+            size="sm"
+            onClick={() => {
+              setEditId(null)
+              payDialog.close()
+              atSightDialog.close()
+              installmentDialog.toggle()
+            }}
+            className="flex items-center gap-1.5"
+          >
+            <Layers className="h-3.5 w-3.5" />
+            Dividir em parcelas
+          </AppButton>
+        </div>
       </div>
 
-      {/* Formulário de novo parcelamento */}
+      {/* Pagamento à vista (sem passar por parcelamento) */}
+      {atSightDialog.isOpen && (
+        <div className="rounded-lg border border-green-500/20 p-4 mb-4 bg-green-500/5 space-y-4">
+          <p className="typo-body font-medium">Pagamento à vista</p>
+          <p className="text-xs text-muted-foreground">
+            Cliente pagou tudo de uma vez — fica registado como pago no Financeiro.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="field-label">Valor recebido *</label>
+              <AppCurrencyInput
+                value={atSightAmountNum ?? ''}
+                onValueChange={(v) => setAtSightAmountNum(v.floatValue)}
+                placeholder="R$ 0,00"
+              />
+              {suggestedTotal && suggestedTotal > 0 && (atSightAmountNum == null || atSightAmountNum <= 0) && (
+                <button
+                  type="button"
+                  onClick={() => setAtSightAmountNum(suggestedTotal)}
+                  className="text-xs text-primary hover:underline mt-1"
+                >
+                  Usar total apurado (<AppMoney value={suggestedTotal} size="sm" />)
+                </button>
+              )}
+            </div>
+            <div>
+              <label className="field-label">Data do pagamento *</label>
+              <input type="date" className="field" value={atSightDate} onChange={(e) => setAtSightDate(e.target.value)} />
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <AppButton
+              variant="primary"
+              size="sm"
+              loading={createAtSight.isPending}
+              loadingText="Salvando..."
+              onClick={handleAtSight}
+              disabled={atSightAmountNum == null || atSightAmountNum <= 0}
+            >
+              Confirmar à vista
+            </AppButton>
+            <AppButton
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                atSightDialog.close()
+                setAtSightAmountNum(undefined)
+                setAtSightDate(dayjs().format('YYYY-MM-DD'))
+              }}
+            >
+              Cancelar
+            </AppButton>
+          </div>
+        </div>
+      )}
+
+      {/* Formulário de parcelas */}
       {installmentDialog.isOpen && (
         <div className="rounded-lg border border-border p-4 mb-4 bg-muted/20 space-y-4">
-          <p className="typo-body font-medium">Registrar parcelamento</p>
+          <p className="typo-body font-medium">Dividir em parcelas</p>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <div>
               <label className="field-label">Valor total *</label>
@@ -225,12 +328,15 @@ export function ReceivableSection({ serviceId, clientId, suggestedTotal }: Recei
               onClick={handleCreateInstallments}
               disabled={totalAmount <= 0}
             >
-              Salvar parcelamento
+              Guardar parcelas
             </AppButton>
             <AppButton
               variant="ghost"
               size="sm"
-              onClick={() => { installmentDialog.close(); setInst(DEFAULT_INSTALLMENT) }}
+              onClick={() => {
+                installmentDialog.close()
+                setInst(DEFAULT_INSTALLMENT)
+              }}
             >
               Cancelar
             </AppButton>
@@ -311,7 +417,12 @@ export function ReceivableSection({ serviceId, clientId, suggestedTotal }: Recei
 
       {/* Lista de parcelas */}
       {!data?.length
-        ? <p className="text-sm text-muted-foreground text-center py-4">Nenhuma parcela. Clique em "Novo parcelamento" para registrar.</p>
+        ? (
+          <p className="text-sm text-muted-foreground text-center py-4">
+            Nenhum registo ainda. Use <strong className="text-foreground">À vista</strong> se já recebeu tudo, ou{' '}
+            <strong className="text-foreground">Dividir em parcelas</strong>.
+          </p>
+        )
         : (
           <div className="space-y-2">
             {data.map(rec => (

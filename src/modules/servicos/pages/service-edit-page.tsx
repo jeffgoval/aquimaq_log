@@ -2,7 +2,7 @@ import { useEffect, useMemo } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useForm, Controller, type Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { createServiceSchema, type CreateServiceInput, getDefaultServiceBillingFields } from '../schemas/service.schema'
+import { createServiceSchema, type CreateServiceInput } from '../schemas/service.schema'
 import { useService, useUpdateService } from '../hooks/use-service-queries'
 import { useClientOptions } from '@/modules/clientes/hooks/use-client-queries'
 import { useOperatorOptions } from '@/modules/operadores/hooks/use-operator-queries'
@@ -42,7 +42,6 @@ export function ServiceEditPage() {
       service_date: service.service_date.slice(0, 10),
       contracted_hour_rate: service.contracted_hour_rate,
       notes: service.notes ?? '',
-      ...getDefaultServiceBillingFields(),
     })
   }, [service, reset])
 

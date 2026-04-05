@@ -49,6 +49,25 @@ export function useCreateInstallments(serviceId: string) {
   })
 }
 
+/** Regista recebível único já quitado (pagamento à vista). */
+export function useCreateReceivableAtSight(serviceId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (p: { client_id: string; amount: number; payment_date: string }) =>
+      financialRepository.createReceivableWithFullPayment({
+        service_id: serviceId,
+        client_id: p.client_id,
+        amount: p.amount,
+        payment_date: p.payment_date,
+      }),
+    onSuccess: () => {
+      invalidateAllReceivables(qc, serviceId)
+      toast.success('Pagamento à vista registrado!')
+    },
+    onError: (e: Error) => toast.error(parseSupabaseError(e)),
+  })
+}
+
 export function useUpdateReceivable(serviceId: string) {
   const qc = useQueryClient()
   return useMutation({

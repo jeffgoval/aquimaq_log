@@ -9,6 +9,7 @@ import type { Tables } from '@/integrations/supabase/db-types'
 import { Link } from 'react-router-dom'
 import { ROUTES } from '@/shared/constants/routes'
 import { AppMoney } from '@/shared/components/app/app-money'
+import dayjs from '@/shared/lib/dayjs'
 
 const serviceOperatorPaymentSchema = z.object({
   operator_payment_status: z.enum(['pending', 'paid']),
@@ -20,7 +21,7 @@ type ServiceOperatorPaymentForm = z.infer<typeof serviceOperatorPaymentSchema>
 interface ServiceOperatorPaymentPanelProps {
   service: Pick<
     Tables<'services'>,
-    'id' | 'primary_operator_id' | 'operator_payment_status' | 'operator_payment_date'
+    'id' | 'primary_operator_id' | 'operator_payment_status' | 'operator_payment_date' | 'service_date'
   >
   operatorName?: string | null
   operatorCostTotal: number
@@ -47,17 +48,20 @@ export const ServiceOperatorPaymentPanel = ({
     })
   }, [service.id, service.operator_payment_status, service.operator_payment_date, form.reset])
 
+  const serviceYmd = service.service_date.slice(0, 10)
+
   const onSubmit = form.handleSubmit(async (values) => {
+    const paidDate =
+      values.operator_payment_status === 'paid'
+        ? (values.operator_payment_date?.trim() || serviceYmd)
+        : null
     await update.mutateAsync({
       operator_payment_status: values.operator_payment_status,
-      operator_payment_date: values.operator_payment_date?.trim()
-        ? values.operator_payment_date
-        : null,
+      operator_payment_date: paidDate,
     })
   })
 
   const status = form.watch('operator_payment_status')
-  const dateVal = form.watch('operator_payment_date')
   const showPanel = Boolean(service.primary_operator_id) || operatorCostTotal > 0
 
   if (!showPanel) return null
@@ -68,8 +72,8 @@ export const ServiceOperatorPaymentPanel = ({
         <div>
           <h2 className="typo-section-title mb-1">Pagamento ao operador</h2>
           <p className="typo-body-muted text-sm max-w-xl">
-            Controlo independente da data: marque como pago quando efetuar o pagamento, ou deixe pendente e use a data como lembrete / previsão.
-            O saldo global (vales e pagamentos) regista-se na ficha do operador.
+            A <strong className="text-foreground">data do serviço</strong> ({dayjs(service.service_date).format('DD/MM/YYYY')}) já está nos dados abaixo — aqui só indica se já pagou o operador.
+            O saldo (vales e pagamentos) regista-se na ficha do operador.
           </p>
         </div>
         <span
@@ -103,9 +107,9 @@ export const ServiceOperatorPaymentPanel = ({
         </p>
       )}
 
-      {status === 'paid' && !dateVal && (
-        <p className="text-sm text-muted-foreground border border-border rounded-lg px-3 py-2">
-          Sugestão: preencha a data em que pagou para manter o histórico claro.
+      {status === 'pending' && (
+        <p className="text-xs text-muted-foreground">
+          Enquanto estiver pendente, não é pedida outra data — usa-se a data do serviço como referência.
         </p>
       )}
 
@@ -118,10 +122,15 @@ export const ServiceOperatorPaymentPanel = ({
               <option value="paid">Pago</option>
             </select>
           </div>
-          <div>
-            <label className="field-label">Data (pagamento ou previsão)</label>
-            <input type="date" className="field" {...form.register('operator_payment_date')} />
-          </div>
+          {status === 'paid' && (
+            <div>
+              <label className="field-label">Data em que pagou (se for diferente do serviço)</label>
+              <input type="date" className="field" {...form.register('operator_payment_date')} />
+              <p className="typo-caption text-muted-foreground mt-1">
+                Se ficar vazio, usa-se a data do serviço ({dayjs(service.service_date).format('DD/MM/YYYY')}).
+              </p>
+            </div>
+          )}
         </div>
         <AppButton type="submit" size="sm" loading={update.isPending} loadingText="...">
           Guardar

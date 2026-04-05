@@ -19,6 +19,8 @@ interface WorklogSectionProps {
   tractorId: string
   /** Pré-seleciona o operador no formulário (ex.: operador principal do serviço). */
   defaultOperatorId?: string
+  /** Data do serviço (ISO); evita pedir outra data no horímetro — só mostra picker em «É outro dia». */
+  serviceDate?: string
   /** Taxa contratada com o cliente (R$/h), para pré-visualização e totais por linha. */
   contractedHourRate: number
 }
@@ -27,6 +29,7 @@ export function WorklogSection({
   serviceId,
   tractorId,
   defaultOperatorId,
+  serviceDate,
   contractedHourRate,
 }: WorklogSectionProps) {
   const { data, isLoading } = useWorklogsByService(serviceId)
@@ -44,6 +47,17 @@ export function WorklogSection({
     notes: '',
   })
 
+  const serviceYmd = useMemo(() => {
+    if (!serviceDate) return ''
+    const s = serviceDate.slice(0, 10)
+    return /^\d{4}-\d{2}-\d{2}$/.test(s) ? s : ''
+  }, [serviceDate])
+
+  const defaultAddWorkDate = serviceYmd || dayjs().format('YYYY-MM-DD')
+
+  /** Com data do serviço conhecida, o registo usa esse dia por defeito; só mostra o date picker se o utilizador escolher outro dia. */
+  const [addFormOtherDay, setAddFormOtherDay] = useState(false)
+
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editForm, setEditForm] = useState({
     operator_id: '',
@@ -57,6 +71,12 @@ export function WorklogSection({
     if (!addDialog.isOpen || !defaultOperatorId) return
     setForm((f) => (f.operator_id ? f : { ...f, operator_id: defaultOperatorId }))
   }, [addDialog.isOpen, defaultOperatorId])
+
+  useEffect(() => {
+    if (!addDialog.isOpen) return
+    setForm((f) => ({ ...f, work_date: defaultAddWorkDate }))
+    setAddFormOtherDay(false)
+  }, [addDialog.isOpen, defaultAddWorkDate])
 
   const selectedOperatorRate = useMemo(() => {
     if (!form.operator_id) return null
@@ -86,17 +106,20 @@ export function WorklogSection({
         description: 'O custo de mão de obra desta linha fica zero no resumo até escolher um operador.',
       })
     }
+    const workDateSubmit =
+      serviceYmd && !addFormOtherDay ? serviceYmd : form.work_date
+
     await createWorklog.mutateAsync({
       tractor_id: tractorId,
       operator_id: form.operator_id || null,
-      work_date: form.work_date,
+      work_date: workDateSubmit,
       start_hourmeter: start,
       end_hourmeter: end,
       notes: form.notes || null,
     })
     setForm({
       operator_id: defaultOperatorId ?? '',
-      work_date: dayjs().format('YYYY-MM-DD'),
+      work_date: defaultAddWorkDate,
       start_hourmeter: '',
       end_hourmeter: '',
       notes: '',
@@ -178,13 +201,47 @@ export function WorklogSection({
         <div className="rounded-xl border border-border p-4 mb-5 bg-muted/10 space-y-4 animate-in fade-in slide-in-from-top-2">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             <div>
-              <label className="field-label">Data</label>
-              <input
-                type="date"
-                value={form.work_date}
-                onChange={(e) => setForm((f) => ({ ...f, work_date: e.target.value }))}
-                className="field"
-              />
+              {serviceYmd && !addFormOtherDay ? (
+                <>
+                  <p className="field-label mb-1">Dia do registo</p>
+                  <p className="typo-body text-sm text-foreground">
+                    {dayjs(serviceYmd).format('DD/MM/YYYY')}
+                    <span className="text-muted-foreground"> — mesma data do serviço</span>
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setAddFormOtherDay(true)}
+                    className="mt-2 text-xs font-medium text-primary hover:underline"
+                  >
+                    É outro dia
+                  </button>
+                </>
+              ) : (
+                <>
+                  <label className="field-label" htmlFor="worklog-add-date">
+                    Data do registo
+                  </label>
+                  <input
+                    id="worklog-add-date"
+                    type="date"
+                    value={form.work_date}
+                    onChange={(e) => setForm((f) => ({ ...f, work_date: e.target.value }))}
+                    className="field"
+                  />
+                  {serviceYmd ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAddFormOtherDay(false)
+                        setForm((f) => ({ ...f, work_date: serviceYmd }))
+                      }}
+                      className="mt-2 text-xs font-medium text-primary hover:underline"
+                    >
+                      Usar data do serviço
+                    </button>
+                  ) : null}
+                </>
+              )}
             </div>
             <div>
               <label className="field-label">Operador</label>

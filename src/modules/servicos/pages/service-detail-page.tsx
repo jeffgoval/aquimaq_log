@@ -117,6 +117,7 @@ export function ServiceDetailPage() {
         serviceId={service.id}
         tractorId={service.tractor_id}
         defaultOperatorId={service.primary_operator_id ?? undefined}
+        serviceDate={service.service_date}
         contractedHourRate={service.contracted_hour_rate}
       />
 
