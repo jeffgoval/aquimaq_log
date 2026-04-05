@@ -1,5 +1,5 @@
 import { useParams, Link } from 'react-router-dom'
-import { useMemo } from 'react'
+import React, { useMemo } from 'react'
 import { useService, useCompleteService } from '../hooks/use-service-queries'
 import { useWorklogsByService } from '@/modules/apontamentos/hooks/use-worklog-queries'
 import { AppPageHeader } from '@/shared/components/app/app-page-header'
@@ -227,27 +227,32 @@ export function ServiceDetailPage() {
         <h2 className="typo-section-title mb-3">Dados do serviço</h2>
         <dl className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 typo-body">
           {[
-            {
+            service.tractor_id ? {
               label: 'Operadores (horímetro)',
               value: <LaborOperatorsInService attribution={laborOperatorAttribution} />,
-            },
+            } : null,
             { label: 'Data', value: dayjs(service.service_date).format('DD/MM/YYYY') },
-            service.tractors 
-              ? { label: 'Custo/h base (referência)', value: service.tractors?.standard_hour_cost != null ? <AppMoney value={Number(service.tractors.standard_hour_cost)} size="sm" /> : '—' }
-              : { label: 'Custo/h base', value: '—' },
+            service.tractor_id
+              ? (service.tractors
+                  ? { label: 'Custo/h base (referência)', value: service.tractors.standard_hour_cost != null ? <AppMoney value={Number(service.tractors.standard_hour_cost)} size="sm" /> : '—' }
+                  : { label: 'Custo/h base', value: '—' })
+              : null,
             ...(service.truck_id ? [
-              { label: 'Placa Veíc. Socorrido', value: service.towed_vehicle_plate || '—' },
-              { label: 'Modelo Socorrido', value: service.towed_vehicle_brand ? `${service.towed_vehicle_brand} ${service.towed_vehicle_model || ''}` : service.towed_vehicle_model || '—' },
+              { label: 'Cobrança', value: service.charge_type === 'por_km' ? 'Por KM' : service.charge_type === 'valor_fixo' ? 'Valor Fixo' : 'Por Hora' },
+              { label: 'Placa Socorrido', value: service.towed_vehicle_plate || '—' },
+              { label: 'Veículo Socorrido', value: service.towed_vehicle_brand ? `${service.towed_vehicle_brand} ${service.towed_vehicle_model || ''}`.trim() : service.towed_vehicle_model || '—' },
               { label: 'Origem', value: service.origin_location || '—' },
               { label: 'Destino', value: service.destination_location || '—' },
-              { label: 'Cobrança', value: service.charge_type?.replace('_', ' ') || 'por hora' }
             ] : []),
-          ].map(({ label, value }) => (
-            <div key={label}>
-              <dt className="typo-caption truncate">{label}</dt>
-              <dd className="font-medium mt-1 uppercase text-sm">{value}</dd>
-            </div>
-          ))}
+          ].filter(Boolean).map((item) => {
+            const { label, value } = item as { label: string; value: React.ReactNode }
+            return (
+              <div key={label}>
+                <dt className="typo-caption truncate">{label}</dt>
+                <dd className="font-medium mt-1 uppercase text-sm">{value}</dd>
+              </div>
+            )
+          })}
         </dl>
         {service.notes && <p className="mt-4 pt-4 border-t border-border typo-body-muted">{service.notes}</p>}
         {service.truck_id && (service.checkout_photo_path || service.checkout_notes) ? (
