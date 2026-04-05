@@ -14,14 +14,14 @@ export const createServiceSchema = z.object({
   towed_vehicle_brand: z.string().optional().nullable(),
   towed_vehicle_model: z.string().optional().nullable(),
   origin_location: z.string().optional().nullable(),
-  destination_location: z.string().optional().nullable()
+  destination_location: z.string().optional().nullable(),
 }).refine(data => {
   if (data.vehicle_type === 'tractor') return !!data.tractor_id
   if (data.vehicle_type === 'truck') return !!data.truck_id
   return false
 }, {
   message: 'Veículo obrigatório',
-  path: ['tractor_id'] // shows error on tractor dropdown typically
+  path: ['tractor_id']
 })
 
 // Used for partial edits:
@@ -39,7 +39,9 @@ export const editServiceSchema = z.object({
   towed_vehicle_brand: z.string().optional().nullable(),
   towed_vehicle_model: z.string().optional().nullable(),
   origin_location: z.string().optional().nullable(),
-  destination_location: z.string().optional().nullable()
+  destination_location: z.string().optional().nullable(),
+  // Checkout / vistoria (só guincho)
+  checkout_notes: z.string().optional().nullable(),
 })
 
 export type CreateServiceInput = z.infer<typeof createServiceSchema>

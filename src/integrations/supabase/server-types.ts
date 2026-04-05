@@ -511,6 +511,8 @@ export type Database = {
       services: {
         Row: {
           charge_type: string
+          checkout_notes: string | null
+          checkout_photo_path: string | null
           client_id: string
           contracted_hour_rate: number
           created_at: string
@@ -535,6 +537,8 @@ export type Database = {
         }
         Insert: {
           charge_type?: string
+          checkout_notes?: string | null
+          checkout_photo_path?: string | null
           client_id: string
           contracted_hour_rate?: number
           created_at?: string
@@ -559,6 +563,8 @@ export type Database = {
         }
         Update: {
           charge_type?: string
+          checkout_notes?: string | null
+          checkout_photo_path?: string | null
           client_id?: string
           contracted_hour_rate?: number
           created_at?: string

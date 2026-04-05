@@ -1,6 +1,7 @@
 /** Linha mínima para apurar faturação, custo de operador e margem (por serviço). */
 export interface WorklogFinancialLine {
   worked_hours: number | null
+  worked_km: number | null
   operators: { default_hour_rate: number | null } | null
 }
 
@@ -40,9 +41,14 @@ export function getLaborOperatorAttributionFromWorklogs(
   }
 }
 
+export type ChargeType = 'por_hora' | 'por_km' | 'valor_fixo'
+
 export interface ServiceFinancialSummary {
-  totalHours: number
-  /** Horas × taxa contratada (antes do desconto). */
+  /** Total de horas (para serviços por hora) ou KM (para serviços por km). */
+  totalQuantity: number
+  /** Rótulo da unidade: 'h' ou 'km'. */
+  quantityUnit: string
+  /** Quantidade × taxa contratada (antes do desconto). */
   billingGross: number
   /** Valor guardado no serviço, limitado a não exceder a faturação bruta. */
   ownerDiscountApplied: number
@@ -51,35 +57,59 @@ export interface ServiceFinancialSummary {
   operatorCostTotal: number
   /** Lucro bruto após desconto: faturação líquida − mão de obra apontada. */
   marginTotal: number
+  // Backwards-compat alias
+  totalHours: number
 }
 
 /**
- * - Faturação bruta: cada hora × taxa contratada do serviço.
+ * - Faturação bruta: cada unidade (hora ou km) × taxa contratada do serviço.
  * - Desconto do dono: valor fixo em R$ (limitado à faturação bruta).
  * - Custo operador: por linha, horas × taxa padrão do operador (0 se sem operador).
+ * - Para valor_fixo: taxa contratada é o total, independente de horas/km.
  */
 export function computeServiceFinancialSummary(
-  contractedHourRate: number,
+  contractedRate: number,
   worklogs: WorklogFinancialLine[],
   ownerDiscountAmount: number = 0,
+  chargeType: ChargeType = 'por_hora',
 ): ServiceFinancialSummary {
   let totalHours = 0
+  let totalKm = 0
   let operatorCostTotal = 0
 
-  const clientRate = Number(contractedHourRate)
-  const safeClientRate = Number.isFinite(clientRate) ? clientRate : 0
+  const rate = Number(contractedRate)
+  const safeRate = Number.isFinite(rate) ? rate : 0
 
   for (const w of worklogs) {
+    const km = Number(w.worked_km ?? 0)
     const h = Number(w.worked_hours ?? 0)
-    if (!Number.isFinite(h) || h <= 0) continue
-    totalHours += h
-    const rate = w.operators?.default_hour_rate
-    const opRate = Number(rate)
+    if (Number.isFinite(km) && km > 0) totalKm += km
+    if (Number.isFinite(h) && h > 0) totalHours += h
+    const opRate = Number(w.operators?.default_hour_rate)
     const safeOp = Number.isFinite(opRate) ? opRate : 0
-    operatorCostTotal += h * safeOp
+    // Operator cost always in hours when available; fallback to km if no hours
+    const opBase = h > 0 ? h : (km > 0 ? km : 0)
+    operatorCostTotal += opBase * safeOp
   }
 
-  const billingGross = totalHours * safeClientRate
+  let billingGross: number
+  let totalQuantity: number
+  let quantityUnit: string
+
+  if (chargeType === 'por_km') {
+    billingGross = totalKm * safeRate
+    totalQuantity = totalKm
+    quantityUnit = 'km'
+  } else if (chargeType === 'valor_fixo') {
+    billingGross = safeRate
+    totalQuantity = totalHours || totalKm
+    quantityUnit = totalKm > 0 ? 'km' : 'h'
+  } else {
+    billingGross = totalHours * safeRate
+    totalQuantity = totalHours
+    quantityUnit = 'h'
+  }
+
   const discountRaw = Number(ownerDiscountAmount)
   const safeDiscountRequest = Number.isFinite(discountRaw) && discountRaw > 0 ? discountRaw : 0
   const ownerDiscountApplied = Math.min(safeDiscountRequest, billingGross)
@@ -87,31 +117,35 @@ export function computeServiceFinancialSummary(
   const marginTotal = billingNet - operatorCostTotal
 
   return {
-    totalHours,
+    totalQuantity,
+    quantityUnit,
     billingGross,
     ownerDiscountApplied,
     billingNet,
     operatorCostTotal,
     marginTotal,
+    totalHours, // backwards-compat
   }
 }
 
 /** Valores por linha (para cards de apontamento). */
 export function computeWorklogLineAmounts(
-  workedHours: number,
-  contractedHourRate: number,
+  workedQuantity: number,
+  contractedRate: number,
   operatorDefaultHourRate: number | null | undefined,
+  chargeType: ChargeType = 'por_hora',
 ): { billingLine: number; operatorCostLine: number; marginLine: number } {
-  const h = Number(workedHours)
-  if (!Number.isFinite(h) || h <= 0) {
+  const q = Number(workedQuantity)
+  if (!Number.isFinite(q) || q <= 0) {
     return { billingLine: 0, operatorCostLine: 0, marginLine: 0 }
   }
-  const cr = Number(contractedHourRate)
+  const cr = Number(contractedRate)
   const safeCr = Number.isFinite(cr) ? cr : 0
-  const billingLine = h * safeCr
+  // valor_fixo: per-line billing is still proportional (same math as por_hora/por_km)
+  const billingLine = q * safeCr
   const op = Number(operatorDefaultHourRate)
   const safeOp = Number.isFinite(op) ? op : 0
-  const operatorCostLine = h * safeOp
+  const operatorCostLine = q * safeOp
   return {
     billingLine,
     operatorCostLine,

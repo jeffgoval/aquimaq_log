@@ -19,7 +19,7 @@ import { cn } from '@/shared/lib/cn'
 import { ReceiptPhotoPicker, ReceiptViewButton } from '@/shared/components/receipts'
 import { compressImageToJpeg } from '@/shared/lib/image-compress'
 import { parseSupabaseError } from '@/shared/lib/errors'
-import { removeReceiptAtPathIfExists, uploadServiceReceipt } from '@/integrations/supabase/receipts-storage'
+import { removeReceiptAtPathIfExists, uploadServiceReceipt, uploadServiceCheckoutPhoto } from '@/integrations/supabase/receipts-storage'
 import type { Updates } from '@/integrations/supabase/db-types'
 
 type ServiceUpdate = Updates<'services'>
@@ -39,6 +39,7 @@ export function ServiceEditPage() {
   )
 
   const [receiptFile, setReceiptFile] = useState<File | null>(null)
+  const [checkoutFile, setCheckoutFile] = useState<File | null>(null)
 
   const form = useForm<EditServiceInput>({
     resolver: zodResolver(editServiceSchema) as Resolver<EditServiceInput>,
@@ -63,6 +64,7 @@ export function ServiceEditPage() {
       towed_vehicle_model: service.towed_vehicle_model ?? undefined,
       origin_location: service.origin_location ?? undefined,
       destination_location: service.destination_location ?? undefined,
+      checkout_notes: service.checkout_notes ?? undefined,
     })
   }, [service, reset])
 
@@ -79,13 +81,23 @@ export function ServiceEditPage() {
         return
       }
     }
+    if (checkoutFile) {
+      try {
+        const blob = await compressImageToJpeg(checkoutFile)
+        if (service.checkout_photo_path) await removeReceiptAtPathIfExists(service.checkout_photo_path)
+        receiptExtra.checkout_photo_path = await uploadServiceCheckoutPhoto(id, blob)
+      } catch (e) {
+        toast.error(parseSupabaseError(e as Error))
+        return
+      }
+    }
     const newReceiptPath =
       typeof receiptExtra.receipt_storage_path === 'string'
         ? receiptExtra.receipt_storage_path
         : undefined
     try {
       if (locked) {
-        await update.mutateAsync({ notes: v.notes?.trim() || null, ...receiptExtra })
+        await update.mutateAsync({ notes: v.notes?.trim() || null, checkout_notes: v.checkout_notes?.trim() || null, ...receiptExtra })
       } else {
         const isTruck = v.vehicle_type === 'truck'
         await update.mutateAsync({
@@ -102,6 +114,7 @@ export function ServiceEditPage() {
           towed_vehicle_model: isTruck ? v.towed_vehicle_model || undefined : undefined,
           origin_location: isTruck ? v.origin_location || undefined : undefined,
           destination_location: isTruck ? v.destination_location || undefined : undefined,
+          checkout_notes: isTruck ? v.checkout_notes?.trim() || null : null,
           ...receiptExtra,
         })
       }
@@ -111,6 +124,7 @@ export function ServiceEditPage() {
       return
     }
     setReceiptFile(null)
+    setCheckoutFile(null)
     navigate(ROUTES.SERVICE_DETAIL(id))
   })
 
@@ -284,6 +298,30 @@ export function ServiceEditPage() {
               <label className="field-label">Observações</label>
               <textarea {...register('notes')} rows={2} className="field resize-none" placeholder="Detalhes..." />
             </div>
+            {(vehicleType === 'truck' || service.truck_id) && (
+              <div className="sm:col-span-3 rounded-lg border border-amber-200 dark:border-amber-500/30 bg-amber-50/50 dark:bg-amber-500/5 p-4 space-y-3">
+                <p className="text-sm font-medium text-foreground">Vistoria antes do reboque</p>
+                <p className="text-xs text-muted-foreground">
+                  Registre o estado do veículo socorrido antes do embarque — foto e observações ficam vinculadas ao serviço.
+                </p>
+                {service.checkout_photo_path ? (
+                  <div className="flex flex-wrap items-center gap-2">
+                    <ReceiptViewButton storagePath={service.checkout_photo_path} variant="secondary" size="sm" label="Ver foto da vistoria" />
+                    <span className="text-xs text-muted-foreground">Anexe outra imagem para substituir.</span>
+                  </div>
+                ) : null}
+                <ReceiptPhotoPicker file={checkoutFile} onChange={setCheckoutFile} disabled={update.isPending} label="Foto da vistoria" />
+                <div>
+                  <label className="field-label">Observações da vistoria</label>
+                  <textarea
+                    {...register('checkout_notes')}
+                    rows={2}
+                    className="field resize-none"
+                    placeholder="Ex.: arranhado no para-choque dianteiro, pneu furado, sem documentos..."
+                  />
+                </div>
+              </div>
+            )}
             <div className="sm:col-span-3 rounded-lg border border-border/80 bg-muted/20 p-4 space-y-3">
               <p className="text-sm font-medium text-foreground">Recibo / nota do serviço</p>
               <p className="text-xs text-muted-foreground">

@@ -31,22 +31,28 @@ export function Sidebar() {
       {/* Nav */}
       <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto no-scrollbar">
         {NAV_ITEMS.map((item) => (
-          <NavLink
-            key={item.href}
-            to={item.href}
-            end={item.href === '/'}
-            className={({ isActive }) =>
-              cn(
-                'typo-nav-item flex items-center gap-3 rounded-lg px-3 py-2.5 transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-ring',
-                isActive
-                  ? 'typo-nav-item-active bg-primary text-primary-foreground shadow-md shadow-primary/20'
-                  : 'text-muted-foreground hover:bg-secondary/80 hover:text-foreground'
-              )
-            }
-          >
-            <item.icon className="h-4 w-4 shrink-0" />
-            {item.label}
-          </NavLink>
+          <div key={item.href}>
+            {item.sectionLabel && (
+              <p className="px-3 pt-3 pb-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 select-none">
+                {item.sectionLabel}
+              </p>
+            )}
+            <NavLink
+              to={item.href}
+              end={item.href === '/'}
+              className={({ isActive }) =>
+                cn(
+                  'typo-nav-item flex items-center gap-3 rounded-lg px-3 py-2.5 transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                  isActive
+                    ? 'typo-nav-item-active bg-primary text-primary-foreground shadow-md shadow-primary/20'
+                    : 'text-muted-foreground hover:bg-secondary/80 hover:text-foreground'
+                )
+              }
+            >
+              <item.icon className="h-4 w-4 shrink-0" />
+              {item.label}
+            </NavLink>
+          </div>
         ))}
       </nav>
 

@@ -174,10 +174,11 @@ export function buildServiceVoucherPdf(params: {
 
   doc.setFont('helvetica', 'normal')
   doc.setFontSize(10)
+  const unit = summary.quantityUnit ?? 'h'
   const rows: [string, string][] = [
-    ['Total de horas', `${summary.totalHours.toLocaleString('pt-BR', { maximumFractionDigits: 2 })} h`],
-    ['Taxa contratada', `${currency.format(rate)} / h`],
-    ['Subtotal (horas × taxa)', currency.format(summary.billingGross)],
+    [unit === 'km' ? 'Total de km' : 'Total de horas', `${summary.totalQuantity.toLocaleString('pt-BR', { maximumFractionDigits: 2 })} ${unit}`],
+    ['Taxa contratada', `${currency.format(rate)} / ${unit}`],
+    [unit === 'km' ? 'Subtotal (km × taxa)' : 'Subtotal (horas × taxa)', currency.format(summary.billingGross)],
   ]
   if (summary.ownerDiscountApplied > 0) {
     rows.push(['Desconto acordado', `− ${currency.format(summary.ownerDiscountApplied)}`])

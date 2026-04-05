@@ -20,6 +20,15 @@ export async function uploadServiceReceipt(serviceId: string, imageBlob: Blob): 
   return path
 }
 
+export async function uploadServiceCheckoutPhoto(serviceId: string, imageBlob: Blob): Promise<string> {
+  const path = `services/${serviceId}/checkout-${crypto.randomUUID()}.jpg`
+  const { error } = await supabase.storage
+    .from(RECEIPTS_BUCKET)
+    .upload(path, imageBlob, { contentType: 'image/jpeg', upsert: false })
+  if (error) throw error
+  return path
+}
+
 export async function removeReceiptAtPathIfExists(storagePath: string): Promise<void> {
   const { error } = await supabase.storage.from(RECEIPTS_BUCKET).remove([storagePath])
   if (error && !/not found/i.test(error.message)) throw error

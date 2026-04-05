@@ -10,7 +10,7 @@ import { useDisclosure } from '@/shared/hooks/use-disclosure'
 import { AppDecimalInput } from '@/shared/components/app/app-numeric-input'
 import { AppMoney } from '@/shared/components/app/app-money'
 import { useOperatorOptions } from '@/modules/operadores/hooks/use-operator-queries'
-import { computeWorklogLineAmounts } from '@/modules/servicos/lib/service-financial-summary'
+import { computeWorklogLineAmounts, type ChargeType } from '@/modules/servicos/lib/service-financial-summary'
 import { Clock, Plus, Tag, Pencil, Trash2 } from 'lucide-react'
 import dayjs from '@/shared/lib/dayjs'
 
@@ -26,8 +26,10 @@ interface WorklogSectionProps {
   defaultOperatorId?: string
   /** Data do serviço (ISO); evita pedir outra data no horímetro — só mostra picker em «É outro dia». */
   serviceDate?: string
-  /** Taxa contratada com o cliente (R$/h), para pré-visualização e totais por linha. */
+  /** Taxa contratada com o cliente (R$/h ou R$/km), para pré-visualização e totais por linha. */
   contractedHourRate: number
+  /** Tipo de cobrança do serviço — determina se a calculadora usa horas ou km. */
+  chargeType?: ChargeType
 }
 
 export function WorklogSection({
@@ -38,6 +40,7 @@ export function WorklogSection({
   defaultOperatorId,
   serviceDate,
   contractedHourRate,
+  chargeType = 'por_hora',
 }: WorklogSectionProps) {
   const serviceLocked = serviceStatus === 'completed' || serviceStatus === 'cancelled'
   const { data, isLoading } = useWorklogsByService(serviceId)
@@ -104,8 +107,8 @@ export function WorklogSection({
       return null
     }
     const amount = end - start
-    return computeWorklogLineAmounts(amount, contractedHourRate, selectedOperatorRate)
-  }, [form.start_value, form.end_value, contractedHourRate, selectedOperatorRate])
+    return computeWorklogLineAmounts(amount, contractedHourRate, selectedOperatorRate, chargeType)
+  }, [form.start_value, form.end_value, contractedHourRate, selectedOperatorRate, chargeType])
 
   const handleAdd = async () => {
     const start = Number(String(form.start_value).replace(',', '.'))
@@ -475,10 +478,14 @@ export function WorklogSection({
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {data?.map((log) => {
+            const workedQty = isTruck
+              ? (log.worked_km ?? (log.end_odometer ?? 0) - (log.start_odometer ?? 0))
+              : (log.worked_hours ?? 0)
             const line = computeWorklogLineAmounts(
-              log.worked_hours ?? 0,
+              workedQty,
               contractedHourRate,
               log.operators?.default_hour_rate,
+              chargeType,
             )
             return (
               <div key={log.id} className="relative">

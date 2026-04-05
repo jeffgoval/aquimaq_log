@@ -6,9 +6,9 @@ import { supabase } from '@/integrations/supabase/client'
 import { toast } from 'sonner'
 
 const ALL_NAV = [
-  { label: 'Dashboard',     href: ROUTES.DASHBOARD,     icon: LayoutDashboard, end: true },
-  { label: 'Tratores',      href: ROUTES.TRACTORS,      icon: Tractor,         end: false },
-  { label: 'Guinchos',      href: ROUTES.TRUCKS,        icon: Truck,           end: false },
+  { label: 'Dashboard',     href: ROUTES.DASHBOARD,     icon: LayoutDashboard, end: true,  sectionLabel: undefined },
+  { label: 'Tratores',      href: ROUTES.TRACTORS,      icon: Tractor,         end: false, sectionLabel: 'Frota' },
+  { label: 'Guinchos',      href: ROUTES.TRUCKS,        icon: Truck,           end: false, sectionLabel: undefined },
   { label: 'Operadores',    href: ROUTES.OPERATORS,     icon: Users,           end: false },
   { label: 'Clientes',      href: ROUTES.CLIENTS,       icon: Building2,       end: false },
   { label: 'Fornecedores',  href: ROUTES.SUPPLIERS,     icon: Store,           end: false },
@@ -83,23 +83,29 @@ export function MobileDrawer({ open, onClose }: MobileDrawerProps) {
         {/* Nav items */}
         <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
           {ALL_NAV.map((item) => (
-            <NavLink
-              key={item.href}
-              to={item.href}
-              end={item.end}
-              onClick={onClose}
-              className={({ isActive }) =>
-                cn(
-                  'flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-all duration-150 min-h-[44px]',
-                  isActive
-                    ? 'bg-primary/15 text-primary'
-                    : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
-                )
-              }
-            >
-              <item.icon className="h-4 w-4 shrink-0" />
-              {item.label}
-            </NavLink>
+            <div key={item.href}>
+              {item.sectionLabel && (
+                <p className="px-3 pt-3 pb-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 select-none">
+                  {item.sectionLabel}
+                </p>
+              )}
+              <NavLink
+                to={item.href}
+                end={item.end}
+                onClick={onClose}
+                className={({ isActive }) =>
+                  cn(
+                    'flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-all duration-150 min-h-[44px]',
+                    isActive
+                      ? 'bg-primary/15 text-primary'
+                      : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
+                  )
+                }
+              >
+                <item.icon className="h-4 w-4 shrink-0" />
+                {item.label}
+              </NavLink>
+            </div>
           ))}
         </nav>
 

@@ -60,18 +60,21 @@ export function ServiceDetailPage() {
   const summary = useMemo(() => {
     if (!service) {
       return {
-        totalHours: 0,
+        totalQuantity: 0,
+        quantityUnit: 'h',
         billingGross: 0,
         ownerDiscountApplied: 0,
         billingNet: 0,
         operatorCostTotal: 0,
         marginTotal: 0,
+        totalHours: 0,
       }
     }
     return computeServiceFinancialSummary(
       service.contracted_hour_rate,
       worklogs ?? [],
       service.owner_discount_amount ?? 0,
+      (service.charge_type as import('../lib/service-financial-summary').ChargeType | null) ?? 'por_hora',
     )
   }, [service, worklogs])
 
@@ -89,7 +92,7 @@ export function ServiceDetailPage() {
   if (isError) return <AppErrorState message={error.message} />
   if (!service) return null
 
-  const { totalHours, billingGross, ownerDiscountApplied, billingNet, operatorCostTotal, marginTotal } = summary
+  const { totalQuantity, quantityUnit, billingGross, ownerDiscountApplied, billingNet, operatorCostTotal, marginTotal, totalHours } = summary
 
   return (
     <div className="space-y-6">
@@ -129,17 +132,23 @@ export function ServiceDetailPage() {
 
       <div className="space-y-2">
         <p className="typo-caption text-muted-foreground">
-          Faturação: taxa contratada × horas; desconto do dono (se houver) só reduz o valor a cobrar ao cliente. Custo do operador vem da taxa de cada apontamento.
+          {service.charge_type === 'por_km'
+            ? 'Faturação: KM rodado × taxa contratada; desconto do dono (se houver) só reduz o valor a cobrar ao cliente.'
+            : service.charge_type === 'valor_fixo'
+              ? 'Faturação: valor fixo contratado; desconto do dono (se houver) só reduz o valor a cobrar ao cliente.'
+              : 'Faturação: taxa contratada × horas; desconto do dono (se houver) só reduz o valor a cobrar ao cliente. Custo do operador vem da taxa de cada apontamento.'}
         </p>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
           <div className="rounded-xl border border-border bg-card p-4">
-            <p className="typo-caption mb-1">Horas totais</p>
+            <p className="typo-caption mb-1">{quantityUnit === 'km' ? 'KM totais' : 'Horas totais'}</p>
             <p className="typo-body font-semibold tabular-nums">
-              {totalHours > 0 ? `${totalHours.toFixed(1)} h` : <span className="text-muted-foreground">—</span>}
+              {totalQuantity > 0 ? `${totalQuantity.toFixed(1)} ${quantityUnit}` : <span className="text-muted-foreground">—</span>}
             </p>
           </div>
           <div className="rounded-xl border border-border bg-card p-4">
-            <p className="typo-caption mb-1">Taxa contratada (cliente)</p>
+            <p className="typo-caption mb-1">
+              {service.charge_type === 'por_km' ? 'Taxa por KM' : service.charge_type === 'valor_fixo' ? 'Valor fixo' : 'Taxa/hora (cliente)'}
+            </p>
             <p className="typo-body font-semibold"><AppMoney value={service.contracted_hour_rate} /></p>
           </div>
           <div className={cn('rounded-xl border bg-card p-4', billingNet > 0 ? 'border-primary/25' : 'border-border')}>
@@ -161,30 +170,30 @@ export function ServiceDetailPage() {
                 <p className="typo-body-muted text-sm">
                   {billingGross > 0 && ownerDiscountApplied >= billingGross
                     ? 'Desconto cobre a faturação bruta'
-                    : 'Sem horas registadas'}
+                    : `Sem ${quantityUnit === 'km' ? 'km' : 'horas'} registados`}
                 </p>
               )}
           </div>
           <div className="rounded-xl border border-border bg-card p-4">
             <p className="typo-caption mb-1">Custo operador</p>
-            {totalHours > 0
+            {totalQuantity > 0
               ? <p className="typo-body font-semibold tabular-nums"><AppMoney value={operatorCostTotal} /></p>
               : <p className="typo-body-muted text-sm">—</p>}
           </div>
           <div className={cn(
             'rounded-xl border bg-card p-4 col-span-2 md:col-span-3 lg:col-span-1',
-            marginTotal !== 0 || totalHours > 0 ? 'border-green-200 dark:border-green-500/25' : 'border-border',
+            marginTotal !== 0 || totalQuantity > 0 ? 'border-green-200 dark:border-green-500/25' : 'border-border',
           )}
           >
             <p className="typo-caption mb-1">Margem estimada</p>
-            {totalHours > 0
+            {totalQuantity > 0
               ? (
                 <p className={cn('typo-section-title font-bold tabular-nums', marginTotal >= 0 ? 'text-foreground' : 'text-destructive')}>
                   <AppMoney value={marginTotal} colored />
                 </p>
               )
               : <p className="typo-body-muted text-sm">—</p>}
-            {totalHours > 0 && (
+            {totalQuantity > 0 && (
               <p className="typo-caption text-muted-foreground mt-1">Lucro bruto (faturação líquida − mão de obra apontada)</p>
             )}
           </div>
@@ -205,6 +214,7 @@ export function ServiceDetailPage() {
         defaultOperatorId={defaultOperatorFromWorklogs}
         serviceDate={service.service_date}
         contractedHourRate={service.contracted_hour_rate}
+        chargeType={(service.charge_type as import('../lib/service-financial-summary').ChargeType | null) ?? 'por_hora'}
       />
 
       <ServiceOperatorPaymentPanel
@@ -240,6 +250,15 @@ export function ServiceDetailPage() {
           ))}
         </dl>
         {service.notes && <p className="mt-4 pt-4 border-t border-border typo-body-muted">{service.notes}</p>}
+        {service.truck_id && (service.checkout_photo_path || service.checkout_notes) ? (
+          <div className="mt-4 pt-4 border-t border-amber-200 dark:border-amber-500/30 space-y-2">
+            <p className="text-xs font-semibold uppercase tracking-wide text-amber-700 dark:text-amber-400">Vistoria antes do reboque</p>
+            {service.checkout_notes && <p className="text-sm text-muted-foreground">{service.checkout_notes}</p>}
+            {service.checkout_photo_path && (
+              <ReceiptViewButton storagePath={service.checkout_photo_path} label="Ver foto da vistoria" variant="secondary" size="sm" />
+            )}
+          </div>
+        ) : null}
         {service.receipt_storage_path ? (
           <div className="mt-4 pt-4 border-t border-border flex flex-wrap items-center gap-3">
             <span className="typo-caption">Recibo anexado</span>

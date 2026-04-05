@@ -7,22 +7,22 @@ import {
 
 describe('computeServiceFinancialSummary', () => {
   it('retorna zeros sem apontamentos', () => {
-    expect(computeServiceFinancialSummary(100, [])).toEqual({
-      totalHours: 0,
-      billingGross: 0,
-      ownerDiscountApplied: 0,
-      billingNet: 0,
-      operatorCostTotal: 0,
-      marginTotal: 0,
-    })
+    const r = computeServiceFinancialSummary(100, [])
+    expect(r.totalQuantity).toBe(0)
+    expect(r.billingGross).toBe(0)
+    expect(r.billingNet).toBe(0)
+    expect(r.ownerDiscountApplied).toBe(0)
+    expect(r.operatorCostTotal).toBe(0)
+    expect(r.marginTotal).toBe(0)
   })
 
   it('soma horas e faturação com taxa única do serviço', () => {
     const logs = [
-      { worked_hours: 2.5, operators: { default_hour_rate: 40 } },
-      { worked_hours: 1, operators: { default_hour_rate: 40 } },
+      { worked_hours: 2.5, worked_km: null, operators: { default_hour_rate: 40 } },
+      { worked_hours: 1, worked_km: null, operators: { default_hour_rate: 40 } },
     ]
     const r = computeServiceFinancialSummary(120, logs)
+    expect(r.totalQuantity).toBe(3.5)
     expect(r.totalHours).toBe(3.5)
     expect(r.billingGross).toBe(420)
     expect(r.billingNet).toBe(420)
@@ -32,9 +32,9 @@ describe('computeServiceFinancialSummary', () => {
   })
 
   it('sem operador custo da linha é zero', () => {
-    const logs = [{ worked_hours: 4, operators: null }]
+    const logs = [{ worked_hours: 4, worked_km: null, operators: null }]
     const r = computeServiceFinancialSummary(50, logs)
-    expect(r.totalHours).toBe(4)
+    expect(r.totalQuantity).toBe(4)
     expect(r.billingGross).toBe(200)
     expect(r.billingNet).toBe(200)
     expect(r.operatorCostTotal).toBe(0)
@@ -42,7 +42,7 @@ describe('computeServiceFinancialSummary', () => {
   })
 
   it('aplica desconto do dono até ao teto da faturação bruta', () => {
-    const logs = [{ worked_hours: 2, operators: { default_hour_rate: 10 } }]
+    const logs = [{ worked_hours: 2, worked_km: null, operators: { default_hour_rate: 10 } }]
     const r = computeServiceFinancialSummary(100, logs, 30)
     expect(r.billingGross).toBe(200)
     expect(r.ownerDiscountApplied).toBe(30)
@@ -51,12 +51,31 @@ describe('computeServiceFinancialSummary', () => {
   })
 
   it('limita desconto que excede faturação bruta', () => {
-    const logs = [{ worked_hours: 1, operators: null }]
+    const logs = [{ worked_hours: 1, worked_km: null, operators: null }]
     const r = computeServiceFinancialSummary(50, logs, 999)
     expect(r.billingGross).toBe(50)
     expect(r.ownerDiscountApplied).toBe(50)
     expect(r.billingNet).toBe(0)
     expect(r.marginTotal).toBe(0)
+  })
+
+  it('por_km usa worked_km na faturação', () => {
+    const logs = [
+      { worked_hours: null, worked_km: 150, operators: { default_hour_rate: 0 } },
+      { worked_hours: null, worked_km: 80, operators: null },
+    ]
+    const r = computeServiceFinancialSummary(5, logs, 0, 'por_km')
+    expect(r.totalQuantity).toBe(230)
+    expect(r.quantityUnit).toBe('km')
+    expect(r.billingGross).toBe(1150)
+    expect(r.billingNet).toBe(1150)
+  })
+
+  it('valor_fixo usa taxa contratada como total independente de horas', () => {
+    const logs = [{ worked_hours: 3, worked_km: null, operators: null }]
+    const r = computeServiceFinancialSummary(500, logs, 0, 'valor_fixo')
+    expect(r.billingGross).toBe(500)
+    expect(r.billingNet).toBe(500)
   })
 })
 

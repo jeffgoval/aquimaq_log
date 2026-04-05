@@ -8,9 +8,10 @@ export interface ReceiptPhotoPickerProps {
   onChange: (file: File | null) => void
   disabled?: boolean
   className?: string
+  label?: string
 }
 
-export const ReceiptPhotoPicker = ({ file, onChange, disabled, className }: ReceiptPhotoPickerProps) => {
+export const ReceiptPhotoPicker = ({ file, onChange, disabled, className, label = 'Foto da notinha' }: ReceiptPhotoPickerProps) => {
   const inputId = useId()
   const inputRef = useRef<HTMLInputElement>(null)
   const previewUrl = useMemo(() => (file ? URL.createObjectURL(file) : null), [file])
@@ -35,7 +36,7 @@ export const ReceiptPhotoPicker = ({ file, onChange, disabled, className }: Rece
   return (
     <div className={cn('space-y-2', className)}>
       <label className="field-label" htmlFor={inputId}>
-        Foto da notinha
+        {label}
       </label>
       <p className="text-xs text-muted-foreground -mt-1">
         Use a câmera ou a galeria. A imagem é comprimida antes do envio.
