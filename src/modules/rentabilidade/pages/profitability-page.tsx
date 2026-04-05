@@ -132,7 +132,7 @@ export function ProfitabilityPage() {
                       }
                       items={[
                         {
-                          label: 'Horas',
+                          label: 'Horas trabalhadas',
                           value: `${Number(t.total_hours).toFixed(1)}h`,
                         },
                         {
@@ -144,34 +144,60 @@ export function ProfitabilityPage() {
                           value: <AppMoney value={Number(t.depreciation_cost)} size="sm" />,
                         },
                         {
-                          label: 'Custo Oper.',
+                          label: 'Custo Operacional',
                           value: <AppMoney value={Number(t.operational_cost)} size="sm" />,
                         },
                         {
                           label: 'Mão de Obra',
                           value: <AppMoney value={Number(t.operator_cost)} size="sm" />,
                         },
-                        {
-                          label: 'Receita/h',
-                          value: (
-                            <span className={cn('font-semibold', isCphOk ? 'text-green-400' : 'text-destructive')}>
-                              <AppMoney value={revPerHour} size="sm" />
-                            </span>
-                          ),
-                        },
-                        {
-                          label: 'CPH',
-                          value: (
-                            <span className={cn('font-semibold', isCphOk ? 'text-muted-foreground' : 'text-destructive')}>
-                              <AppMoney value={cph} size="sm" />
-                            </span>
-                          ),
-                        },
                       ]}
                       footer={
                         <div className="space-y-3 pt-2 border-t border-border/50">
+
+                          {/* Comparativo por hora — bloco principal de diagnóstico */}
+                          {Number(t.total_hours) > 0 && (
+                            <div className={cn(
+                              'rounded-lg p-3 space-y-2',
+                              isCphOk ? 'bg-green-500/8 border border-green-500/20' : 'bg-destructive/8 border border-destructive/20',
+                            )}>
+                              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                                Análise por hora trabalhada
+                              </p>
+                              <div className="grid grid-cols-3 gap-2 text-center">
+                                <div>
+                                  <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Receita/h</p>
+                                  <p className={cn('text-sm font-bold tabular-nums', isCphOk ? 'text-green-400' : 'text-destructive')}>
+                                    <AppMoney value={revPerHour} size="sm" />
+                                  </p>
+                                </div>
+                                <div>
+                                  <p className="text-[10px] text-muted-foreground uppercase tracking-wide">CPH</p>
+                                  <p className="text-sm font-bold tabular-nums text-foreground">
+                                    <AppMoney value={cph} size="sm" />
+                                  </p>
+                                </div>
+                                <div>
+                                  <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Spread/h</p>
+                                  <p className={cn('text-sm font-bold tabular-nums', isCphOk ? 'text-green-400' : 'text-destructive')}>
+                                    <AppMoney value={revPerHour - cph} size="sm" />
+                                  </p>
+                                </div>
+                              </div>
+                              <p className={cn('text-xs font-medium leading-snug', isCphOk ? 'text-green-400' : 'text-destructive')}>
+                                {isCphOk
+                                  ? `Cada hora trabalhada gera ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(revPerHour - cph)} de lucro líquido.`
+                                  : `Atenção: a receita por hora está abaixo do custo real — reajuste o preço cobrado.`}
+                              </p>
+                            </div>
+                          )}
+
+                          {/* Margem total */}
                           <div className="flex justify-between items-center bg-muted/20 p-2 rounded-lg">
-                            <span className="typo-section-label">Margem líquida real</span>
+                            <div>
+                              <span className="typo-section-label">Margem líquida real</span>
+                              <span className="text-xs text-muted-foreground ml-1">({marginPercent.toFixed(1)}% da receita)</span>
+                            </div>
                             <AppMoney value={margin} colored size="sm" />
                           </div>
                           <div className="h-1.5 rounded-full bg-muted overflow-hidden">
@@ -185,12 +211,6 @@ export function ProfitabilityPage() {
                               style={{ width: `${Math.min(Math.abs(marginPercent), 100)}%` }}
                             />
                           </div>
-                          {!isCphOk && Number(t.total_hours) > 0 && (
-                            <p className="typo-caption text-destructive flex items-center gap-1">
-                              <AlertTriangle className="h-3 w-3 shrink-0" />
-                              Receita/h abaixo do CPH — serviço precificado abaixo do custo.
-                            </p>
-                          )}
                         </div>
                       }
                     />
