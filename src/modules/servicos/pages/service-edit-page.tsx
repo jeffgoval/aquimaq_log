@@ -5,7 +5,6 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { createServiceSchema, type CreateServiceInput } from '../schemas/service.schema'
 import { useService, useUpdateService } from '../hooks/use-service-queries'
 import { useClientOptions } from '@/modules/clientes/hooks/use-client-queries'
-import { useOperatorOptions } from '@/modules/operadores/hooks/use-operator-queries'
 import { useTractorOptions } from '@/modules/tratores/hooks/use-tractor-queries'
 import { ROUTES } from '@/shared/constants/routes'
 import { AppPageHeader } from '@/shared/components/app/app-page-header'
@@ -20,7 +19,6 @@ export function ServiceEditPage() {
   const { data: service, isLoading, isError, error } = useService(id ?? '')
   const update = useUpdateService(id ?? '')
   const clients = useClientOptions()
-  const operators = useOperatorOptions()
   const tractors = useTractorOptions()
 
   const locked = useMemo(
@@ -38,9 +36,9 @@ export function ServiceEditPage() {
     reset({
       client_id: service.client_id,
       tractor_id: service.tractor_id,
-      primary_operator_id: service.primary_operator_id ?? '',
       service_date: service.service_date.slice(0, 10),
       contracted_hour_rate: service.contracted_hour_rate,
+      owner_discount_amount: service.owner_discount_amount ?? 0,
       notes: service.notes ?? '',
     })
   }, [service, reset])
@@ -53,9 +51,10 @@ export function ServiceEditPage() {
       await update.mutateAsync({
         client_id: v.client_id,
         tractor_id: v.tractor_id,
-        primary_operator_id: v.primary_operator_id || null,
+        primary_operator_id: null,
         service_date: v.service_date,
         contracted_hour_rate: v.contracted_hour_rate,
+        owner_discount_amount: v.owner_discount_amount ?? 0,
         notes: v.notes?.trim() || null,
       })
     }
@@ -68,7 +67,6 @@ export function ServiceEditPage() {
   if (!service) return <AppErrorState message="Serviço não encontrado" />
 
   const clientList = clients.data ?? []
-  const operatorList = operators.data ?? []
   const tractorList = tractors.data ?? []
 
   return (
@@ -116,17 +114,6 @@ export function ServiceEditPage() {
               {errors.tractor_id && <p className="field-error">{errors.tractor_id.message}</p>}
             </div>
             <div>
-              <label className="field-label">Operador</label>
-              <select {...register('primary_operator_id')} className="field" disabled={locked}>
-                <option value="">Nenhum</option>
-                {operatorList.map((o) => (
-                  <option key={o.id} value={o.id}>
-                    {o.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
               <label className="field-label">Data *</label>
               <input {...register('service_date')} type="date" className="field" disabled={locked} />
               {errors.service_date && <p className="field-error">{errors.service_date.message}</p>}
@@ -146,6 +133,27 @@ export function ServiceEditPage() {
                 )}
               />
               {errors.contracted_hour_rate && <p className="field-error">{errors.contracted_hour_rate.message}</p>}
+            </div>
+            <div>
+              <label className="field-label">Desconto (dono), R$</label>
+              <Controller
+                name="owner_discount_amount"
+                control={control}
+                render={({ field: { onChange, value } }) => (
+                  <AppCurrencyInput
+                    value={value ?? ''}
+                    onValueChange={(v) => onChange(v.floatValue ?? 0)}
+                    placeholder="R$ 0,00"
+                    disabled={locked}
+                  />
+                )}
+              />
+              {errors.owner_discount_amount && (
+                <p className="field-error">{errors.owner_discount_amount.message}</p>
+              )}
+              <p className="typo-caption text-muted-foreground mt-1">
+                Abate da faturação bruta (horas × taxa). O custo do operador nos apontamentos não muda.
+              </p>
             </div>
             <div className="sm:col-span-3">
               <label className="field-label">Observações</label>

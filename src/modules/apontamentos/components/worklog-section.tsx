@@ -17,7 +17,7 @@ import dayjs from '@/shared/lib/dayjs'
 interface WorklogSectionProps {
   serviceId: string
   tractorId: string
-  /** Pré-seleciona o operador no formulário (ex.: operador principal do serviço). */
+  /** Pré-seleciona o operador no novo registo (ex.: último operador já apontado neste serviço). */
   defaultOperatorId?: string
   /** Data do serviço (ISO); evita pedir outra data no horímetro — só mostra picker em «É outro dia». */
   serviceDate?: string

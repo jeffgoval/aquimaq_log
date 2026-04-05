@@ -11,10 +11,10 @@ type ServiceUpdate = Updates<'services'>
 export const useServiceList = () => useQuery({ queryKey: queryKeys.services, queryFn: serviceRepository.list })
 export const useService = (id: string) => useQuery({ queryKey: queryKeys.serviceDetails(id), queryFn: () => serviceRepository.getById(id), enabled: !!id })
 
-export const useServicesByPrimaryOperator = (operatorId: string) =>
+export const useServicesByOperatorWorklogs = (operatorId: string) =>
   useQuery({
-    queryKey: ['services', 'primary-operator', operatorId] as const,
-    queryFn: () => serviceRepository.listByPrimaryOperator(operatorId),
+    queryKey: ['services', 'operator-worklogs', operatorId] as const,
+    queryFn: () => serviceRepository.listByOperatorWorklogs(operatorId),
     enabled: !!operatorId,
   })
 

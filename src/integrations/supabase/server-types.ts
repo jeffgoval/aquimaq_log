@@ -295,6 +295,7 @@ export type Database = {
           primary_operator_id: string | null
           service_date: string
           contracted_hour_rate: number
+          owner_discount_amount: number
           expected_hours: number | null
           status: 'draft' | 'in_progress' | 'completed' | 'cancelled'
           operator_payment_status: 'pending' | 'paid'
@@ -310,6 +311,7 @@ export type Database = {
           primary_operator_id?: string | null
           service_date: string
           contracted_hour_rate?: number
+          owner_discount_amount?: number
           expected_hours?: number | null
           status?: 'draft' | 'in_progress' | 'completed' | 'cancelled'
           operator_payment_status?: 'pending' | 'paid'
@@ -325,6 +327,7 @@ export type Database = {
           primary_operator_id?: string | null
           service_date?: string
           contracted_hour_rate?: number
+          owner_discount_amount?: number
           expected_hours?: number | null
           status?: 'draft' | 'in_progress' | 'completed' | 'cancelled'
           operator_payment_status?: 'pending' | 'paid'

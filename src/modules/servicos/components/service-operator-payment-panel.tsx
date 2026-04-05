@@ -5,6 +5,7 @@ import { z } from 'zod'
 import { AppButton } from '@/shared/components/app/app-button'
 import { cn } from '@/shared/lib/cn'
 import { useUpdateService } from '../hooks/use-service-queries'
+import type { LaborOperatorAttribution } from '../lib/service-financial-summary'
 import type { Tables } from '@/integrations/supabase/db-types'
 import { Link } from 'react-router-dom'
 import { ROUTES } from '@/shared/constants/routes'
@@ -21,15 +22,15 @@ type ServiceOperatorPaymentForm = z.infer<typeof serviceOperatorPaymentSchema>
 interface ServiceOperatorPaymentPanelProps {
   service: Pick<
     Tables<'services'>,
-    'id' | 'primary_operator_id' | 'operator_payment_status' | 'operator_payment_date' | 'service_date'
+    'id' | 'operator_payment_status' | 'operator_payment_date' | 'service_date'
   >
-  operatorName?: string | null
+  laborOperatorAttribution: LaborOperatorAttribution
   operatorCostTotal: number
 }
 
 export const ServiceOperatorPaymentPanel = ({
   service,
-  operatorName,
+  laborOperatorAttribution,
   operatorCostTotal,
 }: ServiceOperatorPaymentPanelProps) => {
   const update = useUpdateService(service.id)
@@ -62,7 +63,7 @@ export const ServiceOperatorPaymentPanel = ({
   })
 
   const status = form.watch('operator_payment_status')
-  const showPanel = Boolean(service.primary_operator_id) || operatorCostTotal > 0
+  const showPanel = operatorCostTotal > 0
 
   if (!showPanel) return null
 
@@ -92,9 +93,31 @@ export const ServiceOperatorPaymentPanel = ({
         <p className="text-sm">
           Custo de mão de obra apurado neste serviço:{' '}
           <span className="font-semibold tabular-nums"><AppMoney value={operatorCostTotal} size="sm" /></span>
-          {operatorName && service.primary_operator_id && (
+          {laborOperatorAttribution.kind === 'single' && (
             <>
-              {' '}(<Link to={ROUTES.OPERATOR_DETAIL(service.primary_operator_id)} className="text-primary underline-offset-2 hover:underline">{operatorName}</Link>
+              {' '}(<Link
+                to={ROUTES.OPERATOR_DETAIL(laborOperatorAttribution.operatorId)}
+                className="text-primary underline-offset-2 hover:underline"
+              >
+                {laborOperatorAttribution.operatorName}
+              </Link>
+              )
+            </>
+          )}
+          {laborOperatorAttribution.kind === 'multiple' && (
+            <>
+              {' '}(vários operadores:{' '}
+              {laborOperatorAttribution.operators.map((op, i) => (
+                <span key={op.operatorId}>
+                  {i > 0 ? ', ' : ''}
+                  <Link
+                    to={ROUTES.OPERATOR_DETAIL(op.operatorId)}
+                    className="text-primary underline-offset-2 hover:underline"
+                  >
+                    {op.operatorName}
+                  </Link>
+                </span>
+              ))}
               )
             </>
           )}

@@ -4,20 +4,64 @@ export interface WorklogFinancialLine {
   operators: { default_hour_rate: number | null } | null
 }
 
+/** Linha com operador do apontamento (para texto/link no painel de pagamento). */
+export interface WorklogOperatorAttributionLine {
+  worked_hours: number | null
+  operator_id: string | null
+  operators: { name: string } | null
+}
+
+export type LaborOperatorAttribution =
+  | { kind: 'none' }
+  | { kind: 'single'; operatorId: string; operatorName: string }
+  | { kind: 'multiple'; operators: { operatorId: string; operatorName: string }[] }
+
+/** Operadores que de facto entraram no custo (horímetro com horas > 0 e operador). */
+export function getLaborOperatorAttributionFromWorklogs(
+  worklogs: WorklogOperatorAttributionLine[],
+): LaborOperatorAttribution {
+  const byId = new Map<string, string>()
+  for (const w of worklogs) {
+    const h = Number(w.worked_hours ?? 0)
+    if (!Number.isFinite(h) || h <= 0) continue
+    const id = w.operator_id
+    if (!id) continue
+    const name = w.operators?.name?.trim() || 'Operador'
+    if (!byId.has(id)) byId.set(id, name)
+  }
+  if (byId.size === 0) return { kind: 'none' }
+  if (byId.size === 1) {
+    const [operatorId, operatorName] = [...byId.entries()][0]!
+    return { kind: 'single', operatorId, operatorName }
+  }
+  return {
+    kind: 'multiple',
+    operators: [...byId.entries()].map(([operatorId, operatorName]) => ({ operatorId, operatorName })),
+  }
+}
+
 export interface ServiceFinancialSummary {
   totalHours: number
-  billingTotal: number
+  /** Horas × taxa contratada (antes do desconto). */
+  billingGross: number
+  /** Valor guardado no serviço, limitado a não exceder a faturação bruta. */
+  ownerDiscountApplied: number
+  /** Faturação líquida para o cliente / contas a receber. */
+  billingNet: number
   operatorCostTotal: number
+  /** Lucro bruto após desconto: faturação líquida − mão de obra apontada. */
   marginTotal: number
 }
 
 /**
- * - Faturação: cada hora trabalhada faturada à taxa contratada do serviço.
+ * - Faturação bruta: cada hora × taxa contratada do serviço.
+ * - Desconto do dono: valor fixo em R$ (limitado à faturação bruta).
  * - Custo operador: por linha, horas × taxa padrão do operador (0 se sem operador).
  */
 export function computeServiceFinancialSummary(
   contractedHourRate: number,
   worklogs: WorklogFinancialLine[],
+  ownerDiscountAmount: number = 0,
 ): ServiceFinancialSummary {
   let totalHours = 0
   let operatorCostTotal = 0
@@ -35,12 +79,18 @@ export function computeServiceFinancialSummary(
     operatorCostTotal += h * safeOp
   }
 
-  const billingTotal = totalHours * safeClientRate
-  const marginTotal = billingTotal - operatorCostTotal
+  const billingGross = totalHours * safeClientRate
+  const discountRaw = Number(ownerDiscountAmount)
+  const safeDiscountRequest = Number.isFinite(discountRaw) && discountRaw > 0 ? discountRaw : 0
+  const ownerDiscountApplied = Math.min(safeDiscountRequest, billingGross)
+  const billingNet = Math.max(0, billingGross - ownerDiscountApplied)
+  const marginTotal = billingNet - operatorCostTotal
 
   return {
     totalHours,
-    billingTotal,
+    billingGross,
+    ownerDiscountApplied,
+    billingNet,
     operatorCostTotal,
     marginTotal,
   }

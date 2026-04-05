@@ -8,7 +8,7 @@ export const serviceRepository = {
   async list(): Promise<ServiceWithJoins[]> {
     const { data, error } = await supabase
       .from('services')
-      .select('*, clients(name), tractors(name, standard_hour_cost), operators:primary_operator_id(name)')
+      .select('*, clients(name), tractors(name, standard_hour_cost)')
       .order('created_at', { ascending: false })
     if (error) throw error
     return (data ?? []) as ServiceWithJoins[]
@@ -17,23 +17,29 @@ export const serviceRepository = {
   async getById(id: string): Promise<ServiceWithJoins> {
     const { data, error } = await supabase
       .from('services')
-      .select('*, clients(name), tractors(name, standard_hour_cost), operators:primary_operator_id(name)')
+      .select('*, clients(name), tractors(name, standard_hour_cost)')
       .eq('id', id)
       .single()
     if (error) throw error
     return data as ServiceWithJoins
   },
 
-  /** Serviços onde o operador é o principal (para ligar vale/pagamento ao serviço). */
-  async listByPrimaryOperator(operatorId: string): Promise<{ id: string; service_date: string; clients: { name: string } | null }[]> {
+  /** Serviços em que o operador tem pelo menos um apontamento de horímetro (vale/pagamento no ledger). */
+  async listByOperatorWorklogs(operatorId: string): Promise<{ id: string; service_date: string; clients: { name: string } | null }[]> {
     const { data, error } = await supabase
-      .from('services')
-      .select('id, service_date, clients(name)')
-      .eq('primary_operator_id', operatorId)
-      .order('service_date', { ascending: false })
-      .limit(80)
+      .from('service_worklogs')
+      .select('service_id, work_date, services!inner(id, service_date, clients(name))')
+      .eq('operator_id', operatorId)
+      .order('work_date', { ascending: false })
+      .limit(300)
     if (error) throw error
-    return (data ?? []) as { id: string; service_date: string; clients: { name: string } | null }[]
+    const seen = new Map<string, { id: string; service_date: string; clients: { name: string } | null }>()
+    for (const row of data ?? []) {
+      const s = row.services as { id: string; service_date: string; clients: { name: string } | null } | null
+      if (s?.id && !seen.has(s.id)) seen.set(s.id, s)
+      if (seen.size >= 80) break
+    }
+    return [...seen.values()]
   },
 
   async create(payload: ServiceInsert): Promise<Tables<'services'>> {

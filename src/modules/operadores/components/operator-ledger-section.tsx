@@ -5,7 +5,7 @@ import { AppCurrencyInput } from '@/shared/components/app/app-numeric-input'
 import { AppMoney } from '@/shared/components/app/app-money'
 import { operatorLedgerMovementSchema, type OperatorLedgerMovementInput } from '../schemas/operator-ledger.schema'
 import { useInsertOperatorLedgerEntry, useOperatorLedgerRows } from '../hooks/use-operator-queries'
-import { useServicesByPrimaryOperator } from '@/modules/servicos/hooks/use-service-queries'
+import { useServicesByOperatorWorklogs } from '@/modules/servicos/hooks/use-service-queries'
 import dayjs from '@/shared/lib/dayjs'
 import { cn } from '@/shared/lib/cn'
 
@@ -20,7 +20,7 @@ interface OperatorLedgerSectionProps {
 
 export const OperatorLedgerSection = ({ operatorId }: OperatorLedgerSectionProps) => {
   const { data: rows, isLoading } = useOperatorLedgerRows(operatorId)
-  const { data: services } = useServicesByPrimaryOperator(operatorId)
+  const { data: services } = useServicesByOperatorWorklogs(operatorId)
   const insert = useInsertOperatorLedgerEntry(operatorId)
 
   const advanceForm = useForm<OperatorLedgerMovementInput>({

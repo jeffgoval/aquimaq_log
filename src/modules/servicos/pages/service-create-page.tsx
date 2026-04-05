@@ -7,7 +7,7 @@ import { AppButton } from '@/shared/components/app/app-button'
 import { ROUTES } from '@/shared/constants/routes'
 
 export function ServiceCreatePage() {
-  const { form, onSubmit, isSubmitting, clients, operators, tractors } = useCreateServiceController()
+  const { form, onSubmit, isSubmitting, clients, tractors } = useCreateServiceController()
   const { register, control, formState: { errors } } = form
 
   return (
@@ -41,13 +41,6 @@ export function ServiceCreatePage() {
               {errors.tractor_id && <p className="field-error">{errors.tractor_id.message}</p>}
             </div>
             <div>
-              <label className="field-label">Operador</label>
-              <select {...register('primary_operator_id')} className="field">
-                <option value="">Nenhum</option>
-                {operators.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}
-              </select>
-            </div>
-            <div>
               <label className="field-label">Data *</label>
               <input {...register('service_date')} type="date" className="field" />
               {errors.service_date && <p className="field-error">{errors.service_date.message}</p>}
@@ -66,6 +59,26 @@ export function ServiceCreatePage() {
                 )}
               />
               {errors.contracted_hour_rate && <p className="field-error">{errors.contracted_hour_rate.message}</p>}
+            </div>
+            <div>
+              <label className="field-label">Desconto (dono), R$</label>
+              <Controller
+                name="owner_discount_amount"
+                control={control}
+                render={({ field: { onChange, value } }) => (
+                  <AppCurrencyInput
+                    value={value ?? ''}
+                    onValueChange={(v) => onChange(v.floatValue ?? 0)}
+                    placeholder="R$ 0,00"
+                  />
+                )}
+              />
+              {errors.owner_discount_amount && (
+                <p className="field-error">{errors.owner_discount_amount.message}</p>
+              )}
+              <p className="typo-caption text-muted-foreground mt-1">
+                Valor fixo a abater da faturação por horas (não altera custo de mão de obra nos apontamentos).
+              </p>
             </div>
             <div className="sm:col-span-3">
               <label className="field-label">Observações</label>

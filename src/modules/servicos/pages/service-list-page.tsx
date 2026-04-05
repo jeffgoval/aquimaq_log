@@ -23,7 +23,7 @@ export function ServiceListPage() {
   const [statusFilter, setStatusFilter] = useState<string>('all')
 
   const filtered = data?.filter(s => {
-    const matchesSearch = [s.clients?.name, s.tractors?.name, s.operators?.name]
+    const matchesSearch = [s.clients?.name, s.tractors?.name]
       .some(v => v?.toLowerCase().includes(search.toLowerCase()))
     const matchesStatus = statusFilter === 'all' || s.status === statusFilter
     return matchesSearch && matchesStatus
@@ -77,7 +77,6 @@ export function ServiceListPage() {
                   }
                   items={[
                     { label: 'Trator', value: service.tractors?.name || '—' },
-                    { label: 'Operador', value: service.operators?.name || '—' },
                   ]}
                   footer={
                     <div className="flex gap-2 pt-1 border-t border-border/50">
