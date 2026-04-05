@@ -1,6 +1,6 @@
 -- Histórico de alterações por utilizador (auth.uid() na sessão Supabase)
 create table if not exists public.audit_log (
-  id          uuid primary key default uuid_generate_v4(),
+  id          uuid primary key default gen_random_uuid(),
   user_id     uuid references auth.users (id) on delete set null,
   action      text not null check (action in ('insert', 'update', 'delete')),
   table_name  text not null,

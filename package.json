@@ -10,8 +10,8 @@
     "preview": "vite preview",
     "test": "vitest",
     "test:run": "vitest run",
-    "db:push": "supabase link --project-ref hziovsgaqmrwthnlqobd && supabase db push",
-    "db:status": "supabase link --project-ref hziovsgaqmrwthnlqobd && supabase migration list"
+    "db:push": "npx supabase link --project-ref hziovsgaqmrwthnlqobd && npx supabase db push",
+    "db:status": "npx supabase link --project-ref hziovsgaqmrwthnlqobd && npx supabase migration list"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

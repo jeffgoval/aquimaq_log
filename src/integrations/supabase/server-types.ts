@@ -39,6 +39,42 @@ export type Database = {
         }
         Relationships: []
       }
+      client_error_logs: {
+        Row: {
+          id: string
+          user_id: string | null
+          error_message: string
+          error_stack: string | null
+          component_stack: string | null
+          page_url: string | null
+          user_agent: string | null
+          app_version: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id?: string | null
+          error_message: string
+          error_stack?: string | null
+          component_stack?: string | null
+          page_url?: string | null
+          user_agent?: string | null
+          app_version?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string | null
+          error_message?: string
+          error_stack?: string | null
+          component_stack?: string | null
+          page_url?: string | null
+          user_agent?: string | null
+          app_version?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
       machine_costs: {
         Row: {
           id: string

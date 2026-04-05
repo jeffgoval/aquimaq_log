@@ -1,13 +1,10 @@
 import { supabase } from '@/integrations/supabase/client'
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const db = supabase as any
-
 export async function logClientError(error: Error, componentStack: string): Promise<void> {
   try {
     const { data: { session } } = await supabase.auth.getSession()
 
-    await db.from('client_error_logs').insert({
+    await supabase.from('client_error_logs').insert({
       user_id:         session?.user?.id ?? null,
       error_message:   error.message,
       error_stack:     error.stack ?? null,

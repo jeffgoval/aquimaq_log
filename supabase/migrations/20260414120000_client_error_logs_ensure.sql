@@ -1,4 +1,4 @@
--- Logs de erro do browser (PostgREST). Schema explícito + grants para anon/authenticated insert.
+-- Idempotente: ambientes em que o histórico CLI registou 20260413120000 mas a tabela não existia no Postgres.
 create table if not exists public.client_error_logs (
   id               uuid        primary key default gen_random_uuid(),
   user_id          uuid        references auth.users(id) on delete set null,

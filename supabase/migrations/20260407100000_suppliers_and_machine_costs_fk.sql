@@ -1,6 +1,6 @@
 -- Cadastro de fornecedores e ligação a custos de máquina
 create table if not exists public.suppliers (
-  id          uuid primary key default uuid_generate_v4(),
+  id          uuid primary key default gen_random_uuid(),
   name        text not null,
   address     text,
   phone       text,
