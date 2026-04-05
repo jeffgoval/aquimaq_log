@@ -1,10 +1,12 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { QueryClient } from '@tanstack/react-query'
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
+import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister'
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 0,           // sempre busca dados frescos ao navegar
-      gcTime: 1000 * 60 * 5, // mantém cache por 5min sem uso
+      staleTime: 1000 * 60 * 5, // 5min — dados em cache ainda válidos ao navegar
+      gcTime: 1000 * 60 * 60 * 24, // 24h — mantém cache entre sessões
       retry: 1,
       refetchOnWindowFocus: false,
     },
@@ -14,10 +16,22 @@ const queryClient = new QueryClient({
   },
 })
 
+const persister = createSyncStoragePersister({
+  storage: window.localStorage,
+  key: 'aquimaq-query-cache',
+})
+
 export function QueryProvider({ children }: { children: React.ReactNode }) {
   return (
-    <QueryClientProvider client={queryClient}>
+    <PersistQueryClientProvider
+      client={queryClient}
+      persistOptions={{
+        persister,
+        maxAge: 1000 * 60 * 60 * 24, // 24h
+        buster: import.meta.env.VITE_APP_VERSION ?? '1',
+      }}
+    >
       {children}
-    </QueryClientProvider>
+    </PersistQueryClientProvider>
   )
 }
