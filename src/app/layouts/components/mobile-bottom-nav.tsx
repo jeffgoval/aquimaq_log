@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, Tractor, ClipboardList, DollarSign, MoreHorizontal } from 'lucide-react'
+import { LayoutDashboard, Wrench, ClipboardList, DollarSign, MoreHorizontal } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
 import { ROUTES } from '@/shared/constants/routes'
 import { useState } from 'react'
@@ -7,7 +7,7 @@ import { MobileDrawer } from './mobile-drawer'
 
 const PRIMARY_NAV = [
   { label: 'Dashboard', href: ROUTES.DASHBOARD, icon: LayoutDashboard, end: true },
-  { label: 'Tratores', href: ROUTES.TRACTORS, icon: Tractor, end: false },
+  { label: 'Custos', href: ROUTES.MACHINE_COSTS, icon: Wrench, end: false },
   { label: 'Serviços', href: ROUTES.SERVICES, icon: ClipboardList, end: false },
   { label: 'Financeiro', href: ROUTES.RECEIVABLES, icon: DollarSign, end: false },
 ]
