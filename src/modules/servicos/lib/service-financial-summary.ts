@@ -44,28 +44,32 @@ export function getLaborOperatorAttributionFromWorklogs(
 export type ChargeType = 'por_hora' | 'por_km' | 'valor_fixo'
 
 export interface ServiceFinancialSummary {
-  /** Total de horas (para serviços por hora) ou KM (para serviços por km). */
+  /** Total de horas (por_hora) ou km (por_km/valor_fixo com guincho). */
   totalQuantity: number
   /** Rótulo da unidade: 'h' ou 'km'. */
   quantityUnit: string
-  /** Quantidade × taxa contratada (antes do desconto). */
+  /** Faturação bruta antes do desconto. */
   billingGross: number
-  /** Valor guardado no serviço, limitado a não exceder a faturação bruta. */
+  /** Desconto aplicado (limitado à faturação bruta). */
   ownerDiscountApplied: number
-  /** Faturação líquida para o cliente / contas a receber. */
+  /** Faturação líquida para o cliente. */
   billingNet: number
+  /** Custo total do operador (apenas horas × taxa; 0 para serviços de guincho). */
   operatorCostTotal: number
-  /** Lucro bruto após desconto: faturação líquida − mão de obra apontada. */
+  /** Lucro bruto: faturação líquida − custo operador. */
   marginTotal: number
-  // Backwards-compat alias
+  /** Alias retrocompatível. */
   totalHours: number
 }
 
 /**
- * - Faturação bruta: cada unidade (hora ou km) × taxa contratada do serviço.
- * - Desconto do dono: valor fixo em R$ (limitado à faturação bruta).
- * - Custo operador: por linha, horas × taxa padrão do operador (0 se sem operador).
- * - Para valor_fixo: taxa contratada é o total, independente de horas/km.
+ * Regras de faturação:
+ *  - por_hora  → totalHoras × taxa
+ *  - por_km    → totalKm × taxa
+ *  - valor_fixo → taxa contratada é o total fixo (independente de horas/km)
+ *
+ * Custo do operador: apenas para apontamentos com worked_hours > 0 (tratores).
+ * Serviços de guincho (odômetro) não geram custo de operador automático.
  */
 export function computeServiceFinancialSummary(
   contractedRate: number,
@@ -84,12 +88,13 @@ export function computeServiceFinancialSummary(
     const km = Number(w.worked_km ?? 0)
     const h = Number(w.worked_hours ?? 0)
     if (Number.isFinite(km) && km > 0) totalKm += km
-    if (Number.isFinite(h) && h > 0) totalHours += h
-    const opRate = Number(w.operators?.default_hour_rate)
-    const safeOp = Number.isFinite(opRate) ? opRate : 0
-    // Operator cost always in hours when available; fallback to km if no hours
-    const opBase = h > 0 ? h : (km > 0 ? km : 0)
-    operatorCostTotal += opBase * safeOp
+    if (Number.isFinite(h) && h > 0) {
+      totalHours += h
+      // Custo de operador só faz sentido com horas (tractores)
+      const opRate = Number(w.operators?.default_hour_rate)
+      const safeOp = Number.isFinite(opRate) ? opRate : 0
+      operatorCostTotal += h * safeOp
+    }
   }
 
   let billingGross: number
@@ -101,10 +106,11 @@ export function computeServiceFinancialSummary(
     totalQuantity = totalKm
     quantityUnit = 'km'
   } else if (chargeType === 'valor_fixo') {
-    billingGross = safeRate
-    totalQuantity = totalHours || totalKm
+    billingGross = safeRate  // valor fixo: taxa = total, independente de km/h
+    totalQuantity = totalKm > 0 ? totalKm : totalHours
     quantityUnit = totalKm > 0 ? 'km' : 'h'
   } else {
+    // por_hora (default, tratores)
     billingGross = totalHours * safeRate
     totalQuantity = totalHours
     quantityUnit = 'h'
@@ -124,28 +130,48 @@ export function computeServiceFinancialSummary(
     billingNet,
     operatorCostTotal,
     marginTotal,
-    totalHours, // backwards-compat
+    totalHours,
   }
 }
 
-/** Valores por linha (para cards de apontamento). */
+/**
+ * Valores por linha de apontamento (preview e cards).
+ *
+ *  - por_hora   → horas × taxa
+ *  - por_km     → km × taxa
+ *  - valor_fixo → faturação por linha = 0 (billing é flat no serviço, não por linha)
+ *
+ * Custo do operador: apenas quando worked_hours > 0 (tractores).
+ */
 export function computeWorklogLineAmounts(
   workedQuantity: number,
   contractedRate: number,
   operatorDefaultHourRate: number | null | undefined,
   chargeType: ChargeType = 'por_hora',
+  isHourBased: boolean = chargeType === 'por_hora',
 ): { billingLine: number; operatorCostLine: number; marginLine: number } {
   const q = Number(workedQuantity)
   if (!Number.isFinite(q) || q <= 0) {
     return { billingLine: 0, operatorCostLine: 0, marginLine: 0 }
   }
-  const cr = Number(contractedRate)
-  const safeCr = Number.isFinite(cr) ? cr : 0
-  // valor_fixo: per-line billing is still proportional (same math as por_hora/por_km)
-  const billingLine = q * safeCr
-  const op = Number(operatorDefaultHourRate)
-  const safeOp = Number.isFinite(op) ? op : 0
-  const operatorCostLine = q * safeOp
+
+  // Faturação por linha
+  let billingLine: number
+  if (chargeType === 'valor_fixo') {
+    billingLine = 0  // valor fixo é total do serviço, não multiplicado por linha
+  } else {
+    const cr = Number(contractedRate)
+    billingLine = (Number.isFinite(cr) ? cr : 0) * q
+  }
+
+  // Custo operador: apenas se for base hora (tractores)
+  const operatorCostLine = isHourBased
+    ? (() => {
+        const op = Number(operatorDefaultHourRate)
+        return (Number.isFinite(op) ? op : 0) * q
+      })()
+    : 0
+
   return {
     billingLine,
     operatorCostLine,

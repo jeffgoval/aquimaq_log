@@ -112,10 +112,24 @@ describe('getLaborOperatorAttributionFromWorklogs', () => {
 })
 
 describe('computeWorklogLineAmounts', () => {
-  it('calcula linha com operador', () => {
-    const r = computeWorklogLineAmounts(2, 100, 35)
+  it('por_hora: calcula linha com operador', () => {
+    const r = computeWorklogLineAmounts(2, 100, 35, 'por_hora', true)
     expect(r.billingLine).toBe(200)
     expect(r.operatorCostLine).toBe(70)
     expect(r.marginLine).toBe(130)
+  })
+
+  it('por_km: calcula faturação sem custo operador (guincho)', () => {
+    const r = computeWorklogLineAmounts(150, 5, 40, 'por_km', false)
+    expect(r.billingLine).toBe(750)
+    expect(r.operatorCostLine).toBe(0)
+    expect(r.marginLine).toBe(750)
+  })
+
+  it('valor_fixo: billingLine é 0 por linha', () => {
+    const r = computeWorklogLineAmounts(180, 2000, 40, 'valor_fixo', false)
+    expect(r.billingLine).toBe(0)
+    expect(r.operatorCostLine).toBe(0)
+    expect(r.marginLine).toBe(0)
   })
 })

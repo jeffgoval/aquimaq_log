@@ -107,8 +107,8 @@ export function WorklogSection({
       return null
     }
     const amount = end - start
-    return computeWorklogLineAmounts(amount, contractedHourRate, selectedOperatorRate, chargeType)
-  }, [form.start_value, form.end_value, contractedHourRate, selectedOperatorRate, chargeType])
+    return { amount, line: computeWorklogLineAmounts(amount, contractedHourRate, selectedOperatorRate, chargeType, !isTruck) }
+  }, [form.start_value, form.end_value, contractedHourRate, selectedOperatorRate, chargeType, isTruck])
 
   const handleAdd = async () => {
     const start = Number(String(form.start_value).replace(',', '.'))
@@ -339,13 +339,23 @@ export function WorklogSection({
             <div className="rounded-lg border border-border/80 bg-card/80 px-4 py-3 text-sm space-y-1">
               <p className="font-medium text-foreground">Pré-visualização deste registo</p>
               <p className="text-muted-foreground">
-                {isTruck ? 'Distância' : 'Horas'}: <span className="font-semibold text-foreground">{(Number(String(form.end_value).replace(',', '.')) - Number(String(form.start_value).replace(',', '.'))).toFixed(2)} {isTruck ? 'km' : 'h'}</span>
-                {' · '}
-                Faturação (cliente): <AppMoney value={preview.billingLine} size="sm" />
-                {' · '}
-                Custo operador: <AppMoney value={preview.operatorCostLine} size="sm" />
-                {' · '}
-                Margem: <AppMoney value={preview.marginLine} size="sm" colored />
+                {isTruck ? 'Distância' : 'Horas'}:{' '}
+                <span className="font-semibold text-foreground">
+                  {preview.amount.toFixed(2)} {isTruck ? 'km' : 'h'}
+                </span>
+                {chargeType === 'valor_fixo' ? (
+                  <span> · <span className="text-xs">Cobrança fixa — valor total definido no serviço</span></span>
+                ) : (
+                  <>
+                    {' · '}Faturação (cliente): <AppMoney value={preview.line.billingLine} size="sm" />
+                  </>
+                )}
+                {!isTruck && (
+                  <>
+                    {' · '}Custo operador: <AppMoney value={preview.line.operatorCostLine} size="sm" />
+                    {' · '}Margem: <AppMoney value={preview.line.marginLine} size="sm" colored />
+                  </>
+                )}
               </p>
             </div>
           )}
@@ -488,6 +498,7 @@ export function WorklogSection({
               contractedHourRate,
               log.operators?.default_hour_rate,
               chargeType,
+              !isTruck,
             )
             return (
               <div key={log.id} className="relative">
@@ -497,15 +508,23 @@ export function WorklogSection({
                   icon={Clock}
                   badge={
                     <AppBadge variant="success">
-                      {(log.worked_hours ?? 0).toFixed(1)} h
+                      {isTruck
+                        ? `${workedQty.toFixed(1)} km`
+                        : `${(log.worked_hours ?? 0).toFixed(1)} h`}
                     </AppBadge>
                   }
                   items={[
                     { label: isTruck ? 'Odômetro início' : 'Horímetro início', value: `${isTruck ? log.start_odometer : log.start_hourmeter} ${isTruck ? 'km' : 'h'}` },
                     { label: isTruck ? 'Odômetro fim' : 'Horímetro fim', value: `${isTruck ? log.end_odometer : log.end_hourmeter} ${isTruck ? 'km' : 'h'}` },
-                    { label: 'Faturação (cliente)', value: <AppMoney value={line.billingLine} size="sm" /> },
-                    { label: 'Custo operador', value: <AppMoney value={line.operatorCostLine} size="sm" /> },
-                    { label: 'Margem linha', value: <AppMoney value={line.marginLine} size="sm" colored /> },
+                    ...(chargeType !== 'valor_fixo' ? [
+                      { label: 'Faturação (cliente)', value: <AppMoney value={line.billingLine} size="sm" /> },
+                    ] : [
+                      { label: 'Faturação', value: <span className="text-xs text-muted-foreground">Valor fixo</span> },
+                    ]),
+                    ...(!isTruck ? [
+                      { label: 'Custo operador', value: <AppMoney value={line.operatorCostLine} size="sm" /> },
+                      { label: 'Margem linha', value: <AppMoney value={line.marginLine} size="sm" colored /> },
+                    ] : []),
                   ]}
                   footer={
                     <div className="space-y-2">
