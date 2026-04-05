@@ -7,7 +7,7 @@ export const worklogRepository = {
   async listByService(serviceId: string): Promise<WorklogWithOperator[]> {
     const { data, error } = await supabase
       .from('service_worklogs')
-      .select('*, operators(name)')
+      .select('*, operators(name, default_hour_rate)')
       .eq('service_id', serviceId)
       .order('work_date', { ascending: false })
     if (error) throw error

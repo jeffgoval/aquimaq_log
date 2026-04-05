@@ -11,6 +11,13 @@ type ServiceUpdate = Updates<'services'>
 export const useServiceList = () => useQuery({ queryKey: queryKeys.services, queryFn: serviceRepository.list })
 export const useService = (id: string) => useQuery({ queryKey: queryKeys.serviceDetails(id), queryFn: () => serviceRepository.getById(id), enabled: !!id })
 
+export const useServicesByPrimaryOperator = (operatorId: string) =>
+  useQuery({
+    queryKey: ['services', 'primary-operator', operatorId] as const,
+    queryFn: () => serviceRepository.listByPrimaryOperator(operatorId),
+    enabled: !!operatorId,
+  })
+
 export function useCreateService() {
   const qc = useQueryClient()
   return useMutation({

@@ -5,6 +5,7 @@ export const queryKeys = {
   operators: ['operators'] as const,
   operatorOptions: ['operator-options'] as const,
   operatorLedger: (operatorId: string) => ['operator-ledger', operatorId] as const,
+  operatorLedgerRows: (operatorId: string) => ['operator-ledger-rows', operatorId] as const,
   clients: ['clients'] as const,
   clientOptions: ['client-options'] as const,
   services: ['services'] as const,

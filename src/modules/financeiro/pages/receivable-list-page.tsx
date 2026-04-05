@@ -34,7 +34,10 @@ export function ReceivableListPage() {
 
   return (
     <div>
-      <AppPageHeader title="Contas a Receber" description={`Total pendente: ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalPending)}`} />
+      <AppPageHeader
+        title="Contas a receber"
+        description={`Parcelas e pendências do cliente · Em aberto: ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalPending)}`}
+      />
 
       <div className="flex flex-col gap-4 mb-4">
         <AppSearchInput

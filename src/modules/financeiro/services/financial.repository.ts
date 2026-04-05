@@ -42,4 +42,36 @@ export const financialRepository = {
     const { error } = await supabase.from('receivables').insert(receivables)
     if (error) throw error
   },
+
+  /** Uma parcela criada e quitada na hora (pagamento à vista). */
+  async createReceivableWithFullPayment(params: {
+    service_id: string
+    client_id: string
+    amount: number
+    payment_date: string
+  }): Promise<void> {
+    const { data: rec, error: e1 } = await supabase
+      .from('receivables')
+      .insert({
+        service_id: params.service_id,
+        client_id: params.client_id,
+        installment_number: 1,
+        installment_count: 1,
+        original_amount: params.amount,
+        fee_percent: 0,
+        final_amount: params.amount,
+        due_date: params.payment_date,
+        description: 'À vista',
+      })
+      .select('id')
+      .single()
+    if (e1) throw e1
+    const { error: e2 } = await supabase.from('receivable_payments').insert({
+      receivable_id: rec.id,
+      amount: params.amount,
+      payment_date: params.payment_date,
+      payment_method: 'dinheiro',
+    })
+    if (e2) throw e2
+  },
 }

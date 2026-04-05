@@ -297,6 +297,8 @@ export type Database = {
           contracted_hour_rate: number
           expected_hours: number | null
           status: 'draft' | 'in_progress' | 'completed' | 'cancelled'
+          operator_payment_status: 'pending' | 'paid'
+          operator_payment_date: string | null
           notes: string | null
           created_at: string
           updated_at: string
@@ -310,6 +312,8 @@ export type Database = {
           contracted_hour_rate?: number
           expected_hours?: number | null
           status?: 'draft' | 'in_progress' | 'completed' | 'cancelled'
+          operator_payment_status?: 'pending' | 'paid'
+          operator_payment_date?: string | null
           notes?: string | null
           created_at?: string
           updated_at?: string
@@ -323,6 +327,8 @@ export type Database = {
           contracted_hour_rate?: number
           expected_hours?: number | null
           status?: 'draft' | 'in_progress' | 'completed' | 'cancelled'
+          operator_payment_status?: 'pending' | 'paid'
+          operator_payment_date?: string | null
           notes?: string | null
           created_at?: string
           updated_at?: string
@@ -424,6 +430,7 @@ export type Database = {
           total_hours_worked: number | null
           total_earned: number | null
           total_advances: number | null
+          total_payments: number | null
           current_balance: number | null
         }
         Relationships: []

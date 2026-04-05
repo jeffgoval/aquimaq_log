@@ -82,7 +82,10 @@ export function ReceivableSection({ serviceId, clientId, suggestedTotal }: Recei
     <div className="rounded-xl border border-border bg-card p-6">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h2 className="typo-section-title">Parcelamento</h2>
+          <h2 className="typo-section-title">Contas a receber</h2>
+          <p className="typo-caption text-muted-foreground mt-0.5 max-w-md">
+            Valor devido pelo cliente: à vista, pendente ou parcelado. Reflete no Financeiro.
+          </p>
           {totalReceivable > 0 && (
             <p className="text-xs text-muted-foreground mt-0.5">
               <AppMoney value={totalPaid} size="sm" /> recebido de <AppMoney value={totalReceivable} size="sm" />

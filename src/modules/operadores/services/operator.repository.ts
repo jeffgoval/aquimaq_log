@@ -1,8 +1,13 @@
 import { supabase } from '@/integrations/supabase/client'
 import type { Tables, Inserts, Updates, Views } from '@/integrations/supabase/db-types'
 
+export type OperatorLedgerRowWithService = Tables<'operator_ledger'> & {
+  services: { service_date: string; clients: { name: string } | null } | null
+}
+
 type OperatorInsert = Inserts<'operators'>
 type OperatorUpdate = Updates<'operators'>
+type OperatorLedgerInsert = Inserts<'operator_ledger'>
 
 export const operatorRepository = {
   async list(): Promise<Tables<'operators'>[]> {
@@ -33,6 +38,23 @@ export const operatorRepository = {
       .select('*')
       .eq('operator_id', operatorId)
       .single()
+    if (error) throw error
+    return data
+  },
+
+  async listLedgerRows(operatorId: string): Promise<OperatorLedgerRowWithService[]> {
+    const { data, error } = await supabase
+      .from('operator_ledger')
+      .select('*, services(service_date, clients(name))')
+      .eq('operator_id', operatorId)
+      .order('entry_date', { ascending: false })
+      .order('created_at', { ascending: false })
+    if (error) throw error
+    return (data ?? []) as OperatorLedgerRowWithService[]
+  },
+
+  async insertLedgerRow(payload: OperatorLedgerInsert): Promise<Tables<'operator_ledger'>> {
+    const { data, error } = await supabase.from('operator_ledger').insert(payload).select().single()
     if (error) throw error
     return data
   },

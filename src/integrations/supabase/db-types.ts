@@ -14,7 +14,7 @@ export type ServiceWithJoins = Tables<'services'> & {
 }
 
 export type WorklogWithOperator = Tables<'service_worklogs'> & {
-  operators: { name: string } | null
+  operators: { name: string; default_hour_rate: number } | null
 }
 
 export type ReceivableWithClient = Tables<'receivables'> & {

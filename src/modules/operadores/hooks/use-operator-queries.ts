@@ -4,14 +4,32 @@ import { queryKeys } from '@/integrations/supabase/query-keys'
 import { operatorRepository } from '../services/operator.repository'
 import { parseSupabaseError } from '@/shared/lib/errors'
 import type { OperatorInput } from '../schemas/operator.schema'
-import type { Updates } from '@/integrations/supabase/db-types'
+import type { Inserts, Updates } from '@/integrations/supabase/db-types'
 
 type OperatorUpdate = Updates<'operators'>
+type OperatorLedgerInsert = Inserts<'operator_ledger'>
 
 export const useOperatorList = () => useQuery({ queryKey: queryKeys.operators, queryFn: operatorRepository.list })
 export const useOperatorOptions = () => useQuery({ queryKey: queryKeys.operatorOptions, queryFn: operatorRepository.listActive })
 export const useOperator = (id: string) => useQuery({ queryKey: ['operators', id], queryFn: () => operatorRepository.getById(id), enabled: !!id })
 export const useOperatorLedger = (id: string) => useQuery({ queryKey: queryKeys.operatorLedger(id), queryFn: () => operatorRepository.getLedger(id), enabled: !!id })
+
+export const useOperatorLedgerRows = (id: string) =>
+  useQuery({ queryKey: queryKeys.operatorLedgerRows(id), queryFn: () => operatorRepository.listLedgerRows(id), enabled: !!id })
+
+export function useInsertOperatorLedgerEntry(operatorId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (payload: Omit<OperatorLedgerInsert, 'operator_id'>) =>
+      operatorRepository.insertLedgerRow({ ...payload, operator_id: operatorId }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.operatorLedger(operatorId) })
+      qc.invalidateQueries({ queryKey: queryKeys.operatorLedgerRows(operatorId) })
+      toast.success('Lançamento registado!')
+    },
+    onError: (e: Error) => toast.error(parseSupabaseError(e)),
+  })
+}
 
 export function useCreateOperator() {
   const qc = useQueryClient()

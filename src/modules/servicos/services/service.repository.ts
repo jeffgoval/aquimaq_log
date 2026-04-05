@@ -24,6 +24,18 @@ export const serviceRepository = {
     return data as ServiceWithJoins
   },
 
+  /** Serviços onde o operador é o principal (para ligar vale/pagamento ao serviço). */
+  async listByPrimaryOperator(operatorId: string): Promise<{ id: string; service_date: string; clients: { name: string } | null }[]> {
+    const { data, error } = await supabase
+      .from('services')
+      .select('id, service_date, clients(name)')
+      .eq('primary_operator_id', operatorId)
+      .order('service_date', { ascending: false })
+      .limit(80)
+    if (error) throw error
+    return (data ?? []) as { id: string; service_date: string; clients: { name: string } | null }[]
+  },
+
   async create(payload: ServiceInsert): Promise<Tables<'services'>> {
     const { data, error } = await supabase.from('services').insert(payload).select().single()
     if (error) throw error

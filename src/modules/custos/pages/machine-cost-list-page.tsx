@@ -21,8 +21,46 @@ import { getPreferredTractorId, sortTractorsForSelect } from '@/shared/lib/tract
 
 const COST_TYPE_LABELS = { fuel: '⛽ Combustível', oil: '🛢️ Óleo', parts: '🔧 Peças', maintenance: '🔩 Manutenção', other: '📋 Outro' }
 
+type CostSortMode =
+  | 'launch_desc'
+  | 'launch_asc'
+  | 'event_desc'
+  | 'event_asc'
+  | 'amount_desc'
+  | 'amount_asc'
+
+const COST_SORT_OPTIONS: { value: CostSortMode; label: string }[] = [
+  { value: 'launch_desc', label: 'Lançamento — últimos primeiro' },
+  { value: 'launch_asc', label: 'Lançamento — primeiros primeiro' },
+  { value: 'event_desc', label: 'Data do evento — mais recente' },
+  { value: 'event_asc', label: 'Data do evento — mais antigo' },
+  { value: 'amount_desc', label: 'Valor — maior primeiro' },
+  { value: 'amount_asc', label: 'Valor — menor primeiro' },
+]
+
+function compareCosts(a: { id: string; created_at: string; cost_date: string; amount: number }, b: typeof a, mode: CostSortMode): number {
+  const tie = a.id.localeCompare(b.id)
+  switch (mode) {
+    case 'launch_desc':
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime() || tie
+    case 'launch_asc':
+      return new Date(a.created_at).getTime() - new Date(b.created_at).getTime() || tie
+    case 'event_desc':
+      return b.cost_date.localeCompare(a.cost_date) || tie
+    case 'event_asc':
+      return a.cost_date.localeCompare(b.cost_date) || tie
+    case 'amount_desc':
+      return b.amount - a.amount || tie
+    case 'amount_asc':
+      return a.amount - b.amount || tie
+    default:
+      return 0
+  }
+}
+
 export function MachineCostListPage() {
   const [search, setSearch] = useState('')
+  const [sortMode, setSortMode] = useState<CostSortMode>('event_desc')
   const { data, isLoading, isError, error, refetch } = useMachineCosts()
   const tractors = useTractorOptions()
   const suppliers = useSupplierOptions()
@@ -58,6 +96,11 @@ export function MachineCostListPage() {
       supplierLabel.toLowerCase().includes(q)
     )
   })
+
+  const sortedFiltered = useMemo(() => {
+    if (!filtered?.length) return filtered
+    return [...filtered].sort((a, b) => compareCosts(a, b, sortMode))
+  }, [filtered, sortMode])
 
   const handleAdd = async () => {
     if (!form.tractor_id || !form.amount) return
@@ -101,12 +144,31 @@ export function MachineCostListPage() {
         }
       />
 
-      <AppSearchInput
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        placeholder="Buscar por trator, descrição ou fornecedor..."
-        containerClassName="mb-4"
-      />
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:gap-4 mb-4">
+        <AppSearchInput
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Buscar por trator, descrição ou fornecedor..."
+          containerClassName="w-full sm:flex-1 sm:max-w-none"
+        />
+        <div className="w-full sm:w-72 shrink-0">
+          <label className="field-label" htmlFor="cost-sort">
+            Ordenar por
+          </label>
+          <select
+            id="cost-sort"
+            className="field w-full"
+            value={sortMode}
+            onChange={(e) => setSortMode(e.target.value as CostSortMode)}
+          >
+            {COST_SORT_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
 
       {addDialog.isOpen && (
         <div className="rounded-xl border border-border bg-card p-4 lg:p-6 mb-6 space-y-4 shadow-sm animate-in fade-in slide-in-from-top-2">
@@ -176,9 +238,13 @@ export function MachineCostListPage() {
       {isLoading && <AppLoadingState />}
       {isError && <AppErrorState message={error.message} onRetry={refetch} />}
       {!isLoading && !isError && (
-        !filtered?.length ? <AppEmptyState title="Nenhum custo registrado" />
+        !sortedFiltered?.length ? (
+            <AppEmptyState
+              title={search.trim() ? 'Nenhum resultado para a busca' : 'Nenhum custo registrado'}
+            />
+          )
           : <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            {filtered?.map(cost => (
+            {sortedFiltered?.map(cost => (
               <AppDataCard
                 key={cost.id}
                 title={cost.tractors?.name || 'Maquinário'}
