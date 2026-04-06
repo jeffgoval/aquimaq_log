@@ -21,7 +21,7 @@ export function MobileBottomNav() {
 
       {/* Bottom nav bar */}
       <nav
-        className="lg:hidden fixed bottom-0 left-0 right-0 z-40 flex items-stretch border-t border-border"
+        className="fixed bottom-0 left-0 right-0 z-40 flex max-w-full min-w-0 items-stretch border-t border-border lg:hidden"
         style={{ background: 'hsl(var(--card))', paddingBottom: 'env(safe-area-inset-bottom)' }}
         aria-label="Navegação principal"
       >

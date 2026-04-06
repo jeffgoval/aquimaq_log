@@ -26,7 +26,7 @@ export function AppStatCard({
   to,
 }: AppStatCardProps) {
   const shellClassName = cn(
-    'rounded-xl border border-border bg-card p-4 lg:p-5 flex flex-col gap-2 lg:gap-3',
+    'max-w-full min-w-0 rounded-xl border border-border bg-card p-4 lg:p-5 flex flex-col gap-2 lg:gap-3',
     'hover:border-primary/30 transition-colors duration-200',
     to &&
       'cursor-pointer hover:border-primary/40 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 no-underline text-inherit',

@@ -11,7 +11,7 @@ export function AppLoadingState({ fullScreen, message = 'Carregando...' }: AppLo
     <div
       className={cn(
         'flex flex-col items-center justify-center gap-3 text-muted-foreground',
-        fullScreen ? 'h-screen w-screen bg-background' : 'h-48 w-full'
+        fullScreen ? 'min-h-dvh w-full max-w-full bg-background' : 'h-48 w-full max-w-full min-w-0'
       )}
     >
       <Loader2 className="h-8 w-8 animate-spin text-primary" />

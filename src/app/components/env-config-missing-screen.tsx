@@ -1,8 +1,8 @@
 import { envConfigMessage } from '@/app/config/env'
 
 export const EnvConfigMissingScreen = () => (
-    <div className="min-h-screen flex flex-col items-center justify-center gap-4 p-8 text-center bg-background text-foreground">
-      <div className="max-w-md space-y-3">
+    <div className="flex min-h-dvh w-full max-w-full min-w-0 flex-col items-center justify-center gap-4 overflow-x-hidden bg-background p-8 text-center text-foreground">
+      <div className="w-full max-w-md min-w-0 space-y-3">
         <h1 className="text-lg font-semibold">Configuração do ambiente</h1>
         <p className="text-sm text-muted-foreground leading-relaxed">
           {envConfigMessage ?? 'Variáveis de ambiente em falta.'}

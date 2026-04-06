@@ -68,7 +68,7 @@ export function ServiceListPage() {
         filtered.length === 0
           ? <AppEmptyState title="Nenhum serviço" action={<Link to={ROUTES.SERVICE_NEW} className="text-primary text-sm hover:underline">Criar serviço</Link>} />
           : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div className="grid min-w-0 max-w-full grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
               {filtered.map(service => {
                 const payKind = getServicePaymentBadgeKind(service.receivables)
                 const pay = getServicePaymentBadgeProps(payKind)

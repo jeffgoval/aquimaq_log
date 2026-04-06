@@ -5,7 +5,7 @@ import { Tractor } from 'lucide-react'
 
 export const AuthLayout = () => {
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="flex min-h-dvh w-full max-w-full min-w-0 overflow-x-hidden bg-background">
       {/* Left panel — branding */}
       <div className="hidden lg:flex lg:w-1/2 gradient-cat flex-col items-center justify-center p-12 relative overflow-hidden">
         <div className="absolute inset-0 bg-black/10" />

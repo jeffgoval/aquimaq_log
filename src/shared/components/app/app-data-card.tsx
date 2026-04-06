@@ -46,7 +46,7 @@ export function AppDataCard({
     <div
       onClick={onClick}
       className={cn(
-        'rounded-xl border border-border bg-card p-4 flex flex-col gap-3 group transition-all',
+        'flex max-w-full min-w-0 flex-col gap-3 rounded-xl border border-border bg-card p-4 transition-all group',
         onClick && 'cursor-pointer hover:border-primary/30 active:scale-[0.98]',
         containerClassName
       )}

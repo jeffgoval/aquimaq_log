@@ -18,7 +18,7 @@ interface AppTableProps {
 
 export function AppTable({ columns, children, footer, className }: AppTableProps) {
   return (
-    <div className={cn('rounded-lg border border-border overflow-hidden', className)}>
+    <div className={cn('max-w-full min-w-0 overflow-x-auto rounded-lg border border-border', className)}>
       <table className="w-full">
         <thead>
           <tr className="bg-muted/30 border-b border-border">

@@ -9,11 +9,11 @@ import { AppLoadingState } from '@/shared/components/app/app-loading-state'
 
 export const AppLayout = () => {
   return (
-    <div className="flex flex-col h-screen lg:flex-row bg-background overflow-hidden relative">
+    <div className="relative flex h-screen w-full max-w-full min-w-0 flex-col overflow-hidden bg-background lg:flex-row">
       {/* Sidebar Desktop — Oculta em mobile */}
       <Sidebar />
 
-      <div className="flex flex-col flex-1 relative h-full overflow-hidden">
+      <div className="relative flex h-full min-w-0 max-w-full flex-1 flex-col overflow-hidden">
         {/* Header Mobile — Somente acima do mobile nav */}
         <MobileHeader />
 

@@ -85,7 +85,7 @@ export const ProfitabilityToolbar = ({
               Profissional
             </button>
           </div>
-          <p className="text-sm text-muted-foreground">
+          <p className="max-w-full min-w-0 break-words text-sm text-muted-foreground">
             Período:
             {' '}
             <span className="font-medium text-foreground">{periodSummary}</span>

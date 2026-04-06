@@ -141,6 +141,8 @@
     text-size-adjust: 100%;
     /* Smooth theme transition */
     transition: background-color 0.3s ease, color 0.3s ease;
+    overflow-x: hidden;
+    max-width: 100%;
   }
 
   body {
@@ -153,6 +155,16 @@
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     -webkit-tap-highlight-color: transparent;
     overscroll-behavior: none;
+    overflow-x: hidden;
+    max-width: 100%;
+    position: relative;
+  }
+
+  #root {
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
   }
 
   @media (min-width: 1024px) {
@@ -181,7 +193,7 @@
     @apply text-xs font-semibold text-muted-foreground uppercase tracking-widest;
   }
   .typo-card-title {
-    @apply text-base font-semibold text-foreground leading-snug;
+    @apply min-w-0 break-words text-base font-semibold text-foreground leading-snug;
   }
   .typo-body {
     @apply text-sm leading-relaxed text-foreground;
@@ -196,7 +208,7 @@
     @apply text-sm font-medium text-foreground;
   }
   .typo-kpi-value {
-    @apply text-xl font-bold tracking-tight text-foreground leading-none sm:text-2xl lg:text-3xl;
+    @apply min-w-0 max-w-full text-xl font-bold tracking-tight text-foreground leading-none sm:text-2xl lg:text-3xl;
   }
   .typo-kpi-label {
     @apply text-sm font-medium text-muted-foreground;

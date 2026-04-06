@@ -30,7 +30,7 @@ export function DashboardPage() {
   const totalPayables = machineCosts.data?.filter(c => c.status === 'pending').reduce((a, c) => a + c.amount, 0) ?? 0
 
   return (
-    <div>
+    <div className="min-w-0 max-w-full">
       <AppPageHeader title="Dashboard" />
 
       {/* Quick Actions */}

@@ -4,7 +4,7 @@ import { ThemeToggle } from '@/shared/components/app/theme-toggle'
 export function MobileHeader() {
   return (
     <header
-      className="lg:hidden fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 border-b border-border shrink-0"
+      className="fixed left-0 right-0 top-0 z-40 flex max-w-full min-w-0 shrink-0 items-center justify-between border-b border-border px-4 lg:hidden"
       style={{
         background: 'hsl(var(--card))',
         height: '56px',
@@ -12,15 +12,15 @@ export function MobileHeader() {
       }}
     >
       {/* Logo */}
-      <div className="flex items-center gap-2.5">
-        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary shrink-0">
+      <div className="flex min-w-0 flex-1 items-center gap-2.5">
+        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary">
           <Tractor className="h-4 w-4 text-primary-foreground" />
         </div>
-        <span className="text-base font-bold text-foreground tracking-tight">Aquimaq Log</span>
+        <span className="truncate text-base font-bold tracking-tight text-foreground">Aquimaq Log</span>
       </div>
 
       {/* Toolbar */}
-      <div className="flex items-center gap-2">
+      <div className="flex shrink-0 items-center gap-2">
         <ThemeToggle />
       </div>
     </header>
