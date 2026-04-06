@@ -6,10 +6,17 @@ export type Inserts<T extends keyof Database['public']['Tables']> = Database['pu
 export type Updates<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Update']
 
 // Typed join result types used by repositories
+export type ServiceReceivableSummary = Pick<
+  Tables<'receivables'>,
+  'id' | 'status' | 'final_amount' | 'paid_amount'
+>
+
 export type ServiceWithJoins = Tables<'services'> & {
   clients: { name: string } | null
   tractors: { name: string; standard_hour_cost: number | null } | null
   trucks: { name: string } | null
+  /** Parcelas a receber (PostgREST embutido na listagem). */
+  receivables?: ServiceReceivableSummary[] | null
 }
 
 export type WorklogWithOperator = Tables<'service_worklogs'> & {

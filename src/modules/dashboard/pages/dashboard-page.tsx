@@ -9,6 +9,11 @@ import { Building2, ClipboardList, DollarSign, AlertTriangle, Wallet } from 'luc
 import { Link } from 'react-router-dom'
 import { ROUTES } from '@/shared/constants/routes'
 import { PreventiveOilAlertsCard } from '../components/preventive-oil-alerts-card'
+import { AppBadge } from '@/shared/components/app/app-badge'
+import {
+  getServicePaymentBadgeKind,
+  getServicePaymentBadgeProps,
+} from '@/modules/servicos/lib/service-payment-badge'
 
 export function DashboardPage() {
   const clients = useClientList()
@@ -120,16 +125,22 @@ export function DashboardPage() {
         <div className="rounded-xl border border-border bg-card p-6">
           <h2 className="typo-section-title mb-4">Serviços em aberto</h2>
           <div className="space-y-2">
-            {activeServices.slice(0, 5).map(s => (
+            {activeServices.slice(0, 5).map(s => {
+              const pay = getServicePaymentBadgeProps(getServicePaymentBadgeKind(s.receivables))
+              return (
               <Link key={s.id} to={ROUTES.SERVICE_DETAIL(s.id)}
-                className="flex items-center justify-between rounded-lg border border-border p-3 hover:border-primary/30 transition-colors">
-                <div>
+                className="flex items-center justify-between gap-3 rounded-lg border border-border p-3 hover:border-primary/30 transition-colors">
+                <div className="min-w-0">
                   <p className="typo-body font-medium text-foreground">{s.clients?.name}</p>
                   <p className="typo-caption font-semibold uppercase tracking-wide mt-0.5">{s.tractors?.name}</p>
                 </div>
-                <span className="typo-caption font-medium px-2 py-0.5 rounded-full bg-slate-100 text-slate-800 dark:bg-slate-500/15 dark:text-slate-400">Em aberto</span>
+                <div className="flex shrink-0 flex-col items-end gap-1.5">
+                  <span className="typo-caption font-medium px-2 py-0.5 rounded-full bg-slate-100 text-slate-800 dark:bg-slate-500/15 dark:text-slate-400">Em aberto</span>
+                  <AppBadge variant={pay.variant}>{pay.label}</AppBadge>
+                </div>
               </Link>
-            ))}
+              )
+            })}
           </div>
         </div>
       )}

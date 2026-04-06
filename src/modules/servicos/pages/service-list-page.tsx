@@ -11,6 +11,10 @@ import { AppSearchInput } from '@/shared/components/app/app-search-input'
 import { AppDataCard } from '@/shared/components/app/app-data-card'
 import { cn } from '@/shared/lib/cn'
 import { SERVICE_STATUS_LABELS, SERVICE_STATUS_BADGE_VARIANTS } from '@/shared/constants/status'
+import {
+  getServicePaymentBadgeKind,
+  getServicePaymentBadgeProps,
+} from '../lib/service-payment-badge'
 import dayjs from '@/shared/lib/dayjs'
 import { Plus, Briefcase, Edit } from 'lucide-react'
 
@@ -65,7 +69,10 @@ export function ServiceListPage() {
           ? <AppEmptyState title="Nenhum serviço" action={<Link to={ROUTES.SERVICE_NEW} className="text-primary text-sm hover:underline">Criar serviço</Link>} />
           : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-              {filtered.map(service => (
+              {filtered.map(service => {
+                const payKind = getServicePaymentBadgeKind(service.receivables)
+                const pay = getServicePaymentBadgeProps(payKind)
+                return (
                 <AppDataCard
                   key={service.id}
                   onClick={() => navigate(ROUTES.SERVICE_DETAIL(service.id))}
@@ -73,9 +80,12 @@ export function ServiceListPage() {
                   title={service.clients?.name || 'Cliente sem nome'}
                   subtitle={dayjs(service.service_date).format('DD [de] MMMM')}
                   badge={
-                    <AppBadge variant={SERVICE_STATUS_BADGE_VARIANTS[service.status] ?? 'default'}>
-                      {SERVICE_STATUS_LABELS[service.status] ?? service.status}
-                    </AppBadge>
+                    <div className="flex flex-col items-end gap-1.5">
+                      <AppBadge variant={SERVICE_STATUS_BADGE_VARIANTS[service.status] ?? 'default'}>
+                        {SERVICE_STATUS_LABELS[service.status] ?? service.status}
+                      </AppBadge>
+                      <AppBadge variant={pay.variant}>{pay.label}</AppBadge>
+                    </div>
                   }
                   items={[
                     { label: 'Veículo', value: service.tractors?.name || service.trucks?.name || '—' },
@@ -93,7 +103,8 @@ export function ServiceListPage() {
                     </div>
                   }
                 />
-              ))}
+                )
+              })}
             </div>
           )
       )}
