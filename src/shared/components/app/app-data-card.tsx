@@ -67,7 +67,7 @@ export function AppDataCard({
             )}
           </div>
         </div>
-        {badge}
+        {badge != null ? <div className="ml-2 shrink-0">{badge}</div> : null}
       </div>
 
       {items && items.length > 0 && (

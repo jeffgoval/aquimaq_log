@@ -11,8 +11,7 @@ import type { MachineCostWithTractor, Tables, Updates } from '@/integrations/sup
 import { parseSupabaseError } from '@/shared/lib/errors'
 import dayjs from '@/shared/lib/dayjs'
 import { cn } from '@/shared/lib/cn'
-
-const COST_TYPE_LABELS = { fuel: '⛽ Combustível', oil: '🛢️ Óleo', parts: '🔧 Peças', maintenance: '🔩 Manutenção', other: '📋 Outro' }
+import { COST_TYPE_LABELS } from '../lib/cost-type-labels'
 
 type MachineCostRow = Tables<'machine_costs'>
 

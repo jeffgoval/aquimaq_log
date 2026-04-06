@@ -29,8 +29,7 @@ import { ReceiptPhotoPicker, ReceiptViewButton } from '@/shared/components/recei
 import dayjs from '@/shared/lib/dayjs'
 import { parseMoneyInput } from '@/shared/lib/currency'
 import { getPreferredTractorId, sortTractorsForSelect } from '@/shared/lib/tractors-select'
-
-const COST_TYPE_LABELS = { fuel: '⛽ Combustível', oil: '🛢️ Óleo', parts: '🔧 Peças', maintenance: '🔩 Manutenção', other: '📋 Outro' }
+import { COST_TYPE_BADGE_LABELS, COST_TYPE_LABELS } from '../lib/cost-type-labels'
 
 function paymentBadgeForCost(status: MachineCostWithTractor['status']) {
   if (status === 'paid') return { variant: 'success' as const, label: 'Pago' }
@@ -343,8 +342,8 @@ export function MachineCostListPage() {
                     icon={Wrench}
                     badge={
                       <div className="flex flex-wrap gap-1 justify-end">
-                        <AppBadge variant="default">
-                          {COST_TYPE_LABELS[cost.cost_type as keyof typeof COST_TYPE_LABELS].split(' ')[1]}
+                        <AppBadge variant="default" className="shrink-0">
+                          {COST_TYPE_BADGE_LABELS[cost.cost_type as keyof typeof COST_TYPE_BADGE_LABELS]}
                         </AppBadge>
                         <AppBadge variant={payment.variant}>{payment.label}</AppBadge>
                       </div>
