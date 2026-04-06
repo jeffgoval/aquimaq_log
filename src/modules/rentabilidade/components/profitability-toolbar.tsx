@@ -3,6 +3,8 @@ import { cn } from '@/shared/lib/cn'
 import type { PeriodPreset } from '../lib/profitability-period'
 import { PERIOD_PRESET_LABELS } from '../lib/profitability-period'
 
+const PERIOD_PRESET_ORDER = Object.keys(PERIOD_PRESET_LABELS) as PeriodPreset[]
+
 export type ProfitabilityTab = 'owner' | 'pro'
 
 /** Qual frota está em análise (tratores vs guinchos). */
@@ -92,18 +94,37 @@ export const ProfitabilityToolbar = ({
       </div>
 
       <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:gap-4">
-        <div className="flex flex-wrap gap-2">
-          {(Object.keys(PERIOD_PRESET_LABELS) as PeriodPreset[]).map((p) => (
-            <AppButton
-              key={p}
-              type="button"
-              size="sm"
-              variant={preset === p ? 'primary' : 'secondary'}
-              onClick={() => onPreset(p)}
+        <div className="min-w-0 w-full lg:w-auto">
+          <div className="space-y-1.5 lg:hidden">
+            <label htmlFor="profitability-period-preset" className="field-label">
+              Período
+            </label>
+            <select
+              id="profitability-period-preset"
+              className="field w-full"
+              value={preset}
+              onChange={(e) => onPreset(e.target.value as PeriodPreset)}
             >
-              {PERIOD_PRESET_LABELS[p]}
-            </AppButton>
-          ))}
+              {PERIOD_PRESET_ORDER.map((p) => (
+                <option key={p} value={p}>
+                  {PERIOD_PRESET_LABELS[p]}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="hidden flex-wrap gap-2 lg:flex">
+            {PERIOD_PRESET_ORDER.map((p) => (
+              <AppButton
+                key={p}
+                type="button"
+                size="sm"
+                variant={preset === p ? 'primary' : 'secondary'}
+                onClick={() => onPreset(p)}
+              >
+                {PERIOD_PRESET_LABELS[p]}
+              </AppButton>
+            ))}
+          </div>
         </div>
         {preset === 'custom' && (
           <div className="flex flex-wrap items-center gap-2">
