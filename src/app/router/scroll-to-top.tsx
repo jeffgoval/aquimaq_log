@@ -1,35 +1,56 @@
-import { useEffect } from 'react'
-import type { RefObject } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useEffect, useLayoutEffect, useRef } from 'react'
+import { Outlet, useLocation } from 'react-router-dom'
 
-interface ScrollToTopProps {
-  /** Área rolável da app (ex.: `<main>`); além disso, corrige `window` para auth/outros. */
-  scrollContainerRef?: RefObject<HTMLElement | null>
+/** ID do `<main>` rolável em `AppLayout` — usado após navegação mesmo quando o hook corre na raiz do router. */
+export const APP_MAIN_SCROLL_ID = 'app-main-scroll'
+
+const scrollAllToTop = (): void => {
+  document.getElementById(APP_MAIN_SCROLL_ID)?.scrollTo(0, 0)
+  window.scrollTo(0, 0)
+  document.documentElement.scrollTop = 0
+  document.body.scrollTop = 0
 }
 
-export const ScrollToTop = ({ scrollContainerRef }: ScrollToTopProps) => {
+/**
+ * Garante topo em toda mudança de rota (pathname/search/hash).
+ * - useLayoutEffect: antes da pintura (evita flash no meio da página).
+ * - timeouts: conteúdo lazy/Suspense monta depois e pode alterar altura/scroll.
+ * - history.scrollRestoration = 'manual': o browser não repõe posição antiga sozinho.
+ */
+export const useScrollToTopOnRouteChange = (): void => {
   const { pathname, search, hash } = useLocation()
+  const routeKey = `${pathname}${search}${hash}`
+  const didSetRestoration = useRef(false)
 
   useEffect(() => {
-    const apply = (): void => {
-      const el = scrollContainerRef?.current
-      if (el) {
-        el.scrollTop = 0
-        el.scrollLeft = 0
-      }
-      window.scrollTo(0, 0)
-      document.documentElement.scrollTop = 0
-      document.body.scrollTop = 0
+    if (didSetRestoration.current) return
+    didSetRestoration.current = true
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual'
     }
+  }, [])
 
-    apply()
-    const raf = requestAnimationFrame(apply)
-    const t = window.setTimeout(apply, 0)
+  useLayoutEffect(() => {
+    scrollAllToTop()
+  }, [routeKey])
+
+  useEffect(() => {
+    scrollAllToTop()
+    const t0 = window.setTimeout(scrollAllToTop, 0)
+    const t1 = window.setTimeout(scrollAllToTop, 50)
+    const t2 = window.setTimeout(scrollAllToTop, 150)
+    const t3 = window.setTimeout(scrollAllToTop, 400)
     return () => {
-      cancelAnimationFrame(raf)
-      window.clearTimeout(t)
+      window.clearTimeout(t0)
+      window.clearTimeout(t1)
+      window.clearTimeout(t2)
+      window.clearTimeout(t3)
     }
-  }, [pathname, search, hash, scrollContainerRef])
+  }, [routeKey])
+}
 
-  return null
+/** Envolve todas as rotas para o scroll reagir a qualquer navegação (login, app, etc.). */
+export const AppRouteShell = () => {
+  useScrollToTopOnRouteChange()
+  return <Outlet />
 }

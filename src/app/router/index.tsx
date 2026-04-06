@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { AppRouteShell } from './scroll-to-top'
 import { ProtectedRoute } from './protected-route'
 import { AppLayout } from '@/app/layouts/app-layout'
 import { AuthLayout } from '@/app/layouts/auth-layout'
@@ -43,51 +44,54 @@ const ProfitabilityPage       = lazy(() => import('@/modules/rentabilidade/pages
 const Fallback = () => <AppLoadingState fullScreen />
 
 const router = createBrowserRouter([
-  // Auth Routes
   {
-    element: <AuthLayout />,
-    children: [
-      { path: ROUTES.LOGIN, element: <Suspense fallback={<Fallback />}><LoginPage /></Suspense> },
-      { path: ROUTES.FORGOT_PASSWORD, element: <Suspense fallback={<Fallback />}><ForgotPasswordPage /></Suspense> },
-      { path: ROUTES.RESET_PASSWORD, element: <Suspense fallback={<Fallback />}><ResetPasswordPage /></Suspense> },
-    ],
-  },
-  // Protected Routes
-  {
-    element: <ProtectedRoute />,
+    element: <AppRouteShell />,
     children: [
       {
-        element: <AppLayout />,
+        element: <AuthLayout />,
         children: [
-          { path: ROUTES.DASHBOARD,          element: <Suspense fallback={<Fallback />}><DashboardPage /></Suspense> },
-          { path: ROUTES.TRACTORS,           element: <Suspense fallback={<Fallback />}><TractorListPage /></Suspense> },
-          { path: ROUTES.TRACTOR_NEW,        element: <Suspense fallback={<Fallback />}><TractorCreatePage /></Suspense> },
-          { path: '/tratores/:id',           element: <Suspense fallback={<Fallback />}><TractorDetailPage /></Suspense> },
-          { path: '/tratores/:id/editar',    element: <Suspense fallback={<Fallback />}><TractorEditPage /></Suspense> },
-          { path: ROUTES.TRUCKS,             element: <Suspense fallback={<Fallback />}><TruckListPage /></Suspense> },
-          { path: ROUTES.TRUCK_NEW,          element: <Suspense fallback={<Fallback />}><TruckCreatePage /></Suspense> },
-          { path: '/guinchos/:id',           element: <Suspense fallback={<Fallback />}><TruckDetailPage /></Suspense> },
-          { path: '/guinchos/:id/editar',    element: <Suspense fallback={<Fallback />}><TruckEditPage /></Suspense> },
-          { path: ROUTES.OPERATORS,          element: <Suspense fallback={<Fallback />}><OperatorListPage /></Suspense> },
-          { path: ROUTES.OPERATOR_NEW,       element: <Suspense fallback={<Fallback />}><OperatorCreatePage /></Suspense> },
-          { path: '/operadores/:id/editar',  element: <Suspense fallback={<Fallback />}><OperatorEditPage /></Suspense> },
-          { path: '/operadores/:id',         element: <Suspense fallback={<Fallback />}><OperatorDetailPage /></Suspense> },
-          { path: ROUTES.CLIENTS,            element: <Suspense fallback={<Fallback />}><ClientListPage /></Suspense> },
-          { path: ROUTES.CLIENT_NEW,         element: <Suspense fallback={<Fallback />}><ClientCreatePage /></Suspense> },
-          { path: '/clientes/:id/editar',    element: <Suspense fallback={<Fallback />}><ClientEditPage /></Suspense> },
-          { path: '/clientes/:id',           element: <Suspense fallback={<Fallback />}><ClientDetailPage /></Suspense> },
-          { path: ROUTES.SUPPLIERS,          element: <Suspense fallback={<Fallback />}><SupplierListPage /></Suspense> },
-          { path: ROUTES.SUPPLIER_NEW,      element: <Suspense fallback={<Fallback />}><SupplierCreatePage /></Suspense> },
-          { path: '/fornecedores/:id/editar', element: <Suspense fallback={<Fallback />}><SupplierEditPage /></Suspense> },
-          { path: '/fornecedores/:id',       element: <Suspense fallback={<Fallback />}><SupplierDetailPage /></Suspense> },
-          { path: ROUTES.SERVICES,           element: <Suspense fallback={<Fallback />}><ServiceListPage /></Suspense> },
-          { path: ROUTES.SERVICE_NEW,        element: <Suspense fallback={<Fallback />}><ServiceCreatePage /></Suspense> },
-          { path: '/servicos/:id/editar',    element: <Suspense fallback={<Fallback />}><ServiceEditPage /></Suspense> },
-          { path: '/servicos/:id',           element: <Suspense fallback={<Fallback />}><ServiceDetailPage /></Suspense> },
-          { path: ROUTES.RECEIVABLES,        element: <Suspense fallback={<Fallback />}><ReceivableListPage /></Suspense> },
-          { path: ROUTES.MACHINE_COSTS,      element: <Suspense fallback={<Fallback />}><MachineCostListPage /></Suspense> },
-          { path: ROUTES.PROFITABILITY,      element: <Suspense fallback={<Fallback />}><ProfitabilityPage /></Suspense> },
-          { path: ROUTES.ACCOUNT,            element: <Suspense fallback={<Fallback />}><AccountSettingsPage /></Suspense> },
+          { path: ROUTES.LOGIN, element: <Suspense fallback={<Fallback />}><LoginPage /></Suspense> },
+          { path: ROUTES.FORGOT_PASSWORD, element: <Suspense fallback={<Fallback />}><ForgotPasswordPage /></Suspense> },
+          { path: ROUTES.RESET_PASSWORD, element: <Suspense fallback={<Fallback />}><ResetPasswordPage /></Suspense> },
+        ],
+      },
+      {
+        element: <ProtectedRoute />,
+        children: [
+          {
+            element: <AppLayout />,
+            children: [
+              { path: ROUTES.DASHBOARD,          element: <Suspense fallback={<Fallback />}><DashboardPage /></Suspense> },
+              { path: ROUTES.TRACTORS,           element: <Suspense fallback={<Fallback />}><TractorListPage /></Suspense> },
+              { path: ROUTES.TRACTOR_NEW,        element: <Suspense fallback={<Fallback />}><TractorCreatePage /></Suspense> },
+              { path: '/tratores/:id',           element: <Suspense fallback={<Fallback />}><TractorDetailPage /></Suspense> },
+              { path: '/tratores/:id/editar',    element: <Suspense fallback={<Fallback />}><TractorEditPage /></Suspense> },
+              { path: ROUTES.TRUCKS,             element: <Suspense fallback={<Fallback />}><TruckListPage /></Suspense> },
+              { path: ROUTES.TRUCK_NEW,          element: <Suspense fallback={<Fallback />}><TruckCreatePage /></Suspense> },
+              { path: '/guinchos/:id',           element: <Suspense fallback={<Fallback />}><TruckDetailPage /></Suspense> },
+              { path: '/guinchos/:id/editar',    element: <Suspense fallback={<Fallback />}><TruckEditPage /></Suspense> },
+              { path: ROUTES.OPERATORS,          element: <Suspense fallback={<Fallback />}><OperatorListPage /></Suspense> },
+              { path: ROUTES.OPERATOR_NEW,       element: <Suspense fallback={<Fallback />}><OperatorCreatePage /></Suspense> },
+              { path: '/operadores/:id/editar',  element: <Suspense fallback={<Fallback />}><OperatorEditPage /></Suspense> },
+              { path: '/operadores/:id',         element: <Suspense fallback={<Fallback />}><OperatorDetailPage /></Suspense> },
+              { path: ROUTES.CLIENTS,            element: <Suspense fallback={<Fallback />}><ClientListPage /></Suspense> },
+              { path: ROUTES.CLIENT_NEW,         element: <Suspense fallback={<Fallback />}><ClientCreatePage /></Suspense> },
+              { path: '/clientes/:id/editar',    element: <Suspense fallback={<Fallback />}><ClientEditPage /></Suspense> },
+              { path: '/clientes/:id',           element: <Suspense fallback={<Fallback />}><ClientDetailPage /></Suspense> },
+              { path: ROUTES.SUPPLIERS,          element: <Suspense fallback={<Fallback />}><SupplierListPage /></Suspense> },
+              { path: ROUTES.SUPPLIER_NEW,      element: <Suspense fallback={<Fallback />}><SupplierCreatePage /></Suspense> },
+              { path: '/fornecedores/:id/editar', element: <Suspense fallback={<Fallback />}><SupplierEditPage /></Suspense> },
+              { path: '/fornecedores/:id',       element: <Suspense fallback={<Fallback />}><SupplierDetailPage /></Suspense> },
+              { path: ROUTES.SERVICES,           element: <Suspense fallback={<Fallback />}><ServiceListPage /></Suspense> },
+              { path: ROUTES.SERVICE_NEW,        element: <Suspense fallback={<Fallback />}><ServiceCreatePage /></Suspense> },
+              { path: '/servicos/:id/editar',    element: <Suspense fallback={<Fallback />}><ServiceEditPage /></Suspense> },
+              { path: '/servicos/:id',           element: <Suspense fallback={<Fallback />}><ServiceDetailPage /></Suspense> },
+              { path: ROUTES.RECEIVABLES,        element: <Suspense fallback={<Fallback />}><ReceivableListPage /></Suspense> },
+              { path: ROUTES.MACHINE_COSTS,      element: <Suspense fallback={<Fallback />}><MachineCostListPage /></Suspense> },
+              { path: ROUTES.PROFITABILITY,      element: <Suspense fallback={<Fallback />}><ProfitabilityPage /></Suspense> },
+              { path: ROUTES.ACCOUNT,            element: <Suspense fallback={<Fallback />}><AccountSettingsPage /></Suspense> },
+            ],
+          },
         ],
       },
     ],

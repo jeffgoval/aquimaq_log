@@ -1,6 +1,5 @@
 import { Outlet } from 'react-router-dom'
 import { Tractor } from 'lucide-react'
-import { ScrollToTop } from '@/app/router/scroll-to-top'
 
 export const AuthLayout = () => {
   return (
@@ -26,7 +25,6 @@ export const AuthLayout = () => {
       {/* Right panel — form */}
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="w-full max-w-md">
-          <ScrollToTop />
           <header className="mb-8 lg:hidden">
             <div className="flex items-center gap-3">
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary shrink-0 shadow-sm">
