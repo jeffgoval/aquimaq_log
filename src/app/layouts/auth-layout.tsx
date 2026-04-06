@@ -1,4 +1,6 @@
+import { Suspense } from 'react'
 import { Outlet } from 'react-router-dom'
+import { AppLoadingState } from '@/shared/components/app/app-loading-state'
 import { Tractor } from 'lucide-react'
 
 export const AuthLayout = () => {
@@ -35,7 +37,9 @@ export const AuthLayout = () => {
               </h1>
             </div>
           </header>
-          <Outlet />
+          <Suspense fallback={<AppLoadingState message="Carregando…" />}>
+            <Outlet />
+          </Suspense>
         </div>
       </div>
     </div>
