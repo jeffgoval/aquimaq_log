@@ -126,7 +126,7 @@ export function DashboardPage() {
           <h2 className="typo-section-title mb-4">Serviços em aberto</h2>
           <div className="space-y-2">
             {activeServices.slice(0, 5).map(s => {
-              const pay = getServicePaymentBadgeProps(getServicePaymentBadgeKind(s.receivables))
+              const pay = getServicePaymentBadgeProps(getServicePaymentBadgeKind(s))
               return (
               <Link key={s.id} to={ROUTES.SERVICE_DETAIL(s.id)}
                 className="flex items-center justify-between gap-3 rounded-lg border border-border p-3 hover:border-primary/30 transition-colors">

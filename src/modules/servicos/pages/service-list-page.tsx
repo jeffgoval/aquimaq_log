@@ -70,7 +70,7 @@ export function ServiceListPage() {
           : (
             <div className="grid min-w-0 max-w-full grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
               {filtered.map(service => {
-                const payKind = getServicePaymentBadgeKind(service.receivables)
+                const payKind = getServicePaymentBadgeKind(service)
                 const pay = getServicePaymentBadgeProps(payKind)
                 return (
                 <AppDataCard

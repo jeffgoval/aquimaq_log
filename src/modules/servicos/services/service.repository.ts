@@ -8,7 +8,9 @@ export const serviceRepository = {
   async list(): Promise<ServiceWithJoins[]> {
     const { data, error } = await supabase
       .from('services')
-      .select('*, clients(name), tractors(name, standard_hour_cost), trucks(name), receivables(id, status, final_amount, paid_amount)')
+      .select(
+        '*, clients(name), tractors(name, standard_hour_cost), trucks(name), receivables!receivables_service_id_fkey(id, status, final_amount, paid_amount)',
+      )
       .order('created_at', { ascending: false })
     if (error) throw error
     return (data ?? []) as ServiceWithJoins[]
@@ -17,7 +19,9 @@ export const serviceRepository = {
   async getById(id: string): Promise<ServiceWithJoins> {
     const { data, error } = await supabase
       .from('services')
-      .select('*, clients(name), tractors(name, standard_hour_cost), trucks(name), receivables(id, status, final_amount, paid_amount)')
+      .select(
+        '*, clients(name), tractors(name, standard_hour_cost), trucks(name), receivables!receivables_service_id_fkey(id, status, final_amount, paid_amount)',
+      )
       .eq('id', id)
       .single()
     if (error) throw error
