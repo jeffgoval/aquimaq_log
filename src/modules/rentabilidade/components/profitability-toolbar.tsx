@@ -72,7 +72,7 @@ export const ProfitabilityToolbar = ({
                 tab === 'owner' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground',
               )}
             >
-              Resumo (dono)
+              Resumo
             </button>
             <button
               type="button"
@@ -82,7 +82,7 @@ export const ProfitabilityToolbar = ({
                 tab === 'pro' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground',
               )}
             >
-              Profissional
+              Detalhes
             </button>
           </div>
           <p className="max-w-full min-w-0 break-words text-sm text-muted-foreground">

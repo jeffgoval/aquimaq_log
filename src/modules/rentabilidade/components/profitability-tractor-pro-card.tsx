@@ -75,7 +75,7 @@ export const ProfitabilityTractorProCard = ({ t }: Props) => {
                 <span>Análise por hora trabalhada</span>
                 <span
                   className="inline-flex shrink-0"
-                  title="Receita/h, CPH (custo por hora) e spread/h. Ver glossário na aba Profissional."
+                  title="Receita/h, CPH (custo por hora) e spread/h. Ver glossário na aba Detalhes."
                 >
                   <Info className="h-3.5 w-3.5 text-slate-700 dark:text-zinc-300" aria-hidden />
                 </span>
