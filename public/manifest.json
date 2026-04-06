@@ -1,7 +1,7 @@
 {
   "name": "Aquimaq Log",
   "short_name": "AquimaqLog",
-  "description": "Gestão inteligente de tratores, operadores e serviços agrícolas.",
+  "description": "Gestão de serviços de terraplenagem e guincho com controle total da frota.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

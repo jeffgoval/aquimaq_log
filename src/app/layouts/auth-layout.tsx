@@ -17,7 +17,7 @@ export const AuthLayout = () => {
             <h1 className="typo-brand-display text-primary-foreground">Aquimaq Log</h1>
           </div>
           <p className="text-primary-foreground/90 text-base sm:text-lg max-w-sm leading-relaxed">
-            Gestão inteligente de tratores, operadores e serviços agrícolas.
+            Gestão de serviços de terraplenagem e guincho com controle total da frota.
           </p>
         </div>
       </div>
