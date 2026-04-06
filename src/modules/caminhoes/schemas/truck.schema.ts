@@ -8,6 +8,8 @@ export const truckSchema = z.object({
   purchase_value: z.number().min(0, 'Valor de compra inválido'),
   residual_value: z.number().min(0, 'Valor residual inválido'),
   current_odometer: z.number().min(0, 'Odômetro inválido'),
+  useful_life_km: z.number().min(1000, 'Vida útil mínima de 1.000 km'),
+  fuel_cost_per_km: z.number().min(0, 'Custo de combustível inválido'),
   is_active: z.boolean(),
   notes: z.string().optional().nullable(),
 })

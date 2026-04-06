@@ -16,7 +16,7 @@ export function useCreateCost() {
     mutationFn: (p: CostInsert) => costRepository.create(p),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.machineCosts })
-      qc.invalidateQueries({ queryKey: queryKeys.profitability })
+      qc.invalidateQueries({ queryKey: ['profitability'] })
     },
     onError: (e: Error) => toast.error(parseSupabaseError(e)),
   })
@@ -28,7 +28,7 @@ export function useUpdateMachineCost() {
     mutationFn: ({ id, payload }: { id: string; payload: CostUpdate }) => costRepository.update(id, payload),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.machineCosts })
-      qc.invalidateQueries({ queryKey: queryKeys.profitability })
+      qc.invalidateQueries({ queryKey: ['profitability'] })
       toast.success('Custo atualizado!')
     },
     onError: (e: Error) => toast.error(parseSupabaseError(e)),

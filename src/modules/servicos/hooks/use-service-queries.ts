@@ -24,6 +24,7 @@ export function useCreateService() {
     mutationFn: (payload: ServiceInsert) => serviceRepository.create(payload),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.services })
+      qc.invalidateQueries({ queryKey: ['profitability'] })
       toast.success('Serviço criado!')
     },
     onError: (e: Error) => toast.error(parseSupabaseError(e)),
@@ -37,6 +38,7 @@ export function useUpdateService(id: string) {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.services })
       qc.invalidateQueries({ queryKey: queryKeys.serviceDetails(id) })
+      qc.invalidateQueries({ queryKey: ['profitability'] })
       toast.success('Serviço atualizado!')
     },
     onError: (e: Error) => toast.error(parseSupabaseError(e)),
@@ -50,6 +52,7 @@ export function useCompleteService() {
     onSuccess: (_, id) => {
       qc.invalidateQueries({ queryKey: queryKeys.services })
       qc.invalidateQueries({ queryKey: queryKeys.serviceDetails(id) })
+      qc.invalidateQueries({ queryKey: ['profitability'] })
       toast.success('Serviço concluído!')
     },
     onError: (e: Error) => toast.error(parseSupabaseError(e)),

@@ -209,6 +209,7 @@ export type Database = {
       operator_ledger: {
         Row: {
           amount: number
+          commission_percent: number | null
           created_at: string
           entry_date: string
           entry_type: string
@@ -219,6 +220,7 @@ export type Database = {
         }
         Insert: {
           amount: number
+          commission_percent?: number | null
           created_at?: string
           entry_date: string
           entry_type: string
@@ -229,6 +231,7 @@ export type Database = {
         }
         Update: {
           amount?: number
+          commission_percent?: number | null
           created_at?: string
           entry_date?: string
           entry_type?: string
@@ -734,6 +737,7 @@ export type Database = {
           brand: string | null
           created_at: string
           current_odometer: number
+          fuel_cost_per_km: number
           id: string
           is_active: boolean
           model: string | null
@@ -743,11 +747,13 @@ export type Database = {
           purchase_value: number
           residual_value: number
           updated_at: string
+          useful_life_km: number
         }
         Insert: {
           brand?: string | null
           created_at?: string
           current_odometer?: number
+          fuel_cost_per_km?: number
           id?: string
           is_active?: boolean
           model?: string | null
@@ -757,11 +763,13 @@ export type Database = {
           purchase_value?: number
           residual_value?: number
           updated_at?: string
+          useful_life_km?: number
         }
         Update: {
           brand?: string | null
           created_at?: string
           current_odometer?: number
+          fuel_cost_per_km?: number
           id?: string
           is_active?: boolean
           model?: string | null
@@ -771,6 +779,7 @@ export type Database = {
           purchase_value?: number
           residual_value?: number
           updated_at?: string
+          useful_life_km?: number
         }
         Relationships: []
       }
@@ -850,6 +859,63 @@ export type Database = {
       }
     }
     Functions: {
+      fn_client_revenue_range: {
+        Args: { p_end?: string | null; p_start?: string | null }
+        Returns: {
+          client_id: string
+          client_name: string
+          service_count: number
+          total_billed: number
+          total_overdue: number
+          total_pending: number
+          total_received: number
+        }[]
+      }
+      fn_fleet_spend_by_category_range: {
+        Args: { p_end?: string | null; p_start?: string | null }
+        Returns: {
+          spend_diesel: number
+          spend_maintenance: number
+          spend_operator: number
+        }[]
+      }
+      fn_tractor_profitability_range: {
+        Args: { p_end?: string | null; p_start?: string | null }
+        Returns: {
+          cost_per_hour: number
+          depreciation_cost: number
+          gross_revenue: number
+          net_margin: number
+          operational_cost: number
+          operator_cost: number
+          purchase_value: number
+          residual_value: number
+          revenue_per_hour: number
+          total_hours: number
+          tractor_id: string
+          tractor_name: string
+          useful_life_hours: number
+        }[]
+      }
+      fn_truck_profitability_range: {
+        Args: { p_end?: string | null; p_start?: string | null }
+        Returns: {
+          cost_per_km: number
+          depreciation_cost: number
+          fuel_cost_per_km: number
+          gross_revenue: number
+          net_margin: number
+          operational_cost: number
+          operator_cost: number
+          purchase_value: number
+          residual_value: number
+          revenue_per_km: number
+          total_km: number
+          truck_id: string
+          truck_name: string
+          useful_life_km: number
+        }[]
+      }
       mark_overdue_receivables: { Args: never; Returns: undefined }
     }
     Enums: {

@@ -22,9 +22,14 @@ export const queryKeys = {
   suppliers: ['suppliers'] as const,
   supplierOptions: ['supplier-options'] as const,
   machineCostsByTractor: (tractorId: string) => ['machine-costs', 'tractor', tractorId] as const,
-  profitability: ['profitability'] as const,
-  profitabilityFleetSpend: ['profitability', 'fleet-spend-by-category'] as const,
-  clientRevenue: ['client-revenue'] as const,
+  profitabilityTractors: (from: string | null, to: string | null) =>
+    ['profitability', 'tractors', from, to] as const,
+  profitabilityTrucks: (from: string | null, to: string | null) =>
+    ['profitability', 'trucks', from, to] as const,
+  profitabilityClients: (from: string | null, to: string | null) =>
+    ['profitability', 'clients', from, to] as const,
+  profitabilityFleetSpend: (from: string | null, to: string | null) =>
+    ['profitability', 'fleet-spend-by-category', from, to] as const,
   financialLedger: ['financial-ledger'] as const,
   documents: ['documents'] as const,
   domainEvents: ['domain-events'] as const,

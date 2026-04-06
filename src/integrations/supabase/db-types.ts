@@ -29,3 +29,21 @@ export type MachineCostWithTractor = Tables<'machine_costs'> & {
 }
 
 export type ClientRevenueRow = Views<'v_client_revenue'>
+
+/** Linha de `fn_truck_profitability_range` (alinhada ao retorno da RPC). */
+export type TruckProfitabilityRow = {
+  truck_id: string
+  truck_name: string
+  purchase_value: number
+  residual_value: number
+  useful_life_km: number
+  fuel_cost_per_km: number
+  total_km: number
+  depreciation_cost: number
+  operational_cost: number
+  operator_cost: number
+  gross_revenue: number
+  revenue_per_km: number
+  cost_per_km: number
+  net_margin: number
+}

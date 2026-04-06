@@ -23,6 +23,7 @@ export const useReceivablesByService = (serviceId: string) => useQuery({
 function invalidateAllReceivables(qc: ReturnType<typeof useQueryClient>, serviceId?: string) {
   qc.invalidateQueries({ queryKey: queryKeys.receivables })
   if (serviceId) qc.invalidateQueries({ queryKey: queryKeys.receivablesByService(serviceId) })
+  qc.invalidateQueries({ queryKey: ['profitability'] })
 }
 
 export function useRegisterPayment(serviceId?: string) {

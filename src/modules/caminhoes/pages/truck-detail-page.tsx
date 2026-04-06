@@ -72,8 +72,37 @@ export function TruckDetailPage() {
               <dt className="text-muted-foreground mb-1">Valor Residual Projetado</dt>
               <dd className="font-medium"><AppMoney value={truck.residual_value} /></dd>
             </div>
+            <div>
+              <dt className="text-muted-foreground mb-1">Vida Útil Estimada</dt>
+              <dd className="font-medium">{(truck.useful_life_km ?? 500000).toLocaleString('pt-BR')} km</dd>
+            </div>
+            <div>
+              <dt className="text-muted-foreground mb-1">Custo Combustível</dt>
+              <dd className="font-medium">
+                {Number(truck.fuel_cost_per_km ?? 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 4 })}/km
+              </dd>
+            </div>
           </dl>
-          {/* Espaço para rentabilidade do guincho no futuro */}
+          {/* Custo total por km = depreciação/km + combustível/km */}
+          {(() => {
+            const depreciacao = truck.purchase_value > 0 && (truck.useful_life_km ?? 0) > 0
+              ? (truck.purchase_value - truck.residual_value) / (truck.useful_life_km ?? 500000)
+              : 0
+            const combustivel = Number(truck.fuel_cost_per_km ?? 0)
+            const totalKm = depreciacao + combustivel
+            if (totalKm <= 0) return null
+            return (
+              <div className="pt-3 border-t border-border rounded-lg bg-primary/5 px-3 py-2">
+                <p className="text-xs text-muted-foreground mb-1">Custo total por km (referência)</p>
+                <p className="font-bold text-foreground">
+                  {totalKm.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 4 })}/km
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Deprec. {depreciacao.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 4 })} + Comb. {combustivel.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 4 })}
+                </p>
+              </div>
+            )
+          })()}
         </div>
       </div>
     </div>

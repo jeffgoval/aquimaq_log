@@ -15,6 +15,8 @@ export const useTruckFormController = (truck?: TruckRow) => {
       purchase_value: 0,
       residual_value: 0,
       current_odometer: 0,
+      useful_life_km: 500000,
+      fuel_cost_per_km: 0,
       is_active: true,
       notes: '',
     }
@@ -30,6 +32,8 @@ export const useTruckFormController = (truck?: TruckRow) => {
         purchase_value: truck.purchase_value,
         residual_value: truck.residual_value,
         current_odometer: truck.current_odometer,
+        useful_life_km: truck.useful_life_km ?? 500000,
+        fuel_cost_per_km: truck.fuel_cost_per_km ?? 0,
         is_active: truck.is_active,
         notes: truck.notes || '',
       })

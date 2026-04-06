@@ -100,6 +100,50 @@ export const TruckForm = ({ form, onSubmit, isLoading, submitLabel }: Props) => 
           />
         </div>
 
+        <div>
+          <label className="field-label">Vida Útil (KM total estimado)</label>
+          <Controller
+            control={control}
+            name="useful_life_km"
+            render={({ field }) => (
+              <NumericFormat
+                className="field"
+                value={field.value}
+                onValueChange={(v) => field.onChange(v.floatValue ?? 500000)}
+                thousandSeparator="."
+                decimalSeparator=","
+                decimalScale={0}
+                allowNegative={false}
+                placeholder="500.000"
+              />
+            )}
+          />
+          {errors.useful_life_km && <span className="field-error">{errors.useful_life_km.message}</span>}
+          <p className="text-xs text-muted-foreground mt-1">Usado para calcular depreciação por km</p>
+        </div>
+
+        <div>
+          <label className="field-label">Custo Combustível (R$/km)</label>
+          <Controller
+            control={control}
+            name="fuel_cost_per_km"
+            render={({ field }) => (
+              <NumericFormat
+                className="field"
+                value={field.value}
+                onValueChange={(v) => field.onChange(v.floatValue ?? 0)}
+                thousandSeparator="."
+                decimalSeparator=","
+                prefix="R$ "
+                decimalScale={4}
+                allowNegative={false}
+                placeholder="R$ 0,0000"
+              />
+            )}
+          />
+          <p className="text-xs text-muted-foreground mt-1">Ex.: R$0,70/km (consumo × preço do diesel)</p>
+        </div>
+
         <div className="sm:col-span-2">
           <label className="field-label flex items-center gap-2 cursor-pointer">
             <input type="checkbox" className="rounded border-gray-300 text-primary focus:ring-primary h-4 w-4" {...register('is_active')} />

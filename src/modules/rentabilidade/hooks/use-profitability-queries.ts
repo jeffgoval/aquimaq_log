@@ -1,19 +1,27 @@
 import { useQuery } from '@tanstack/react-query'
 import { queryKeys } from '@/integrations/supabase/query-keys'
-import { profitabilityRepository } from '../services/profitability.repository'
+import { profitabilityRepository, type ProfitabilityDateRange } from '../services/profitability.repository'
 
-export const useTractorProfitability = () => useQuery({
-  queryKey: queryKeys.profitability,
-  queryFn: profitabilityRepository.getTractorProfitability,
-})
-
-export const useClientRevenue = () => useQuery({
-  queryKey: queryKeys.clientRevenue,
-  queryFn: profitabilityRepository.getClientRevenue,
-})
-
-export const useFleetSpendByCategory = () =>
+export const useTractorProfitability = (range: ProfitabilityDateRange) =>
   useQuery({
-    queryKey: queryKeys.profitabilityFleetSpend,
-    queryFn: () => profitabilityRepository.getFleetSpendByCategory(),
+    queryKey: queryKeys.profitabilityTractors(range.from, range.to),
+    queryFn: () => profitabilityRepository.getTractorProfitability(range),
+  })
+
+export const useTruckProfitability = (range: ProfitabilityDateRange) =>
+  useQuery({
+    queryKey: queryKeys.profitabilityTrucks(range.from, range.to),
+    queryFn: () => profitabilityRepository.getTruckProfitability(range),
+  })
+
+export const useClientRevenue = (range: ProfitabilityDateRange) =>
+  useQuery({
+    queryKey: queryKeys.profitabilityClients(range.from, range.to),
+    queryFn: () => profitabilityRepository.getClientRevenue(range),
+  })
+
+export const useFleetSpendByCategory = (range: ProfitabilityDateRange) =>
+  useQuery({
+    queryKey: queryKeys.profitabilityFleetSpend(range.from, range.to),
+    queryFn: () => profitabilityRepository.getFleetSpendByCategory(range),
   })
