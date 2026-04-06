@@ -5,7 +5,14 @@ export { AppEmptyState } from './app-empty-state'
 export { AppErrorState } from './app-error-state'
 export { AppLoadingState } from './app-loading-state'
 export { AppMoney } from './app-money'
-export { AppCurrencyInput, AppDecimalInput, AppPatternInput } from './app-numeric-input'
+export {
+  AppCurrencyInput,
+  AppDecimalInput,
+  AppPatternInput,
+  AppPhoneInput,
+  AppCpfCnpjInput,
+  AppCnhInput,
+} from './app-numeric-input'
 export { AppPageHeader } from './app-page-header'
 export { AppPwaInstall } from './app-pwa-install'
 export { AppSearchInput } from './app-search-input'

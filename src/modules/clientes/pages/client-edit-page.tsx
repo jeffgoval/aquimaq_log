@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { useForm } from 'react-hook-form'
+import { useForm, Controller, type Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { clientSchema, type ClientInput } from '../schemas/client.schema'
 import { useClient, useUpdateClient } from '../hooks/use-client-queries'
@@ -9,6 +9,7 @@ import { AppPageHeader } from '@/shared/components/app/app-page-header'
 import { AppButton } from '@/shared/components/app/app-button'
 import { AppLoadingState } from '@/shared/components/app/app-loading-state'
 import { AppErrorState } from '@/shared/components/app/app-error-state'
+import { AppPhoneInput, AppCpfCnpjInput } from '@/shared/components/app/app-numeric-input'
 
 function nullIfEmpty(s: string | undefined): string | null {
   const t = s?.trim()
@@ -22,11 +23,10 @@ export function ClientEditPage() {
   const update = useUpdateClient(id ?? '')
 
   const form = useForm<ClientInput>({
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    resolver: zodResolver(clientSchema) as any,
+    resolver: zodResolver(clientSchema) as Resolver<ClientInput>,
     defaultValues: { name: '', is_active: true },
   })
-  const { register, formState: { errors }, reset } = form
+  const { register, control, formState: { errors }, reset } = form
 
   useEffect(() => {
     if (!client) return
@@ -75,11 +75,33 @@ export function ClientEditPage() {
             </div>
             <div>
               <label className="field-label">CPF / CNPJ</label>
-              <input {...register('document')} className="field" placeholder="000.000.000-00" />
+              <Controller
+                name="document"
+                control={control}
+                render={({ field: { onChange, onBlur, value, ref } }) => (
+                  <AppCpfCnpjInput
+                    ref={ref}
+                    value={value ?? ''}
+                    onBlur={onBlur}
+                    onValueChange={(vals) => onChange(vals.formattedValue)}
+                  />
+                )}
+              />
             </div>
             <div>
               <label className="field-label">Telefone</label>
-              <input {...register('phone')} className="field" placeholder="(11) 99999-9999" />
+              <Controller
+                name="phone"
+                control={control}
+                render={({ field: { onChange, onBlur, value, ref } }) => (
+                  <AppPhoneInput
+                    ref={ref}
+                    value={value ?? ''}
+                    onBlur={onBlur}
+                    onValueChange={(vals) => onChange(vals.formattedValue)}
+                  />
+                )}
+              />
             </div>
             <div className="sm:col-span-2">
               <label className="field-label">E-mail</label>

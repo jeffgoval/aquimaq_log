@@ -1,6 +1,6 @@
 import { useForm, Controller, type Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { AppCurrencyInput } from '@/shared/components/app/app-numeric-input'
+import { AppCurrencyInput, AppPhoneInput, AppCnhInput } from '@/shared/components/app/app-numeric-input'
 import { AppButton } from '@/shared/components/app/app-button'
 import { useNavigate, Link } from 'react-router-dom'
 import { operatorSchema, type OperatorInput } from '../schemas/operator.schema'
@@ -32,11 +32,33 @@ export function OperatorCreatePage() {
             </div>
             <div>
               <label className="field-label">Telefone</label>
-              <input {...register('phone')} className="field" placeholder="(11) 99999-9999" />
+              <Controller
+                name="phone"
+                control={control}
+                render={({ field: { onChange, onBlur, value, ref } }) => (
+                  <AppPhoneInput
+                    ref={ref}
+                    value={value ?? ''}
+                    onBlur={onBlur}
+                    onValueChange={(vals) => onChange(vals.formattedValue)}
+                  />
+                )}
+              />
             </div>
             <div>
               <label className="field-label">CNH</label>
-              <input {...register('document')} className="field" placeholder="Número da CNH" />
+              <Controller
+                name="document"
+                control={control}
+                render={({ field: { onChange, onBlur, value, ref } }) => (
+                  <AppCnhInput
+                    ref={ref}
+                    value={value ?? ''}
+                    onBlur={onBlur}
+                    onValueChange={(vals) => onChange(vals.formattedValue)}
+                  />
+                )}
+              />
             </div>
             <div>
               <label className="field-label">Taxa por hora</label>

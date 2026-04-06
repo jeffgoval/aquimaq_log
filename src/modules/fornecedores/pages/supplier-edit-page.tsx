@@ -7,7 +7,7 @@ import { useSupplier, useUpdateSupplier } from '../hooks/use-supplier-queries'
 import { ROUTES } from '@/shared/constants/routes'
 import { AppPageHeader } from '@/shared/components/app/app-page-header'
 import { AppButton } from '@/shared/components/app/app-button'
-import { AppPatternInput } from '@/shared/components/app/app-numeric-input'
+import { AppPatternInput, AppPhoneInput } from '@/shared/components/app/app-numeric-input'
 import { AppLoadingState } from '@/shared/components/app/app-loading-state'
 import { AppErrorState } from '@/shared/components/app/app-error-state'
 
@@ -79,7 +79,18 @@ export function SupplierEditPage() {
             </div>
             <div>
               <label className="field-label">Telefone</label>
-              <input {...register('phone')} className="field" placeholder="(11) 99999-9999" />
+              <Controller
+                name="phone"
+                control={control}
+                render={({ field: { onChange, onBlur, value, ref } }) => (
+                  <AppPhoneInput
+                    ref={ref}
+                    value={value ?? ''}
+                    onBlur={onBlur}
+                    onValueChange={(vals) => onChange(vals.formattedValue)}
+                  />
+                )}
+              />
             </div>
             <div>
               <label className="field-label">CNPJ</label>
