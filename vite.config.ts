@@ -42,9 +42,9 @@ export default defineConfig({
           },
         ],
       },
+      // Desligado em dev: SW antigo costuma causar tela branca / assets em cache inválidos após mudanças.
       devOptions: {
-        enabled: true,
-        type: 'module',
+        enabled: false,
       },
     }),
   ],

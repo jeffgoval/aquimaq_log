@@ -1,0 +1,23 @@
+import { envConfigMessage } from '@/app/config/env'
+
+export const EnvConfigMissingScreen = () => (
+    <div className="min-h-screen flex flex-col items-center justify-center gap-4 p-8 text-center bg-background text-foreground">
+      <div className="max-w-md space-y-3">
+        <h1 className="text-lg font-semibold">Configuração do ambiente</h1>
+        <p className="text-sm text-muted-foreground leading-relaxed">
+          {envConfigMessage ?? 'Variáveis de ambiente em falta.'}
+        </p>
+        <div className="rounded-lg border border-border bg-card p-4 text-left">
+          <p className="typo-caption text-muted-foreground mb-2">Exemplo (.env.local):</p>
+          <pre className="typo-caption font-mono whitespace-pre-wrap break-all text-foreground">
+            {`VITE_SUPABASE_URL=https://…supabase.co
+VITE_SUPABASE_ANON_KEY=…`}
+          </pre>
+        </div>
+        <p className="typo-caption text-muted-foreground">
+          Depois de guardar o ficheiro, reinicie o servidor (<kbd className="px-1 rounded bg-muted">npm run dev</kbd>
+          ).
+        </p>
+      </div>
+    </div>
+)

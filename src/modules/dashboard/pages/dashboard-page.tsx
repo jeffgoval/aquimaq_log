@@ -50,21 +50,39 @@ export function DashboardPage() {
 
       {/* KPI cards section 1 (Operational) */}
       <div className="grid grid-cols-2 gap-3 mb-3 lg:gap-4 lg:mb-4">
-        <AppStatCard title="Clientes" value={clients.data?.filter(c => c.is_active).length ?? '…'} icon={Building2} />
-        <AppStatCard title="Serviços" value={activeServices.length} icon={ClipboardList} description="Em aberto" />
+        <AppStatCard
+          title="Clientes"
+          value={clients.data?.filter(c => c.is_active).length ?? '…'}
+          icon={Building2}
+          to={ROUTES.CLIENTS}
+        />
+        <AppStatCard
+          title="Serviços"
+          value={activeServices.length}
+          icon={ClipboardList}
+          description="Em aberto"
+          to={ROUTES.SERVICES}
+        />
       </div>
 
       <PreventiveOilAlertsCard />
 
       {/* Financial KPIs (Money) */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
-        <AppStatCard title="A receber" value={<AppMoney value={totalPending} />} icon={DollarSign} description={`${pendingReceivables.length} parcelas`} />
+        <AppStatCard
+          title="A receber"
+          value={<AppMoney value={totalPending} />}
+          icon={DollarSign}
+          description={`${pendingReceivables.length} parcelas`}
+          to={ROUTES.RECEIVABLES}
+        />
         <AppStatCard
           title="Vencido"
           value={<AppMoney value={totalOverdue} />}
           icon={AlertTriangle}
           description={`${overdueReceivables.length} parcelas`}
           className={overdueReceivables.length > 0 ? 'border-destructive/20 bg-destructive/5' : ''}
+          to={ROUTES.RECEIVABLES}
         />
         <AppStatCard
           title="Contas a pagar"
@@ -72,6 +90,7 @@ export function DashboardPage() {
           icon={Wallet}
           description="Dívidas da frota"
           className="lg:border-primary/20"
+          to={ROUTES.MACHINE_COSTS}
         />
       </div>
 

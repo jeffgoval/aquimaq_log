@@ -1,4 +1,5 @@
 import { type ReactNode } from 'react'
+import { Link } from 'react-router-dom'
 import { cn } from '@/shared/lib/cn'
 import { type LucideIcon } from 'lucide-react'
 
@@ -10,6 +11,8 @@ interface AppStatCardProps {
   description?: string
   className?: string
   children?: ReactNode
+  /** Quando definido, o card torna-se um link (navegação no clique). */
+  to?: string
 }
 
 export function AppStatCard({
@@ -20,15 +23,18 @@ export function AppStatCard({
   description,
   className,
   children,
+  to,
 }: AppStatCardProps) {
-  return (
-    <div
-      className={cn(
-        'rounded-xl border border-border bg-card p-4 lg:p-5 flex flex-col gap-2 lg:gap-3',
-        'hover:border-primary/30 transition-colors duration-200',
-        className
-      )}
-    >
+  const shellClassName = cn(
+    'rounded-xl border border-border bg-card p-4 lg:p-5 flex flex-col gap-2 lg:gap-3',
+    'hover:border-primary/30 transition-colors duration-200',
+    to &&
+      'cursor-pointer hover:border-primary/40 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 no-underline text-inherit',
+    className
+  )
+
+  const inner = (
+    <>
       <div className="flex items-center justify-between">
         <p className="typo-kpi-label text-xs lg:text-sm">{title}</p>
         {Icon && (
@@ -62,6 +68,16 @@ export function AppStatCard({
       )}
 
       {children}
-    </div>
+    </>
   )
+
+  if (to) {
+    return (
+      <Link to={to} className={shellClassName}>
+        {inner}
+      </Link>
+    )
+  }
+
+  return <div className={shellClassName}>{inner}</div>
 }
