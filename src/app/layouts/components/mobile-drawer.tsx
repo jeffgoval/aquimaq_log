@@ -7,7 +7,7 @@ import { toast } from 'sonner'
 
 const ALL_NAV = [
   { label: 'Dashboard',     href: ROUTES.DASHBOARD,     icon: LayoutDashboard, end: true,  sectionLabel: undefined },
-  { label: 'Tratores',      href: ROUTES.TRACTORS,      icon: Tractor,         end: false, sectionLabel: 'Frota' },
+  { label: 'Tratores',      href: ROUTES.TRACTORS,      icon: Tractor,         end: false },
   { label: 'Guinchos',      href: ROUTES.TRUCKS,        icon: Truck,           end: false, sectionLabel: undefined },
   { label: 'Operadores',    href: ROUTES.OPERATORS,     icon: Users,           end: false },
   { label: 'Clientes',      href: ROUTES.CLIENTS,       icon: Building2,       end: false },

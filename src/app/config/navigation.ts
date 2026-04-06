@@ -24,7 +24,7 @@ export interface NavItem {
 
 export const NAV_ITEMS: NavItem[] = [
   { label: 'Dashboard', href: ROUTES.DASHBOARD, icon: LayoutDashboard },
-  { label: 'Tratores', href: ROUTES.TRACTORS, icon: Tractor, sectionLabel: 'Frota' },
+  { label: 'Tratores', href: ROUTES.TRACTORS, icon: Tractor },
   { label: 'Guinchos', href: ROUTES.TRUCKS, icon: Truck },
   { label: 'Operadores', href: ROUTES.OPERATORS, icon: Users },
   { label: 'Clientes', href: ROUTES.CLIENTS, icon: Building2 },
