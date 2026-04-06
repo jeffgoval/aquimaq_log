@@ -5,7 +5,12 @@ import { PERIOD_PRESET_LABELS } from '../lib/profitability-period'
 
 export type ProfitabilityTab = 'owner' | 'pro'
 
+/** Qual frota está em análise (tratores vs guinchos). */
+export type ProfitabilityFleetTab = 'tractor' | 'truck'
+
 interface Props {
+  fleetTab: ProfitabilityFleetTab
+  onFleetTab: (t: ProfitabilityFleetTab) => void
   tab: ProfitabilityTab
   onTab: (t: ProfitabilityTab) => void
   preset: PeriodPreset
@@ -18,6 +23,8 @@ interface Props {
 }
 
 export const ProfitabilityToolbar = ({
+  fleetTab,
+  onFleetTab,
   tab,
   onTab,
   preset,
@@ -30,34 +37,58 @@ export const ProfitabilityToolbar = ({
 }: Props) => {
   return (
     <div className="mb-6 space-y-4 rounded-xl border border-border bg-card p-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-        <div className="inline-flex rounded-lg border border-border bg-muted/30 p-0.5">
+      <div className="flex flex-col gap-3">
+        <div className="flex w-full max-w-full flex-wrap rounded-lg border border-border bg-muted/30 p-0.5 sm:inline-flex sm:w-fit">
           <button
             type="button"
-            onClick={() => onTab('owner')}
+            onClick={() => onFleetTab('tractor')}
             className={cn(
               'rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
-              tab === 'owner' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground',
+              fleetTab === 'tractor' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground',
             )}
           >
-            Resumo (dono)
+            Tratores
           </button>
           <button
             type="button"
-            onClick={() => onTab('pro')}
+            onClick={() => onFleetTab('truck')}
             className={cn(
               'rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
-              tab === 'pro' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground',
+              fleetTab === 'truck' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground',
             )}
           >
-            Profissional
+            Guinchos
           </button>
         </div>
-        <p className="text-sm text-muted-foreground">
-          Período:
-          {' '}
-          <span className="font-medium text-foreground">{periodSummary}</span>
-        </p>
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+          <div className="flex w-full max-w-full flex-wrap rounded-lg border border-border bg-muted/30 p-0.5 sm:inline-flex sm:w-auto">
+            <button
+              type="button"
+              onClick={() => onTab('owner')}
+              className={cn(
+                'rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
+                tab === 'owner' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground',
+              )}
+            >
+              Resumo (dono)
+            </button>
+            <button
+              type="button"
+              onClick={() => onTab('pro')}
+              className={cn(
+                'rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
+                tab === 'pro' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground',
+              )}
+            >
+              Profissional
+            </button>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Período:
+            {' '}
+            <span className="font-medium text-foreground">{periodSummary}</span>
+          </p>
+        </div>
       </div>
 
       <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:gap-4">

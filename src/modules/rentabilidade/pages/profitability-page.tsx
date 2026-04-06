@@ -5,7 +5,7 @@ import {
   useClientRevenue,
   useFleetSpendByCategory,
 } from '../hooks/use-profitability-queries'
-import { ProfitabilityToolbar, type ProfitabilityTab } from '../components/profitability-toolbar'
+import { ProfitabilityToolbar, type ProfitabilityFleetTab, type ProfitabilityTab } from '../components/profitability-toolbar'
 import { ProfitabilityOwnerPanel } from '../components/profitability-owner-panel'
 import { ProfitabilityProPanel } from '../components/profitability-pro-panel'
 import { AppPageHeader } from '@/shared/components/app/app-page-header'
@@ -34,6 +34,7 @@ function exportFilenameSlug(range: { from: string | null; to: string | null }, p
 }
 
 export function ProfitabilityPage() {
+  const [fleetTab, setFleetTab] = useState<ProfitabilityFleetTab>('tractor')
   const [tab, setTab] = useState<ProfitabilityTab>('owner')
   const [preset, setPreset] = useState<PeriodPreset>('all')
   const [customFrom, setCustomFrom] = useState('')
@@ -72,6 +73,8 @@ export function ProfitabilityPage() {
       />
 
       <ProfitabilityToolbar
+        fleetTab={fleetTab}
+        onFleetTab={setFleetTab}
         tab={tab}
         onTab={setTab}
         preset={preset}
@@ -92,6 +95,7 @@ export function ProfitabilityPage() {
         <>
           {tab === 'owner' ? (
             <ProfitabilityOwnerPanel
+              fleetTab={fleetTab}
               tractors={tractorQ.data ?? []}
               trucks={truckQ.data ?? []}
               clients={clientQ.data ?? []}
@@ -101,6 +105,7 @@ export function ProfitabilityPage() {
             />
           ) : (
             <ProfitabilityProPanel
+              fleetTab={fleetTab}
               tractors={tractorQ.data ?? []}
               trucks={truckQ.data ?? []}
               clients={clientQ.data ?? []}

@@ -21,8 +21,10 @@ import { cn } from '@/shared/lib/cn'
 import type { TractorProfitabilityRow } from '../services/profitability.repository'
 import type { ClientRevenueRow, TruckProfitabilityRow, Views } from '@/integrations/supabase/db-types'
 import { clientsToCsv, downloadUtf8Csv, tractorsToCsv, trucksToCsv } from '../lib/profitability-export-csv'
+import type { ProfitabilityFleetTab } from './profitability-toolbar'
 
 interface Props {
+  fleetTab: ProfitabilityFleetTab
   tractors: TractorProfitabilityRow[]
   trucks: TruckProfitabilityRow[]
   clients: ClientRevenueRow[]
@@ -33,6 +35,7 @@ interface Props {
 }
 
 export const ProfitabilityProPanel = ({
+  fleetTab,
   tractors,
   trucks,
   clients,
@@ -74,75 +77,118 @@ export const ProfitabilityProPanel = ({
 
   const totalBilledClients = clients.reduce((s, c) => s + Number(c.total_billed), 0)
 
-  const exportAll = () => {
+  const exportTractorBundle = () => {
     const stamp = exportSlug
     downloadUtf8Csv(`rentabilidade-tratores-${stamp}.csv`, tractorsToCsv(tractors))
-    if (trucks.length) downloadUtf8Csv(`rentabilidade-guinchos-${stamp}.csv`, trucksToCsv(trucks))
     downloadUtf8Csv(`rentabilidade-clientes-${stamp}.csv`, clientsToCsv(clients))
+  }
+
+  const exportTrucksOnly = () => {
+    downloadUtf8Csv(`rentabilidade-guinchos-${exportSlug}.csv`, trucksToCsv(trucks))
   }
 
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <AppButton type="button" variant="secondary" size="sm" onClick={exportAll} className="gap-2">
-          <Download className="h-4 w-4" />
-          Exportar CSV (tratores, guinchos, clientes)
-        </AppButton>
+        {fleetTab === 'tractor' ? (
+          <AppButton type="button" variant="secondary" size="sm" onClick={exportTractorBundle} className="gap-2">
+            <Download className="h-4 w-4" />
+            Exportar CSV (tratores e clientes)
+          </AppButton>
+        ) : (
+          <AppButton type="button" variant="secondary" size="sm" onClick={exportTrucksOnly} className="gap-2">
+            <Download className="h-4 w-4" />
+            Exportar CSV (guinchos)
+          </AppButton>
+        )}
       </div>
 
-      <details className="rounded-xl border border-border bg-card p-4 group">
-        <summary className="cursor-pointer text-sm font-semibold text-foreground list-none flex items-center justify-between">
-          Glossário e bases de cálculo (contador / analista)
-          <span className="text-muted-foreground text-xs font-normal group-open:hidden">Abrir</span>
-          <span className="text-muted-foreground text-xs font-normal hidden group-open:inline">Fechar</span>
-        </summary>
-        <ul className="mt-3 space-y-2 text-sm text-muted-foreground list-disc pl-5">
-          <li>
-            <strong className="text-foreground">Período:</strong>
-            {' '}
-            receita e apontamentos filtrados pela
-            {' '}
-            <strong className="text-foreground">data do serviço</strong>
-            ; custos de máquina pela
-            {' '}
-            <strong className="text-foreground">data do lançamento</strong>
-            .
-          </li>
-          <li>
-            <strong className="text-foreground">Receita bruta:</strong>
-            {' '}
-            soma de parcelas (contas a receber) não canceladas, ligadas a serviços no período.
-          </li>
-          <li>
-            <strong className="text-foreground">Custo máquina / horas (trator):</strong>
-            {' '}
-            horas trabalhadas × custo/hora padrão do equipamento (derivado de compra, residual e vida útil em horas).
-          </li>
-          <li>
-            <strong className="text-foreground">Depreciação gerencial (guincho):</strong>
-            {' '}
-            km × (compra − residual) / vida útil em km.
-          </li>
-          <li>
-            <strong className="text-foreground">CPH:</strong>
-            {' '}
-            custo total por hora (custo máquina + operacional + mão de obra) / horas.
-          </li>
-          <li>
-            <strong className="text-foreground">Recuperação do investimento:</strong>
-            {' '}
-            lucro gerencial acumulado no período face à
-            {' '}
-            <strong className="text-foreground">base depreciável (compra − residual)</strong>
-            . Não equivale a fluxo de caixa nem a lucro fiscal.
-          </li>
-        </ul>
-      </details>
+      {fleetTab === 'tractor' ? (
+        <details className="rounded-xl border border-border bg-card p-4 group">
+          <summary className="cursor-pointer text-sm font-semibold text-foreground list-none flex items-center justify-between">
+            Glossário e bases de cálculo — tratores
+            <span className="text-muted-foreground text-xs font-normal group-open:hidden">Abrir</span>
+            <span className="text-muted-foreground text-xs font-normal hidden group-open:inline">Fechar</span>
+          </summary>
+          <ul className="mt-3 space-y-2 text-sm text-muted-foreground list-disc pl-5">
+            <li>
+              <strong className="text-foreground">Período:</strong>
+              {' '}
+              receita e apontamentos filtrados pela
+              {' '}
+              <strong className="text-foreground">data do serviço</strong>
+              ; custos de máquina pela
+              {' '}
+              <strong className="text-foreground">data do lançamento</strong>
+              .
+            </li>
+            <li>
+              <strong className="text-foreground">Receita bruta:</strong>
+              {' '}
+              soma de parcelas (contas a receber) não canceladas, ligadas a serviços no período.
+            </li>
+            <li>
+              <strong className="text-foreground">Custo máquina / horas:</strong>
+              {' '}
+              horas trabalhadas × custo/hora padrão do equipamento (derivado de compra, residual e vida útil em horas).
+            </li>
+            <li>
+              <strong className="text-foreground">CPH:</strong>
+              {' '}
+              custo total por hora (custo máquina + operacional + mão de obra) / horas.
+            </li>
+            <li>
+              <strong className="text-foreground">Recuperação do investimento:</strong>
+              {' '}
+              lucro gerencial acumulado no período face à
+              {' '}
+              <strong className="text-foreground">base depreciável (compra − residual)</strong>
+              . Não equivale a fluxo de caixa nem a lucro fiscal.
+            </li>
+          </ul>
+        </details>
+      ) : (
+        <details className="rounded-xl border border-border bg-card p-4 group">
+          <summary className="cursor-pointer text-sm font-semibold text-foreground list-none flex items-center justify-between">
+            Glossário e bases de cálculo — guinchos
+            <span className="text-muted-foreground text-xs font-normal group-open:hidden">Abrir</span>
+            <span className="text-muted-foreground text-xs font-normal hidden group-open:inline">Fechar</span>
+          </summary>
+          <ul className="mt-3 space-y-2 text-sm text-muted-foreground list-disc pl-5">
+            <li>
+              <strong className="text-foreground">Período:</strong>
+              {' '}
+              receita e apontamentos (km) pela
+              {' '}
+              <strong className="text-foreground">data do serviço</strong>
+              ; custos de máquina pela
+              {' '}
+              <strong className="text-foreground">data do lançamento</strong>
+              .
+            </li>
+            <li>
+              <strong className="text-foreground">Receita bruta:</strong>
+              {' '}
+              parcelas de serviços com guincho associado, no período.
+            </li>
+            <li>
+              <strong className="text-foreground">Depreciação gerencial:</strong>
+              {' '}
+              km × (compra − residual) / vida útil em km.
+            </li>
+            <li>
+              <strong className="text-foreground">Custo/km médio:</strong>
+              {' '}
+              (depreciação + custos operacionais + mão de obra no período) / km rodados.
+            </li>
+          </ul>
+        </details>
+      )}
 
-      {totals.hours > 0 || totals.revenue > 0 ? (
+      {fleetTab === 'tractor' && (totals.hours > 0 || totals.revenue > 0 ? (
         <div>
           <h2 className="typo-section-label mb-3">Frota tratores — indicadores</h2>
-          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
             <AppStatCard title="Receita bruta" value={<AppMoney value={totals.revenue} />} icon={DollarSign} />
             <AppStatCard
               title="Custos totais"
@@ -161,12 +207,12 @@ export const ProfitabilityProPanel = ({
             />
           </div>
         </div>
-      ) : null}
+      ) : null)}
 
-      {trucks.length > 0 && (truckTotals.km > 0 || truckTotals.revenue > 0) ? (
+      {fleetTab === 'truck' && trucks.length > 0 && (truckTotals.km > 0 || truckTotals.revenue > 0 ? (
         <div>
           <h2 className="typo-section-label mb-3">Frota guinchos — indicadores</h2>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <AppStatCard title="Receita bruta" value={<AppMoney value={truckTotals.revenue} />} icon={DollarSign} />
             <AppStatCard title="Margem líquida" value={<AppMoney value={truckTotals.margin} colored />} icon={TrendingUp} />
             <AppStatCard title="KM no período" value={`${truckTotals.km.toFixed(1)} km`} icon={Truck} />
@@ -178,42 +224,165 @@ export const ProfitabilityProPanel = ({
             />
           </div>
         </div>
-      ) : null}
+      ) : null)}
 
-      {fleetSpendError ? (
-        <p className="typo-body text-destructive rounded-lg border border-destructive/25 bg-destructive/5 px-4 py-3">
-          Não foi possível carregar o gráfico de gastos por categoria.
-        </p>
-      ) : (
-        <FleetSpendCategoryChart row={fleetSpend} isLoading={fleetSpendLoading} />
+      {fleetTab === 'tractor' && (
+        <>
+          {fleetSpendError ? (
+            <p className="typo-body text-destructive rounded-lg border border-destructive/25 bg-destructive/5 px-4 py-3">
+              Não foi possível carregar o gráfico de gastos por categoria.
+            </p>
+          ) : (
+            <FleetSpendCategoryChart row={fleetSpend} isLoading={fleetSpendLoading} />
+          )}
+
+          <div className="mb-8">
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+              <h2 className="typo-section-label">Análise por máquina — tratores</h2>
+              <AppButton
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="gap-1"
+                onClick={() => downloadUtf8Csv(`rentabilidade-tratores-${exportSlug}.csv`, tractorsToCsv(tractors))}
+              >
+                <Download className="h-3.5 w-3.5" />
+                CSV
+              </AppButton>
+            </div>
+            {!tractors.length ? (
+              <AppEmptyState title="Sem tratores" description="Cadastre tratores e lance serviços no período." />
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {tractors.map((t) => (
+                  <ProfitabilityTractorProCard key={t.tractor_id ?? ''} t={t} />
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div>
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+              <h2 className="typo-section-label">Concentração de receita por cliente</h2>
+              <AppButton
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="gap-1"
+                onClick={() => downloadUtf8Csv(`rentabilidade-clientes-${exportSlug}.csv`, clientsToCsv(clients))}
+              >
+                <Download className="h-3.5 w-3.5" />
+                CSV
+              </AppButton>
+            </div>
+            <p className="typo-caption text-muted-foreground mb-4">
+              Parcelas de serviços com data no período selecionado. Identifica dependência de faturamento e risco de inadimplência.
+            </p>
+
+            {!clients.filter((c) => Number(c.total_billed) > 0).length ? (
+              <AppEmptyState title="Sem dados de clientes" description="Não há faturamento no período." />
+            ) : (
+              <div className="rounded-xl border border-border bg-card overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-border bg-muted/40 text-left">
+                        <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide">Cliente</th>
+                        <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide text-right">Serviços</th>
+                        <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide text-right">Faturado</th>
+                        <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide text-right">Recebido</th>
+                        <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide text-right">Pendente</th>
+                        <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide">Participação</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {clients
+                        .filter((c) => Number(c.total_billed) > 0)
+                        .map((c) => {
+                          const billed = Number(c.total_billed)
+                          const received = Number(c.total_received)
+                          const pending = Number(c.total_pending)
+                          const overdue = Number(c.total_overdue)
+                          const sharePercent = totalBilledClients > 0 ? (billed / totalBilledClients) * 100 : 0
+
+                          return (
+                            <tr key={c.client_id ?? ''} className="border-b border-border last:border-0 hover:bg-muted/20 transition-colors">
+                              <td className="px-4 py-3">
+                                <div className="flex items-center gap-2">
+                                  <div className="h-7 w-7 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                                    <Building2 className="h-3.5 w-3.5 text-primary" />
+                                  </div>
+                                  <div>
+                                    <p className="font-semibold text-foreground">{c.client_name}</p>
+                                    {overdue > 0 && (
+                                      <p className="flex items-center gap-0.5 text-xs text-destructive font-medium mt-0.5">
+                                        <AlertTriangle className="h-3 w-3" />
+                                        <AppMoney value={overdue} size="sm" />
+                                        {' '}
+                                        vencido
+                                      </p>
+                                    )}
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="px-4 py-3 text-right tabular-nums text-muted-foreground">
+                                {Number(c.service_count)}
+                              </td>
+                              <td className="px-4 py-3 text-right tabular-nums font-semibold">
+                                <AppMoney value={billed} size="sm" />
+                              </td>
+                              <td className="px-4 py-3 text-right tabular-nums text-green-800 dark:text-green-400 font-medium">
+                                <AppMoney value={received} size="sm" />
+                              </td>
+                              <td className="px-4 py-3 text-right tabular-nums">
+                                <span className={cn('font-medium', pending > 0 ? 'text-amber-800 dark:text-amber-400' : 'text-muted-foreground')}>
+                                  <AppMoney value={pending} size="sm" />
+                                </span>
+                              </td>
+                              <td className="px-4 py-3 min-w-[140px]">
+                                <div className="flex items-center gap-2">
+                                  <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
+                                    <div
+                                      className="h-full rounded-full bg-primary transition-all duration-500"
+                                      style={{ width: `${Math.min(sharePercent, 100)}%` }}
+                                    />
+                                  </div>
+                                  <span className="tabular-nums text-xs font-semibold w-10 text-right text-muted-foreground">
+                                    {sharePercent.toFixed(1)}
+                                    %
+                                  </span>
+                                </div>
+                              </td>
+                            </tr>
+                          )
+                        })}
+                    </tbody>
+                    {totalBilledClients > 0 && (
+                      <tfoot>
+                        <tr className="border-t border-border bg-muted/30">
+                          <td className="px-4 py-2 font-semibold text-xs uppercase tracking-wide" colSpan={2}>Total</td>
+                          <td className="px-4 py-2 text-right font-bold tabular-nums">
+                            <AppMoney value={totalBilledClients} size="sm" />
+                          </td>
+                          <td className="px-4 py-2 text-right font-semibold tabular-nums text-green-800 dark:text-green-400">
+                            <AppMoney value={clients.reduce((s, c) => s + Number(c.total_received), 0)} size="sm" />
+                          </td>
+                          <td className="px-4 py-2 text-right font-semibold tabular-nums text-amber-800 dark:text-amber-400">
+                            <AppMoney value={clients.reduce((s, c) => s + Number(c.total_pending), 0)} size="sm" />
+                          </td>
+                          <td className="px-4 py-2 text-xs text-muted-foreground">100%</td>
+                        </tr>
+                      </tfoot>
+                    )}
+                  </table>
+                </div>
+              </div>
+            )}
+          </div>
+        </>
       )}
 
-      <div className="mb-8">
-        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-          <h2 className="typo-section-label">Análise por máquina — tratores</h2>
-          <AppButton
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="gap-1"
-            onClick={() => downloadUtf8Csv(`rentabilidade-tratores-${exportSlug}.csv`, tractorsToCsv(tractors))}
-          >
-            <Download className="h-3.5 w-3.5" />
-            CSV
-          </AppButton>
-        </div>
-        {!tractors.length ? (
-          <AppEmptyState title="Sem tratores" description="Cadastre tratores e lance serviços no período." />
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            {tractors.map((t) => (
-              <ProfitabilityTractorProCard key={t.tractor_id ?? ''} t={t} />
-            ))}
-          </div>
-        )}
-      </div>
-
-      {trucks.length > 0 && (
+      {fleetTab === 'truck' && (
         <div className="mb-8">
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
             <h2 className="typo-section-label">Análise por máquina — guinchos</h2>
@@ -228,132 +397,17 @@ export const ProfitabilityProPanel = ({
               CSV
             </AppButton>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            {trucks.map((t) => (
-              <ProfitabilityTruckProCard key={t.truck_id} t={t} />
-            ))}
-          </div>
+          {!trucks.length ? (
+            <AppEmptyState title="Sem guinchos" description="Cadastre caminhões e lance serviços no período." />
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {trucks.map((t) => (
+                <ProfitabilityTruckProCard key={t.truck_id} t={t} />
+              ))}
+            </div>
+          )}
         </div>
       )}
-
-      <div>
-        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-          <h2 className="typo-section-label">Concentração de receita por cliente</h2>
-          <AppButton
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="gap-1"
-            onClick={() => downloadUtf8Csv(`rentabilidade-clientes-${exportSlug}.csv`, clientsToCsv(clients))}
-          >
-            <Download className="h-3.5 w-3.5" />
-            CSV
-          </AppButton>
-        </div>
-        <p className="typo-caption text-muted-foreground mb-4">
-          Parcelas de serviços com data no período selecionado. Identifica dependência de faturamento e risco de inadimplência.
-        </p>
-
-        {!clients.filter((c) => Number(c.total_billed) > 0).length ? (
-          <AppEmptyState title="Sem dados de clientes" description="Não há faturamento no período." />
-        ) : (
-          <div className="rounded-xl border border-border bg-card overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-border bg-muted/40 text-left">
-                    <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide">Cliente</th>
-                    <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide text-right">Serviços</th>
-                    <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide text-right">Faturado</th>
-                    <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide text-right">Recebido</th>
-                    <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide text-right">Pendente</th>
-                    <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide">Participação</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {clients
-                    .filter((c) => Number(c.total_billed) > 0)
-                    .map((c) => {
-                      const billed = Number(c.total_billed)
-                      const received = Number(c.total_received)
-                      const pending = Number(c.total_pending)
-                      const overdue = Number(c.total_overdue)
-                      const sharePercent = totalBilledClients > 0 ? (billed / totalBilledClients) * 100 : 0
-
-                      return (
-                        <tr key={c.client_id ?? ''} className="border-b border-border last:border-0 hover:bg-muted/20 transition-colors">
-                          <td className="px-4 py-3">
-                            <div className="flex items-center gap-2">
-                              <div className="h-7 w-7 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                                <Building2 className="h-3.5 w-3.5 text-primary" />
-                              </div>
-                              <div>
-                                <p className="font-semibold text-foreground">{c.client_name}</p>
-                                {overdue > 0 && (
-                                  <p className="flex items-center gap-0.5 text-xs text-destructive font-medium mt-0.5">
-                                    <AlertTriangle className="h-3 w-3" />
-                                    <AppMoney value={overdue} size="sm" />
-                                    {' '}
-                                    vencido
-                                  </p>
-                                )}
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-4 py-3 text-right tabular-nums text-muted-foreground">
-                            {Number(c.service_count)}
-                          </td>
-                          <td className="px-4 py-3 text-right tabular-nums font-semibold">
-                            <AppMoney value={billed} size="sm" />
-                          </td>
-                          <td className="px-4 py-3 text-right tabular-nums text-green-800 dark:text-green-400 font-medium">
-                            <AppMoney value={received} size="sm" />
-                          </td>
-                          <td className="px-4 py-3 text-right tabular-nums">
-                            <span className={cn('font-medium', pending > 0 ? 'text-amber-800 dark:text-amber-400' : 'text-muted-foreground')}>
-                              <AppMoney value={pending} size="sm" />
-                            </span>
-                          </td>
-                          <td className="px-4 py-3 min-w-[140px]">
-                            <div className="flex items-center gap-2">
-                              <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
-                                <div
-                                  className="h-full rounded-full bg-primary transition-all duration-500"
-                                  style={{ width: `${Math.min(sharePercent, 100)}%` }}
-                                />
-                              </div>
-                              <span className="tabular-nums text-xs font-semibold w-10 text-right text-muted-foreground">
-                                {sharePercent.toFixed(1)}
-                                %
-                              </span>
-                            </div>
-                          </td>
-                        </tr>
-                      )
-                    })}
-                </tbody>
-                {totalBilledClients > 0 && (
-                  <tfoot>
-                    <tr className="border-t border-border bg-muted/30">
-                      <td className="px-4 py-2 font-semibold text-xs uppercase tracking-wide" colSpan={2}>Total</td>
-                      <td className="px-4 py-2 text-right font-bold tabular-nums">
-                        <AppMoney value={totalBilledClients} size="sm" />
-                      </td>
-                      <td className="px-4 py-2 text-right font-semibold tabular-nums text-green-800 dark:text-green-400">
-                        <AppMoney value={clients.reduce((s, c) => s + Number(c.total_received), 0)} size="sm" />
-                      </td>
-                      <td className="px-4 py-2 text-right font-semibold tabular-nums text-amber-800 dark:text-amber-400">
-                        <AppMoney value={clients.reduce((s, c) => s + Number(c.total_pending), 0)} size="sm" />
-                      </td>
-                      <td className="px-4 py-2 text-xs text-muted-foreground">100%</td>
-                    </tr>
-                  </tfoot>
-                )}
-              </table>
-            </div>
-          </div>
-        )}
-      </div>
     </div>
   )
 }

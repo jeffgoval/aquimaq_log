@@ -33,7 +33,7 @@ export function OperatorDetailPage() {
         }
       />
       {ledger && (
-        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+        <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
           <AppStatCard title="Horas Trabalhadas" value={`${Number(ledger.total_hours_worked).toFixed(1)}h`} icon={Clock} />
           <AppStatCard title="Total a Ganhar" value={<AppMoney value={Number(ledger.total_earned)} />} icon={DollarSign} />
           <AppStatCard title="Vales / adiantamentos" value={<AppMoney value={Number(ledger.total_advances)} />} icon={ArrowUpRight} />
@@ -49,7 +49,7 @@ export function OperatorDetailPage() {
 
       <div className="rounded-xl border border-border bg-card p-6 mt-6">
         <h2 className="typo-section-title mb-4">Dados</h2>
-        <dl className="grid grid-cols-2 gap-4 text-sm">
+        <dl className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
           {[
             { label: 'CNH', value: operator.document || '—' },
             { label: 'Telefone', value: operator.phone || '—' },

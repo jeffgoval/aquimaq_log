@@ -71,9 +71,15 @@ export const ProfitabilityTruckProCard = ({ t }: Props) => {
                   </p>
                 </div>
                 <div className="min-w-0">
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Custo/km</p>
-                  <p className="text-sm font-bold tabular-nums text-foreground">
-                    <AppMoney value={cpk} size="sm" />
+                  <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-800 dark:text-zinc-200">
+                    Custo/km
+                  </p>
+                  <p className="text-sm font-bold tabular-nums">
+                    <AppMoney
+                      value={cpk}
+                      size="sm"
+                      className="font-semibold text-slate-950 dark:text-zinc-50"
+                    />
                   </p>
                 </div>
                 <div className="min-w-0">

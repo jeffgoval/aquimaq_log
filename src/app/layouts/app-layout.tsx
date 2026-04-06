@@ -14,8 +14,8 @@ export function AppLayout() {
         {/* Header Mobile — Somente acima do mobile nav */}
         <MobileHeader />
 
-        <main className="flex-1 overflow-y-auto px-4 pt-20 pb-24 lg:pt-8 lg:pb-8">
-          <div className="max-w-7xl mx-auto">
+        <main className="flex-1 min-h-0 min-w-0 overflow-y-auto overflow-x-hidden px-4 pt-20 pb-24 lg:pt-8 lg:pb-8">
+          <div className="mx-auto w-full min-w-0 max-w-7xl">
             <Outlet />
           </div>
         </main>

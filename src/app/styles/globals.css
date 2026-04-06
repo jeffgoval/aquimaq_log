@@ -169,10 +169,10 @@
    * display > página > secção > corpo > legenda / dados densos
    */
   .typo-page-title {
-    @apply text-xl font-bold tracking-tight text-foreground leading-tight sm:text-2xl lg:text-3xl;
+    @apply min-w-0 break-words text-xl font-bold tracking-tight text-foreground leading-tight sm:text-2xl lg:text-3xl;
   }
   .typo-page-description {
-    @apply mt-1 text-sm text-muted-foreground leading-relaxed sm:text-base sm:leading-relaxed max-w-2xl;
+    @apply mt-1 min-w-0 text-sm text-muted-foreground leading-relaxed sm:text-base sm:leading-relaxed max-w-2xl break-words;
   }
   .typo-section-title {
     @apply text-base font-semibold text-foreground tracking-tight sm:text-lg;

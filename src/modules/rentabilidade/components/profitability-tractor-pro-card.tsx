@@ -71,13 +71,13 @@ export const ProfitabilityTractorProCard = ({ t }: Props) => {
                   : 'bg-destructive/8 border border-destructive/20',
               )}
             >
-              <p className="flex items-center justify-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              <p className="flex items-center justify-center gap-1.5 text-xs font-bold uppercase tracking-wide text-slate-900 dark:text-zinc-100">
                 <span>Análise por hora trabalhada</span>
                 <span
                   className="inline-flex shrink-0"
                   title="Receita/h, CPH (custo por hora) e spread/h. Ver glossário na aba Profissional."
                 >
-                  <Info className="h-3.5 w-3.5 text-muted-foreground/70" aria-hidden />
+                  <Info className="h-3.5 w-3.5 text-slate-700 dark:text-zinc-300" aria-hidden />
                 </span>
               </p>
               <div className="grid grid-cols-3 gap-2 text-center">
@@ -85,44 +85,60 @@ export const ProfitabilityTractorProCard = ({ t }: Props) => {
                   className="min-w-0 rounded-md px-0.5 py-0.5"
                   title="Receita por hora: faturamento do trator ÷ horas no período."
                 >
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Receita/h</p>
-                  <p
-                    className={cn(
-                      'text-sm font-bold tabular-nums',
-                      isCphOk ? 'text-green-800 dark:text-green-400' : 'text-destructive',
-                    )}
-                  >
-                    <AppMoney value={revPerHour} size="sm" />
+                  <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-800 dark:text-zinc-200">
+                    Receita/h
+                  </p>
+                  <p className="text-sm font-bold tabular-nums">
+                    <AppMoney
+                      value={revPerHour}
+                      size="sm"
+                      className={cn(
+                        'font-semibold',
+                        isCphOk ? 'text-emerald-950 dark:text-green-300' : 'text-red-800 dark:text-red-400',
+                      )}
+                    />
                   </p>
                 </div>
                 <div
                   className="min-w-0 rounded-md px-0.5 py-0.5"
                   title="CPH: depreciação gerencial + operacional + mão de obra, por hora."
                 >
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wide">CPH</p>
-                  <p className="text-sm font-bold tabular-nums text-foreground">
-                    <AppMoney value={cph} size="sm" />
+                  <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-800 dark:text-zinc-200">
+                    CPH
+                  </p>
+                  <p className="text-sm font-bold tabular-nums">
+                    <AppMoney
+                      value={cph}
+                      size="sm"
+                      className="font-semibold text-slate-950 dark:text-zinc-50"
+                    />
                   </p>
                 </div>
                 <div
                   className="min-w-0 rounded-md px-0.5 py-0.5"
                   title="Spread/h: receita/h − CPH."
                 >
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Spread/h</p>
-                  <p
-                    className={cn(
-                      'text-sm font-bold tabular-nums',
-                      isCphOk ? 'text-green-800 dark:text-green-400' : 'text-destructive',
-                    )}
-                  >
-                    <AppMoney value={revPerHour - cph} size="sm" />
+                  <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-800 dark:text-zinc-200">
+                    Spread/h
+                  </p>
+                  <p className="text-sm font-bold tabular-nums">
+                    <AppMoney
+                      value={revPerHour - cph}
+                      size="sm"
+                      className={cn(
+                        'font-semibold',
+                        isCphOk ? 'text-emerald-950 dark:text-green-300' : 'text-red-800 dark:text-red-400',
+                      )}
+                    />
                   </p>
                 </div>
               </div>
               <p
                 className={cn(
-                  'text-xs font-medium leading-snug',
-                  isCphOk ? 'text-green-800 dark:text-green-400' : 'text-destructive',
+                  'text-xs font-semibold leading-snug',
+                  isCphOk
+                    ? 'text-emerald-950 dark:text-green-100'
+                    : 'text-destructive',
                 )}
               >
                 {isCphOk

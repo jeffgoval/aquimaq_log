@@ -40,7 +40,7 @@ export function AppPageHeader({
           {description && <p className="typo-page-description">{description}</p>}
         </div>
         {actions && (
-          <div className="flex items-center gap-2 lg:gap-3 shrink-0">
+          <div className="flex w-full min-w-0 max-w-full flex-wrap items-stretch gap-2 sm:w-auto sm:items-center sm:shrink-0 lg:gap-3">
             {actions}
           </div>
         )}

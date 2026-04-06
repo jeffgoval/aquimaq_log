@@ -103,7 +103,7 @@ export function ServiceDetailPage() {
         title={service.clients?.name ?? 'Serviço'}
         description={`${service.tractors?.name || service.trucks?.name || ''} · ${dayjs(service.service_date).format('DD/MM/YYYY')}`}
         actions={
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex min-w-0 max-w-full flex-wrap items-center gap-2">
             <ServiceVoucherPdfButton service={service} worklogs={worklogs ?? []} summary={summary} />
             {service.truck_id ? (
               <SimpleReceiptPdfButton service={service} billingNet={billingNet} />
@@ -142,7 +142,7 @@ export function ServiceDetailPage() {
               ? 'Faturação: valor fixo contratado; desconto do dono (se houver) só reduz o valor a cobrar ao cliente.'
               : 'Faturação: taxa contratada × horas; desconto do dono (se houver) só reduz o valor a cobrar ao cliente. Custo do operador vem da taxa de cada apontamento.'}
         </p>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5">
           <div className="rounded-xl border border-border bg-card p-4">
             <p className="typo-caption mb-1">{quantityUnit === 'km' ? 'KM totais' : 'Horas totais'}</p>
             <p className="typo-body font-semibold tabular-nums">
@@ -185,7 +185,7 @@ export function ServiceDetailPage() {
               : <p className="typo-body-muted text-sm">—</p>}
           </div>
           <div className={cn(
-            'rounded-xl border bg-card p-4 col-span-2 md:col-span-3 lg:col-span-1',
+            'rounded-xl border bg-card p-4 sm:col-span-2 md:col-span-3 xl:col-span-1',
             marginTotal !== 0 || totalQuantity > 0 ? 'border-green-200 dark:border-green-500/25' : 'border-border',
           )}
           >
@@ -264,7 +264,7 @@ export function ServiceDetailPage() {
 
       <div className="rounded-xl border border-border bg-card p-6">
         <h2 className="typo-section-title mb-3">Dados do serviço</h2>
-        <dl className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 typo-body">
+        <dl className="grid grid-cols-1 gap-4 typo-body sm:grid-cols-2 lg:grid-cols-4">
           {[
             service.tractor_id ? {
               label: 'Operadores (horímetro)',
