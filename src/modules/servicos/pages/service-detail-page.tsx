@@ -22,6 +22,7 @@ import { ServiceOperatorPaymentPanel } from '../components/service-operator-paym
 import { ServiceOwnerDiscountCard } from '../components/service-owner-discount-card'
 import { ReceiptViewButton } from '@/shared/components/receipts'
 import { ServiceVoucherPdfButton } from '../components/service-voucher-pdf-button'
+import { SimpleReceiptPdfButton } from '../components/simple-receipt-pdf-button'
 
 const LaborOperatorsInService = ({ attribution }: { attribution: LaborOperatorAttribution }) => {
   if (attribution.kind === 'none') {
@@ -104,6 +105,9 @@ export function ServiceDetailPage() {
         actions={
           <div className="flex flex-wrap items-center gap-2">
             <ServiceVoucherPdfButton service={service} worklogs={worklogs ?? []} summary={summary} />
+            {service.truck_id ? (
+              <SimpleReceiptPdfButton service={service} billingNet={billingNet} />
+            ) : null}
             <Link
               to={ROUTES.SERVICE_EDIT(service.id)}
               className="flex items-center gap-2 bg-secondary text-foreground font-medium px-4 py-2 rounded-lg hover:bg-secondary/70 transition-colors text-sm"
@@ -222,6 +226,41 @@ export function ServiceDetailPage() {
         laborOperatorAttribution={laborOperatorAttribution}
         operatorCostTotal={operatorCostTotal}
       />
+
+      {service.truck_id && billingNet > 0 && laborOperatorAttribution.kind !== 'none' && (
+        <div className="rounded-xl border border-purple-200 dark:border-purple-500/30 bg-purple-500/5 p-6 space-y-3">
+          <h2 className="typo-section-title mb-1">Comissão do operador</h2>
+          <p className="typo-body-muted text-sm">
+            Sugestão de comissão sobre o frete líquido de{' '}
+            <span className="font-semibold text-foreground"><AppMoney value={billingNet} size="sm" /></span>.
+            Registre o pagamento na ficha do operador.
+          </p>
+          <div className="flex flex-wrap gap-3 text-sm">
+            {[5, 10, 15, 20].map((pct) => (
+              <div key={pct} className="rounded-lg border border-purple-200 dark:border-purple-500/30 bg-card px-3 py-2">
+                <p className="text-xs text-muted-foreground">{pct}%</p>
+                <p className="font-semibold tabular-nums">
+                  <AppMoney value={billingNet * pct / 100} size="sm" />
+                </p>
+              </div>
+            ))}
+          </div>
+          {laborOperatorAttribution.kind === 'single' && (
+            <p className="text-xs text-muted-foreground">
+              Operador:{' '}
+              <Link to={ROUTES.OPERATOR_DETAIL(laborOperatorAttribution.operatorId)} className="text-primary hover:underline">
+                {laborOperatorAttribution.operatorName}
+              </Link>
+              {' '}— use o formulário de comissão na ficha do operador para registrar o valor.
+            </p>
+          )}
+          {laborOperatorAttribution.kind === 'multiple' && (
+            <p className="text-xs text-muted-foreground">
+              Múltiplos operadores — acesse a ficha de cada um para registrar a comissão individualmente.
+            </p>
+          )}
+        </div>
+      )}
 
       <div className="rounded-xl border border-border bg-card p-6">
         <h2 className="typo-section-title mb-3">Dados do serviço</h2>
