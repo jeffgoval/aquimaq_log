@@ -2,8 +2,11 @@ import { useEffect } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useForm, Controller, type Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { UnsavedChangesBanner } from '@/shared/components/app/unsaved-changes-banner'
+import { useUnsavedWarning } from '@/shared/hooks/use-unsaved-warning'
 import { clientSchema, type ClientInput } from '../schemas/client.schema'
 import { useClient, useUpdateClient } from '../hooks/use-client-queries'
+import { normalizeClientName } from '../lib/client-name'
 import { ROUTES } from '@/shared/constants/routes'
 import { AppPageHeader } from '@/shared/components/app/app-page-header'
 import { AppButton } from '@/shared/components/app/app-button'
@@ -26,7 +29,8 @@ export function ClientEditPage() {
     resolver: zodResolver(clientSchema) as Resolver<ClientInput>,
     defaultValues: { name: '', is_active: true },
   })
-  const { register, control, formState: { errors }, reset } = form
+  const { register, control, formState: { errors, isDirty }, reset } = form
+  useUnsavedWarning(isDirty)
 
   useEffect(() => {
     if (!client) return
@@ -43,7 +47,7 @@ export function ClientEditPage() {
   const onSubmit = form.handleSubmit(async (v) => {
     if (!id) return
     await update.mutateAsync({
-      name: v.name.trim(),
+      name: normalizeClientName(v.name),
       document: nullIfEmpty(v.document),
       phone: nullIfEmpty(v.phone),
       email: v.email?.trim() ? v.email.trim() : null,
@@ -65,6 +69,7 @@ export function ClientEditPage() {
         title="Editar Cliente"
         description={client?.name}
       />
+      <UnsavedChangesBanner isDirty={isDirty} className="mb-4" />
       <form onSubmit={onSubmit} className="space-y-6">
         <div className="rounded-xl border border-border bg-card p-6 space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

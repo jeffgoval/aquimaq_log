@@ -3,6 +3,7 @@ import { useForm, Controller, type Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { clientSchema, type ClientInput } from '../schemas/client.schema'
 import { useCreateClient } from '../hooks/use-client-queries'
+import { normalizeClientName } from '../lib/client-name'
 import { ROUTES } from '@/shared/constants/routes'
 import { AppPageHeader } from '@/shared/components/app/app-page-header'
 import { AppButton } from '@/shared/components/app/app-button'
@@ -21,7 +22,10 @@ export function ClientCreatePage() {
   const { register, control, formState: { errors } } = form
 
   const onSubmit = form.handleSubmit(async (v) => {
-    const created = await create.mutateAsync(v)
+    const created = await create.mutateAsync({
+      ...v,
+      name: normalizeClientName(v.name),
+    })
     const state = (location.state ?? {}) as ReturnState
     if (state.returnTo) {
       navigate(state.returnTo, { replace: true, state: { newClientId: created.id, draftKey: state.draftKey } })
