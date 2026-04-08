@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useForm, Controller, type Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -70,17 +70,19 @@ export const OperatorLedgerSection = ({ operatorId }: OperatorLedgerSectionProps
   const editForm = useForm<OperatorLedgerMovementInput>({
     resolver: zodResolver(operatorLedgerMovementSchema) as Resolver<OperatorLedgerMovementInput>,
     defaultValues: makeDefaults('advance'),
-    values: editingRow
-      ? {
-        entry_type: editingRow.entry_type as OperatorLedgerMovementInput['entry_type'],
-        amount: Number(editingRow.amount ?? 0),
-        entry_date: String(editingRow.entry_date ?? dayjs().format('YYYY-MM-DD')).slice(0, 10),
-        notes: (editingRow.notes ?? '') as string,
-        service_id: editingRow.service_id ?? null,
-        commission_percent: (editingRow as { commission_percent?: number | null }).commission_percent ?? null,
-      }
-      : undefined,
   })
+
+  useEffect(() => {
+    if (!editingRow) return
+    editForm.reset({
+      entry_type: editingRow.entry_type as OperatorLedgerMovementInput['entry_type'],
+      amount: Number(editingRow.amount ?? 0),
+      entry_date: dayjs(editingRow.entry_date).format('YYYY-MM-DD'),
+      notes: (editingRow.notes ?? '') as string,
+      service_id: editingRow.service_id ?? null,
+      commission_percent: (editingRow as { commission_percent?: number | null }).commission_percent ?? null,
+    })
+  }, [editingRow?.id, editForm])
 
   async function submit(v: OperatorLedgerMovementInput, type: OperatorLedgerMovementInput['entry_type']) {
     await insert.mutateAsync({
