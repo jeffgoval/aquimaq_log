@@ -10,6 +10,8 @@ import { AppButton } from '@/shared/components/app/app-button'
 import { AppPatternInput, AppPhoneInput } from '@/shared/components/app/app-numeric-input'
 import { AppLoadingState } from '@/shared/components/app/app-loading-state'
 import { AppErrorState } from '@/shared/components/app/app-error-state'
+import { UnsavedChangesBanner } from '@/shared/components/app/unsaved-changes-banner'
+import { useUnsavedWarning } from '@/shared/hooks/use-unsaved-warning'
 
 function nullIfEmpty(s: string | undefined): string | null {
   const t = s?.trim()
@@ -26,7 +28,8 @@ export function SupplierEditPage() {
     resolver: zodResolver(supplierSchema) as Resolver<SupplierInput>,
     defaultValues: { name: '', is_active: true },
   })
-  const { register, control, formState: { errors }, reset } = form
+  const { register, control, formState: { errors, isDirty }, reset } = form
+  useUnsavedWarning(isDirty)
 
   useEffect(() => {
     if (!supplier) return
@@ -65,6 +68,7 @@ export function SupplierEditPage() {
         title="Editar Fornecedor"
         description={supplier?.name}
       />
+      <UnsavedChangesBanner isDirty={isDirty} className="mb-4" />
       <form onSubmit={onSubmit} className="space-y-6">
         <div className="rounded-xl border border-border bg-card p-6 space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

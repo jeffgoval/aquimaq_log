@@ -21,6 +21,8 @@ import { compressImageToJpeg } from '@/shared/lib/image-compress'
 import { parseSupabaseError } from '@/shared/lib/errors'
 import { removeReceiptAtPathIfExists, uploadServiceReceipt, uploadServiceCheckoutPhoto } from '@/integrations/supabase/receipts-storage'
 import type { Updates } from '@/integrations/supabase/db-types'
+import { UnsavedChangesBanner } from '@/shared/components/app/unsaved-changes-banner'
+import { useUnsavedWarning } from '@/shared/hooks/use-unsaved-warning'
 
 type ServiceUpdate = Updates<'services'>
 
@@ -44,8 +46,10 @@ export function ServiceEditPage() {
   const form = useForm<EditServiceInput>({
     resolver: zodResolver(editServiceSchema) as Resolver<EditServiceInput>,
   })
-  const { register, control, watch, formState: { errors }, reset } = form
-  
+  const { register, control, watch, formState: { errors, isDirty }, reset } = form
+  const hasFileChanges = receiptFile !== null || checkoutFile !== null
+  useUnsavedWarning(isDirty || hasFileChanges)
+
   const vehicleType = watch('vehicle_type')
 
   useEffect(() => {
@@ -153,6 +157,7 @@ export function ServiceEditPage() {
             : undefined
         }
       />
+      <UnsavedChangesBanner isDirty={isDirty || hasFileChanges} className="mb-4" />
       {locked && (
         <p className="mb-4 text-sm text-muted-foreground rounded-lg border border-border bg-card px-4 py-3">
           Este serviço está <strong className="text-foreground">{service.status === 'completed' ? 'concluído' : 'cancelado'}</strong>.

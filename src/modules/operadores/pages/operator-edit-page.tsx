@@ -2,6 +2,8 @@ import { useEffect } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useForm, Controller, type Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { UnsavedChangesBanner } from '@/shared/components/app/unsaved-changes-banner'
+import { useUnsavedWarning } from '@/shared/hooks/use-unsaved-warning'
 import { AppCurrencyInput, AppPhoneInput, AppCnhInput } from '@/shared/components/app/app-numeric-input'
 import { AppButton } from '@/shared/components/app/app-button'
 import { operatorSchema, type OperatorInput } from '../schemas/operator.schema'
@@ -26,7 +28,8 @@ export function OperatorEditPage() {
     resolver: zodResolver(operatorSchema) as Resolver<OperatorInput>,
     defaultValues: { name: '', default_hour_rate: 0, is_active: true },
   })
-  const { register, control, formState: { errors }, reset } = form
+  const { register, control, formState: { errors, isDirty }, reset } = form
+  useUnsavedWarning(isDirty)
 
   useEffect(() => {
     if (!operator) return
@@ -65,6 +68,7 @@ export function OperatorEditPage() {
         title="Editar Operador"
         description={operator?.name}
       />
+      <UnsavedChangesBanner isDirty={isDirty} className="mb-4" />
       <form onSubmit={onSubmit} className="space-y-6">
         <div className="rounded-xl border border-border bg-card p-6 space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

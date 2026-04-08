@@ -14,7 +14,7 @@ import { cn } from '@/shared/lib/cn'
 import { NumericFormat } from 'react-number-format'
 
 const ENTRY_LABELS: Record<string, string> = {
-  advance: 'Vale / adiantamento',
+  advance: 'Adiantamento / Vale',
   payment: 'Pagamento',
   commission: 'Comissão',
   credit: 'Crédito',
@@ -26,6 +26,12 @@ const ENTRY_BADGE_CLASSES: Record<string, string> = {
   credit: 'bg-blue-500/15 text-blue-800 dark:text-blue-200',
   commission: 'bg-purple-500/15 text-purple-800 dark:text-purple-200',
 }
+
+const ENTRY_TYPE_OPTIONS: { value: OperatorLedgerMovementInput['entry_type']; label: string; description: string }[] = [
+  { value: 'advance', label: 'Adiantamento / Vale', description: 'Dinheiro entregue antes do pagamento final' },
+  { value: 'payment', label: 'Pagamento', description: 'Pagamento do salário ou fechamento de conta' },
+  { value: 'commission', label: 'Comissão', description: 'Comissão sobre frete ou serviço realizado' },
+]
 
 interface OperatorLedgerSectionProps {
   operatorId: string
@@ -52,25 +58,25 @@ export const OperatorLedgerSection = ({ operatorId }: OperatorLedgerSectionProps
   const editingRow = useMemo(() => (rows ?? []).find((r) => r.id === editingId) ?? null, [rows, editingId])
   const editOpen = !!editingRow
 
-  const advanceForm = useForm<OperatorLedgerMovementInput>({
+  const [selectedType, setSelectedType] = useState<OperatorLedgerMovementInput['entry_type']>('advance')
+
+  const addForm = useForm<OperatorLedgerMovementInput>({
     resolver: zodResolver(operatorLedgerMovementSchema) as Resolver<OperatorLedgerMovementInput>,
     defaultValues: makeDefaults('advance'),
-  })
-
-  const paymentForm = useForm<OperatorLedgerMovementInput>({
-    resolver: zodResolver(operatorLedgerMovementSchema) as Resolver<OperatorLedgerMovementInput>,
-    defaultValues: makeDefaults('payment'),
-  })
-
-  const commissionForm = useForm<OperatorLedgerMovementInput>({
-    resolver: zodResolver(operatorLedgerMovementSchema) as Resolver<OperatorLedgerMovementInput>,
-    defaultValues: makeDefaults('commission'),
   })
 
   const editForm = useForm<OperatorLedgerMovementInput>({
     resolver: zodResolver(operatorLedgerMovementSchema) as Resolver<OperatorLedgerMovementInput>,
     defaultValues: makeDefaults('advance'),
   })
+
+  // Sync selected type into form
+  useEffect(() => {
+    addForm.setValue('entry_type', selectedType)
+    if (selectedType !== 'commission') {
+      addForm.setValue('commission_percent', null)
+    }
+  }, [selectedType, addForm])
 
   useEffect(() => {
     if (!editingRow) return
@@ -84,41 +90,27 @@ export const OperatorLedgerSection = ({ operatorId }: OperatorLedgerSectionProps
     })
   }, [editingRow?.id, editForm])
 
-  async function submit(v: OperatorLedgerMovementInput, type: OperatorLedgerMovementInput['entry_type']) {
+  const onAdd = addForm.handleSubmit(async (v) => {
     await insert.mutateAsync({
-      entry_type: type,
+      entry_type: selectedType,
       amount: v.amount,
       entry_date: v.entry_date,
       notes: v.notes?.trim() || null,
       service_id: v.service_id || null,
-      commission_percent: v.commission_percent ?? null,
+      commission_percent: selectedType === 'commission' ? (v.commission_percent ?? null) : null,
     })
-  }
-
-  const onAdvance = advanceForm.handleSubmit(async (v) => {
-    await submit(v, 'advance')
-    advanceForm.reset(makeDefaults('advance'))
+    addForm.reset(makeDefaults(selectedType))
   })
 
-  const onPayment = paymentForm.handleSubmit(async (v) => {
-    await submit(v, 'payment')
-    paymentForm.reset(makeDefaults('payment'))
-  })
-
-  const onCommission = commissionForm.handleSubmit(async (v) => {
-    await submit(v, 'commission')
-    commissionForm.reset(makeDefaults('commission'))
-  })
-
-  const serviceSelect = (form: typeof advanceForm) => (
+  const serviceSelect = (form: typeof addForm) => (
     <div>
-      <label className="field-label">Serviço (opcional)</label>
+      <label className="field-label">Serviço relacionado (opcional)</label>
       <select
         className="field"
         value={form.watch('service_id') ?? ''}
         onChange={(e) => form.setValue('service_id', e.target.value || null)}
       >
-        <option value="">— Geral —</option>
+        <option value="">— Nenhum serviço específico —</option>
         {(services ?? []).map((s) => (
           <option key={s.id} value={s.id}>
             {dayjs(s.service_date).format('DD/MM/YYYY')} · {s.clients?.name ?? 'Cliente'}
@@ -156,7 +148,7 @@ export const OperatorLedgerSection = ({ operatorId }: OperatorLedgerSectionProps
       className="fixed inset-0 z-100 flex items-center justify-center bg-black/60 p-4 animate-in fade-in duration-150"
       role="dialog"
       aria-modal="true"
-      aria-label="Editar lançamento"
+      aria-label="Editar registro"
       onClick={(e) => {
         if (e.target === e.currentTarget) closeEdit()
       }}
@@ -164,7 +156,7 @@ export const OperatorLedgerSection = ({ operatorId }: OperatorLedgerSectionProps
       <div className="w-full max-w-lg rounded-xl border border-border bg-card p-5 shadow-2xl" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-start justify-between gap-3 mb-4">
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-foreground">Editar lançamento</p>
+            <p className="text-sm font-semibold text-foreground">Editar registro</p>
             <p className="text-xs text-muted-foreground">
               Ajuste data, valor, serviço e observações.
             </p>
@@ -179,7 +171,7 @@ export const OperatorLedgerSection = ({ operatorId }: OperatorLedgerSectionProps
             <div>
               <label className="field-label">Tipo</label>
               <select className="field" {...editForm.register('entry_type')}>
-                <option value="advance">Vale / adiantamento</option>
+                <option value="advance">Adiantamento / Vale</option>
                 <option value="payment">Pagamento</option>
                 <option value="commission">Comissão</option>
               </select>
@@ -233,7 +225,7 @@ export const OperatorLedgerSection = ({ operatorId }: OperatorLedgerSectionProps
             )}
           </div>
 
-          {serviceSelect(editForm as unknown as typeof advanceForm)}
+          {serviceSelect(editForm as unknown as typeof addForm)}
 
           <div>
             <label className="field-label">Observações</label>
@@ -249,8 +241,8 @@ export const OperatorLedgerSection = ({ operatorId }: OperatorLedgerSectionProps
             <AppButton type="button" variant="secondary" size="sm" onClick={closeEdit} disabled={update.isPending}>
               Cancelar
             </AppButton>
-            <AppButton type="submit" size="sm" loading={update.isPending} loadingText="...">
-              Guardar alterações
+            <AppButton type="submit" size="sm" loading={update.isPending} loadingText="Salvando...">
+              Salvar alterações
             </AppButton>
           </div>
         </form>
@@ -261,23 +253,45 @@ export const OperatorLedgerSection = ({ operatorId }: OperatorLedgerSectionProps
   return (
     <div className="rounded-xl border border-border bg-card p-6 space-y-6">
       {typeof document !== 'undefined' ? createPortal(editModal, document.body) : null}
+
       <div>
-        <h2 className="typo-section-title mb-1">Vale, adiantamento, pagamentos e comissões</h2>
+        <h2 className="typo-section-title mb-1">Registrar movimentação financeira</h2>
         <p className="typo-body-muted text-sm">
-          Vales somam como crédito já entregue ao operador. O saldo considera horas trabalhadas (taxa padrão), menos vales e pagamentos registados.
+          Registre adiantamentos, pagamentos e comissões do operador. O saldo é calculado automaticamente.
         </p>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Advance form */}
-        <form onSubmit={onAdvance} className="rounded-lg border border-border p-4 space-y-3">
-          <h3 className="font-semibold text-sm text-foreground">Registrar vale / adiantamento</h3>
+      {/* Tipo selector */}
+      <div className="rounded-xl border border-border bg-muted/20 p-4 space-y-4">
+        <div>
+          <p className="text-sm font-semibold text-foreground mb-3">O que deseja registrar?</p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            {ENTRY_TYPE_OPTIONS.map((opt) => (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => setSelectedType(opt.value)}
+                className={cn(
+                  'flex flex-col items-start gap-0.5 rounded-lg border-2 px-4 py-3 text-left transition-all',
+                  selectedType === opt.value
+                    ? 'border-primary bg-primary/8 shadow-sm'
+                    : 'border-border bg-card hover:border-primary/40',
+                )}
+              >
+                <span className="text-sm font-semibold text-foreground">{opt.label}</span>
+                <span className="text-xs text-muted-foreground">{opt.description}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <form onSubmit={onAdd} className="space-y-3">
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
               <label className="field-label">Valor *</label>
               <Controller
                 name="amount"
-                control={advanceForm.control}
+                control={addForm.control}
                 render={({ field: { onChange, value } }) => (
                   <AppCurrencyInput
                     value={value || ''}
@@ -286,98 +300,22 @@ export const OperatorLedgerSection = ({ operatorId }: OperatorLedgerSectionProps
                   />
                 )}
               />
-              {advanceForm.formState.errors.amount && (
-                <span className="field-error">{advanceForm.formState.errors.amount.message}</span>
+              {addForm.formState.errors.amount && (
+                <span className="field-error">{addForm.formState.errors.amount.message}</span>
               )}
             </div>
             <div>
               <label className="field-label">Data *</label>
-              <input type="date" className="field" {...advanceForm.register('entry_date')} />
+              <input type="date" className="field" {...addForm.register('entry_date')} />
             </div>
           </div>
-          {serviceSelect(advanceForm)}
-          <div>
-            <label className="field-label">Observações</label>
-            <textarea
-              className="field resize-none"
-              rows={2}
-              placeholder="Ex.: vale combustível"
-              {...advanceForm.register('notes')}
-            />
-          </div>
-          <AppButton type="submit" size="sm" loading={insert.isPending} loadingText="...">
-            Registrar vale
-          </AppButton>
-        </form>
 
-        {/* Payment form */}
-        <form onSubmit={onPayment} className="rounded-lg border border-border p-4 space-y-3">
-          <h3 className="font-semibold text-sm text-foreground">Registrar pagamento ao operador</h3>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div>
-              <label className="field-label">Valor *</label>
-              <Controller
-                name="amount"
-                control={paymentForm.control}
-                render={({ field: { onChange, value } }) => (
-                  <AppCurrencyInput
-                    value={value || ''}
-                    onValueChange={(v) => onChange(v.floatValue ?? 0)}
-                    placeholder="R$ 0,00"
-                  />
-                )}
-              />
-              {paymentForm.formState.errors.amount && (
-                <span className="field-error">{paymentForm.formState.errors.amount.message}</span>
-              )}
-            </div>
-            <div>
-              <label className="field-label">Data *</label>
-              <input type="date" className="field" {...paymentForm.register('entry_date')} />
-            </div>
-          </div>
-          {serviceSelect(paymentForm)}
-          <div>
-            <label className="field-label">Observações</label>
-            <textarea
-              className="field resize-none"
-              rows={2}
-              placeholder="Ex.: quinzena fechada"
-              {...paymentForm.register('notes')}
-            />
-          </div>
-          <AppButton type="submit" size="sm" variant="secondary" loading={insert.isPending} loadingText="...">
-            Registrar pagamento
-          </AppButton>
-        </form>
-
-        {/* Commission form */}
-        <form onSubmit={onCommission} className="rounded-lg border border-purple-200 dark:border-purple-500/30 bg-purple-500/5 p-4 space-y-3 lg:col-span-2">
-          <h3 className="font-semibold text-sm text-foreground">Registrar comissão (guincho / frete)</h3>
-          <p className="text-xs text-muted-foreground">Use para registrar a comissão paga ao operador sobre o frete — ex.: 10% do valor cobrado ao cliente.</p>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <div>
-              <label className="field-label">Valor da comissão *</label>
-              <Controller
-                name="amount"
-                control={commissionForm.control}
-                render={({ field: { onChange, value } }) => (
-                  <AppCurrencyInput
-                    value={value || ''}
-                    onValueChange={(v) => onChange(v.floatValue ?? 0)}
-                    placeholder="R$ 0,00"
-                  />
-                )}
-              />
-              {commissionForm.formState.errors.amount && (
-                <span className="field-error">{commissionForm.formState.errors.amount.message}</span>
-              )}
-            </div>
+          {selectedType === 'commission' && (
             <div>
               <label className="field-label">% sobre o frete (referência)</label>
               <Controller
                 name="commission_percent"
-                control={commissionForm.control}
+                control={addForm.control}
                 render={({ field: { onChange, value } }) => (
                   <NumericFormat
                     className="field"
@@ -392,47 +330,45 @@ export const OperatorLedgerSection = ({ operatorId }: OperatorLedgerSectionProps
                 )}
               />
             </div>
-            <div>
-              <label className="field-label">Data *</label>
-              <input type="date" className="field" {...commissionForm.register('entry_date')} />
-            </div>
-            <div>
-              <label className="field-label">Serviço (opcional)</label>
-              <select
-                className="field"
-                value={commissionForm.watch('service_id') ?? ''}
-                onChange={(e) => commissionForm.setValue('service_id', e.target.value || null)}
-              >
-                <option value="">— Geral —</option>
-                {(services ?? []).map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {dayjs(s.service_date).format('DD/MM/YYYY')} · {s.clients?.name ?? 'Cliente'}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
+          )}
+
+          {serviceSelect(addForm)}
+
           <div>
             <label className="field-label">Observações</label>
             <textarea
               className="field resize-none"
               rows={2}
-              placeholder="Ex.: 10% frete São Paulo–Campinas"
-              {...commissionForm.register('notes')}
+              placeholder={
+                selectedType === 'advance'
+                  ? 'Ex.: vale combustível, adiantamento quinzena…'
+                  : selectedType === 'payment'
+                    ? 'Ex.: pagamento quinzena, fechamento do mês…'
+                    : 'Ex.: 10% do frete São Paulo–Campinas…'
+              }
+              {...addForm.register('notes')}
             />
           </div>
-          <AppButton type="submit" size="sm" className="bg-purple-600 hover:bg-purple-700 text-white" loading={insert.isPending} loadingText="...">
-            Registrar comissão
+
+          <AppButton
+            type="submit"
+            size="md"
+            loading={insert.isPending}
+            loadingText="Registrando..."
+            className="w-full sm:w-auto"
+          >
+            Registrar {ENTRY_LABELS[selectedType]}
           </AppButton>
         </form>
       </div>
 
+      {/* Histórico */}
       <div>
-        <h3 className="font-semibold text-sm mb-2">Histórico</h3>
+        <h3 className="font-semibold text-sm mb-2">Histórico de registros</h3>
         {isLoading
-          ? <p className="typo-body-muted text-sm">A carregar…</p>
+          ? <p className="typo-body-muted text-sm">Carregando…</p>
           : !rows?.length
-            ? <p className="typo-body-muted text-sm">Nenhum lançamento ainda.</p>
+            ? <p className="typo-body-muted text-sm">Nenhum registro ainda.</p>
             : (
               <div className="overflow-x-auto rounded-lg border border-border">
                 <table className="w-full text-sm">

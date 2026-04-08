@@ -5,7 +5,7 @@ import { AppPageHeader } from '@/shared/components/app/app-page-header'
 import { AppStatCard } from '@/shared/components/app/app-stat-card'
 import { AppMoney } from '@/shared/components/app/app-money'
 import { useMachineCosts } from '@/modules/custos/hooks/use-cost-queries'
-import { Building2, ClipboardList, DollarSign, AlertTriangle, Wallet } from 'lucide-react'
+import { Building2, ClipboardList, DollarSign, AlertTriangle, Wallet, Plus, Users } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { ROUTES } from '@/shared/constants/routes'
 import { PreventiveOilAlertsCard } from '../components/preventive-oil-alerts-card'
@@ -35,20 +35,45 @@ export function DashboardPage() {
 
       {/* Quick Actions */}
       <div className="mb-8">
-        <h2 className="typo-section-label mb-4">Ações Rápidas</h2>
-        <div className="grid grid-cols-2 gap-3 max-w-md">
-          <Link to={ROUTES.SERVICE_NEW} className="flex flex-col items-center gap-3 p-4 rounded-2xl bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-all group">
-            <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform">
-              <ClipboardList className="h-5 w-5" />
+        <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">O que deseja fazer?</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <Link
+            to={ROUTES.SERVICE_NEW}
+            className="flex items-center gap-3 p-4 rounded-xl bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-all group"
+          >
+            <div className="h-10 w-10 shrink-0 flex items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-lg shadow-primary/20 group-hover:scale-105 transition-transform">
+              <Plus className="h-5 w-5" />
             </div>
-            <span className="text-sm font-semibold text-foreground text-center leading-tight">Novo Serviço</span>
+            <div>
+              <p className="text-sm font-semibold text-foreground">Novo serviço</p>
+              <p className="text-xs text-muted-foreground">Cadastrar um novo atendimento</p>
+            </div>
           </Link>
 
-          <Link to={ROUTES.CLIENT_NEW} className="flex flex-col items-center gap-3 p-4 rounded-2xl bg-secondary/50 border border-border hover:border-primary/30 transition-all group">
-            <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-card border border-border text-foreground shadow-sm group-hover:scale-110 transition-transform">
-              <Building2 className="h-5 w-5" />
+          <Link
+            to={ROUTES.RECEIVABLES}
+            className="flex items-center gap-3 p-4 rounded-xl bg-secondary/50 border border-border hover:border-primary/30 transition-all group"
+          >
+            <div className="h-10 w-10 shrink-0 flex items-center justify-center rounded-xl bg-card border border-border text-foreground shadow-sm group-hover:scale-105 transition-transform">
+              <DollarSign className="h-5 w-5" />
             </div>
-            <span className="text-sm font-semibold text-foreground text-center leading-tight">Novo Cliente</span>
+            <div>
+              <p className="text-sm font-semibold text-foreground">Ver cobranças</p>
+              <p className="text-xs text-muted-foreground">O que os clientes devem pagar</p>
+            </div>
+          </Link>
+
+          <Link
+            to={ROUTES.CLIENT_NEW}
+            className="flex items-center gap-3 p-4 rounded-xl bg-secondary/50 border border-border hover:border-primary/30 transition-all group"
+          >
+            <div className="h-10 w-10 shrink-0 flex items-center justify-center rounded-xl bg-card border border-border text-foreground shadow-sm group-hover:scale-105 transition-transform">
+              <Users className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-foreground">Novo cliente</p>
+              <p className="text-xs text-muted-foreground">Cadastrar um novo cliente</p>
+            </div>
           </Link>
         </div>
       </div>

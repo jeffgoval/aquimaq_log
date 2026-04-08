@@ -212,11 +212,11 @@ export function WorklogSection({
     <div className="rounded-xl border border-border bg-card p-4 lg:p-6 shadow-sm">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between mb-5">
         <div>
-          <h2 className="typo-section-title">{isTruck ? 'Odômetro e deslocamento' : 'Horímetro do trator'}</h2>
+          <h2 className="typo-section-title">{isTruck ? 'Dias e deslocamentos' : 'Dias trabalhados'}</h2>
           <p className="typo-body-muted text-sm mt-1 max-w-xl">
             {serviceLocked
-              ? `Serviço encerrado: horas e ${isTruck ? 'odômetro' : 'horímetro'} não podem ser alterados. Pode acrescentar ou corrigir observações em cada linha abaixo.`
-              : `Registe a leitura inicial e final do ${isTruck ? 'odômetro' : 'horímetro'} em cada dia ou turno; os valores são calculados automaticamente.`}
+              ? `Serviço encerrado — os registros não podem ser alterados. Você ainda pode adicionar ou corrigir observações em cada linha.`
+              : `Registre a leitura inicial e final do ${isTruck ? 'odômetro' : 'horímetro'} em cada dia de trabalho. Os valores são calculados automaticamente.`}
           </p>
           {totalQuantities > 0 && (
             <div className="flex items-center gap-1.5 mt-2">
@@ -236,7 +236,7 @@ export function WorklogSection({
             className="flex items-center gap-1.5 shadow-lg shadow-primary/20 active:scale-95 shrink-0"
           >
             <Plus className="h-3 w-3" />
-            Novo registo
+            Registrar dia trabalhado
           </AppButton>
         ) : null}
       </div>
@@ -369,7 +369,7 @@ export function WorklogSection({
               onClick={handleAdd}
               className="shadow-md active:scale-95"
             >
-              Guardar registo
+              Salvar registro
             </AppButton>
             <AppButton variant="ghost" size="sm" onClick={addDialog.close}>
               Cancelar
@@ -393,7 +393,7 @@ export function WorklogSection({
           />
           <div className="flex flex-wrap gap-2">
             <AppButton variant="primary" size="sm" loading={updateWorklog.isPending} loadingText="…" onClick={handleSaveNotesOnly}>
-              Guardar observação
+              Salvar observação
             </AppButton>
             <AppButton
               variant="ghost"
@@ -411,7 +411,7 @@ export function WorklogSection({
 
       {!serviceLocked && editingId ? (
         <div className="rounded-xl border border-primary/25 p-4 mb-5 bg-primary/5 space-y-4">
-          <p className="typo-body font-medium">Editar registo de horímetro</p>
+          <p className="typo-body font-medium">Editar registro</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             <div>
               <label className="field-label">Data</label>
@@ -466,7 +466,7 @@ export function WorklogSection({
           </div>
           <div className="flex flex-wrap gap-2">
             <AppButton variant="primary" size="sm" loading={updateWorklog.isPending} loadingText="..." onClick={handleSaveEdit}>
-              Guardar alterações
+              Salvar alterações
             </AppButton>
             <AppButton variant="ghost" size="sm" onClick={() => setEditingId(null)}>
               Cancelar
@@ -478,13 +478,13 @@ export function WorklogSection({
       {isLoading && <AppLoadingState />}
       {!isLoading && (!data || data.length === 0) ? (
         <AppEmptyState
-          title={isTruck ? 'Nenhum registo de odômetro' : 'Nenhum registo de horímetro'}
+          title={isTruck ? 'Nenhum deslocamento registrado' : 'Nenhum dia de trabalho registrado'}
           description={
             serviceLocked
-              ? 'Não há linhas de apontamento. Use «Editar serviço» para observações gerais ou anexar recibo.'
+              ? 'Nenhum registro encontrado. Use "Editar serviço" para adicionar observações gerais ou anexar recibo.'
               : isTruck
-                ? 'Adicione a leitura inicial e final do odômetro para apurar km rodados e valores.'
-                : 'Adicione a leitura inicial e final do horímetro do trator para apurar horas e valores.'
+                ? 'Clique em "Registrar dia trabalhado" e informe os KM inicial e final.'
+                : 'Clique em "Registrar dia trabalhado" e informe o horímetro inicial e final.'
           }
         />
       ) : (
