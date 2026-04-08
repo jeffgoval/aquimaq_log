@@ -12,10 +12,10 @@ export const tractorRepository = {
     return data
   },
 
-  async listActive(): Promise<Pick<Tables<'tractors'>, 'id' | 'name' | 'brand' | 'model'>[]> {
+  async listActive(): Promise<Pick<Tables<'tractors'>, 'id' | 'name' | 'brand' | 'model' | 'default_hour_rate'>[]> {
     const { data, error } = await supabase
       .from('tractors')
-      .select('id, name, brand, model')
+      .select('id, name, brand, model, default_hour_rate')
       .eq('is_active', true)
       .order('name')
     if (error) throw error

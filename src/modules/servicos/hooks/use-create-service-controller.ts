@@ -55,7 +55,7 @@ export function useCreateServiceController() {
     onSubmit,
     isSubmitting: createService.isPending,
     clients: clients.data ?? [],
-    tractors: tractors.data ?? [],
+    tractors: (tractors.data ?? []) as Array<{ id: string; name: string; default_hour_rate?: number | null }>,
     trucks: trucks.data ?? [],
   }
 }

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useForm, Controller, type Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -184,6 +184,21 @@ export function ServiceCreatePage() {
   const step1Valid = !!clientId
   const step2Valid = vehicleType === 'tractor' ? !!tractorId : !!truckId
   const step3Valid = contractedRate > 0 && !!serviceDate
+
+  // Pré-preenche taxa/hora a partir do trator (mantém editável).
+  // Só aplica se o usuário ainda não mexeu no campo e o valor atual estiver 0/vazio.
+  useEffect(() => {
+    if (vehicleType !== 'tractor') return
+    if (!tractorId) return
+
+    const tractor = tractorList.find((t) => t.id === tractorId) as { default_hour_rate?: number | null } | undefined
+    const suggested = Number(tractor?.default_hour_rate ?? 0)
+    const alreadyEdited = !!form.formState.dirtyFields.contracted_hour_rate
+
+    if (!alreadyEdited && (Number(contractedRate ?? 0) === 0) && suggested > 0) {
+      setValue('contracted_hour_rate', suggested, { shouldDirty: false, shouldTouch: false, shouldValidate: true })
+    }
+  }, [contractedRate, form.formState.dirtyFields.contracted_hour_rate, setValue, tractorId, tractorList, vehicleType])
 
   const goNext = () => {
     if (step === 1 && !step1Valid) return

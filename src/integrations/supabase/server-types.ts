@@ -682,6 +682,7 @@ export type Database = {
         Row: {
           brand: string | null
           created_at: string
+          default_hour_rate: number
           id: string
           is_active: boolean
           model: string | null
@@ -699,6 +700,7 @@ export type Database = {
         Insert: {
           brand?: string | null
           created_at?: string
+          default_hour_rate?: number
           id?: string
           is_active?: boolean
           model?: string | null
@@ -716,6 +718,7 @@ export type Database = {
         Update: {
           brand?: string | null
           created_at?: string
+          default_hour_rate?: number
           id?: string
           is_active?: boolean
           model?: string | null

@@ -43,6 +43,13 @@ export const TractorForm = ({ controller }: TractorFormProps) => {
         <FormGrid columns={3}>
           <RHFCurrencyField
             methods={form}
+            name="default_hour_rate"
+            label="Valor hora padrão"
+            placeholder="R$ 0,00"
+            hint="Esse valor é usado como sugestão ao criar um novo serviço (você ainda pode editar no serviço)."
+          />
+          <RHFCurrencyField
+            methods={form}
             name="purchase_value"
             label="Valor de Compra"
             required

@@ -15,6 +15,7 @@ export const tractorSchema = z.object({
   plate: z.string().optional(),
   brand: z.string().optional(),
   model: z.string().optional(),
+  default_hour_rate: z.coerce.number().min(0, 'Valor deve ser positivo').default(0),
   purchase_value: z.coerce.number().min(0, 'Valor deve ser positivo'),
   residual_value: z.coerce.number().min(0, 'Valor deve ser positivo').default(0),
   useful_life_hours: z.coerce.number().int().min(1, 'Vida útil deve ser maior que 0'),
