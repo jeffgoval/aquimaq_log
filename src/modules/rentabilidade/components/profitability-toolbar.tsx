@@ -44,29 +44,6 @@ export const ProfitabilityToolbar = ({
           <div className="flex w-full max-w-full rounded-lg border border-border bg-muted/30 p-0.5 sm:w-auto">
             <button
               type="button"
-              onClick={() => onTab('owner')}
-              className={cn(
-                'flex-1 sm:flex-none rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
-                tab === 'owner' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground',
-              )}
-            >
-              Resumo
-            </button>
-            <button
-              type="button"
-              onClick={() => onTab('pro')}
-              className={cn(
-                'flex-1 sm:flex-none rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
-                tab === 'pro' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground',
-              )}
-            >
-              Detalhes
-            </button>
-          </div>
-
-          <div className="flex w-full max-w-full rounded-lg border border-border bg-muted/30 p-0.5 sm:w-auto">
-            <button
-              type="button"
               onClick={() => onFleetTab('tractor')}
               className={cn(
                 'flex-1 sm:flex-none rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
@@ -84,6 +61,29 @@ export const ProfitabilityToolbar = ({
               )}
             >
               Guinchos
+            </button>
+          </div>
+
+          <div className="flex w-full max-w-full rounded-lg border border-border bg-muted/30 p-0.5 sm:w-auto">
+            <button
+              type="button"
+              onClick={() => onTab('owner')}
+              className={cn(
+                'flex-1 sm:flex-none rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
+                tab === 'owner' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground',
+              )}
+            >
+              Resumo
+            </button>
+            <button
+              type="button"
+              onClick={() => onTab('pro')}
+              className={cn(
+                'flex-1 sm:flex-none rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
+                tab === 'pro' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground',
+              )}
+            >
+              Detalhes
             </button>
           </div>
         </div>
