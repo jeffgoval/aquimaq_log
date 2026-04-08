@@ -7,12 +7,10 @@ import { AppEmptyState } from '@/shared/components/app/app-empty-state'
 import { AppMoney } from '@/shared/components/app/app-money'
 import { AppBadge } from '@/shared/components/app/app-badge'
 import { AppSearchInput } from '@/shared/components/app/app-search-input'
-import { AppDataCard } from '@/shared/components/app/app-data-card'
 import { cn } from '@/shared/lib/cn'
 import { RECEIVABLE_STATUS_LABELS, RECEIVABLE_STATUS_BADGE_VARIANTS } from '@/shared/constants/status'
 import dayjs from '@/shared/lib/dayjs'
 import { ROUTES } from '@/shared/constants/routes'
-import { DollarSign } from 'lucide-react'
 
 const FILTER_LABELS: Record<string, string> = {
   all: 'Todos',
@@ -70,30 +68,55 @@ export function ReceivableListPage() {
       {isError && <AppErrorState message={error.message} onRetry={refetch} />}
       {!isLoading && !isError && (
         !filtered?.length ? <AppEmptyState title="Nenhuma parcela encontrada" />
-          : <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            {filtered?.map(rec => (
-              <AppDataCard
-                key={rec.id}
-                title={rec.clients?.name || 'Cliente'}
-                subtitle={`Vence em ${dayjs(rec.due_date).format('DD/MM/YYYY')}`}
-                icon={DollarSign}
-                badge={
-                  <AppBadge variant={RECEIVABLE_STATUS_BADGE_VARIANTS[rec.status] ?? 'default'}>
-                    {RECEIVABLE_STATUS_LABELS[rec.status] ?? rec.status}
-                  </AppBadge>
-                }
-                items={[
-                  { label: 'Valor Final', value: <AppMoney value={rec.final_amount} size="sm" /> },
-                  { label: 'Valor Pago', value: <AppMoney value={rec.paid_amount} size="sm" /> },
-                ]}
-                footer={
-                  <p className="text-xs text-muted-foreground truncate border-t border-border/50 pt-2">
-                    {rec.description || `Parcela ${rec.installment_number}/${rec.installment_count}`}
-                  </p>
-                }
-              />
-            ))}
-          </div>
+          : (
+            <div className="overflow-x-auto rounded-xl border border-border bg-card">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border bg-muted/30 text-left">
+                    <th className="p-3 font-medium whitespace-nowrap">Vencimento</th>
+                    <th className="p-3 font-medium">Cliente</th>
+                    <th className="p-3 font-medium hidden lg:table-cell">Descrição</th>
+                    <th className="p-3 font-medium whitespace-nowrap">Status</th>
+                    <th className="p-3 font-medium text-right whitespace-nowrap">Em aberto</th>
+                    <th className="p-3 font-medium text-right whitespace-nowrap hidden md:table-cell">Pago</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtered.map((rec) => {
+                    const open = rec.status !== 'paid' && rec.status !== 'cancelled'
+                      ? (rec.final_amount - rec.paid_amount)
+                      : 0
+                    const desc = rec.description || `Parcela ${rec.installment_number}/${rec.installment_count}`
+                    return (
+                      <tr key={rec.id} className="border-b border-border last:border-0 hover:bg-muted/20">
+                        <td className="p-3 tabular-nums whitespace-nowrap">
+                          {dayjs(rec.due_date).format('DD/MM/YYYY')}
+                        </td>
+                        <td className="p-3 min-w-0">
+                          <div className="font-medium text-foreground truncate">{rec.clients?.name || 'Cliente'}</div>
+                          <div className="text-xs text-muted-foreground lg:hidden truncate">{desc}</div>
+                        </td>
+                        <td className="p-3 hidden lg:table-cell typo-body-muted max-w-[420px] truncate" title={desc}>
+                          {desc}
+                        </td>
+                        <td className="p-3 whitespace-nowrap">
+                          <AppBadge variant={RECEIVABLE_STATUS_BADGE_VARIANTS[rec.status] ?? 'default'}>
+                            {RECEIVABLE_STATUS_LABELS[rec.status] ?? rec.status}
+                          </AppBadge>
+                        </td>
+                        <td className="p-3 text-right tabular-nums whitespace-nowrap">
+                          <AppMoney value={open} size="sm" />
+                        </td>
+                        <td className="p-3 text-right tabular-nums whitespace-nowrap hidden md:table-cell">
+                          <AppMoney value={rec.paid_amount} size="sm" />
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )
       )}
     </div>
   )

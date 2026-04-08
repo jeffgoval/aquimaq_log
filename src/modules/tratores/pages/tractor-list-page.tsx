@@ -9,7 +9,6 @@ import { AppEmptyState } from '@/shared/components/app/app-empty-state'
 import { AppMoney } from '@/shared/components/app/app-money'
 import { AppBadge } from '@/shared/components/app/app-badge'
 import { AppSearchInput } from '@/shared/components/app/app-search-input'
-import { AppDataCard } from '@/shared/components/app/app-data-card'
 import { ROUTES } from '@/shared/constants/routes'
 
 export function TractorListPage() {
@@ -66,50 +65,71 @@ export function TractorListPage() {
               }
             />
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-              {filtered.map((tractor) => (
-                <AppDataCard
-                  key={tractor.id}
-                  title={tractor.name}
-                  subtitle={[tractor.brand, tractor.model].filter(Boolean).join(' · ')}
-                  icon={Tractor}
-                  iconVariant={tractor.is_active ? 'default' : 'default'}
-                  onClick={() => navigate(ROUTES.TRACTOR_DETAIL(tractor.id))}
-                  badge={
-                    <AppBadge variant={tractor.is_active ? 'success' : 'default'}>
-                      {tractor.is_active ? 'Ativo' : 'Inativo'}
-                    </AppBadge>
-                  }
-                  items={[
-                    { label: 'Custo/hora', value: <AppMoney value={tractor.standard_hour_cost ?? 0} size="sm" /> },
-                    { label: 'Placa', value: tractor.plate || '—' },
-                  ]}
-                  footer={
-                    <div className="flex gap-2 pt-1">
-                      <Link
-                        to={ROUTES.TRACTOR_EDIT(tractor.id)}
-                        onClick={(e) => e.stopPropagation()}
-                        className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors font-medium"
-                      >
-                        <Edit className="h-3 w-3" />
-                        Editar
-                      </Link>
-                      {tractor.is_active && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            if (confirm('Desativar este trator?')) deactivate.mutate(tractor.id)
-                          }}
-                          className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-destructive transition-colors ml-auto font-medium"
-                        >
-                          <PowerOff className="h-3 w-3" />
-                          Desativar
-                        </button>
-                      )}
-                    </div>
-                  }
-                />
-              ))}
+            <div className="overflow-x-auto rounded-xl border border-border bg-card">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border bg-muted/30 text-left">
+                    <th className="p-3 font-medium">Trator</th>
+                    <th className="p-3 font-medium hidden md:table-cell">Marca/Modelo</th>
+                    <th className="p-3 font-medium hidden md:table-cell">Placa</th>
+                    <th className="p-3 font-medium whitespace-nowrap hidden lg:table-cell">Custo/hora</th>
+                    <th className="p-3 font-medium whitespace-nowrap">Status</th>
+                    <th className="p-3 font-medium text-right whitespace-nowrap">Ações</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtered.map((tractor) => (
+                    <tr
+                      key={tractor.id}
+                      className="border-b border-border last:border-0 hover:bg-muted/20 cursor-pointer"
+                      onClick={() => navigate(ROUTES.TRACTOR_DETAIL(tractor.id))}
+                    >
+                      <td className="p-3 min-w-0">
+                        <div className="font-medium text-foreground truncate">{tractor.name}</div>
+                        <div className="text-xs text-muted-foreground md:hidden truncate">
+                          {[tractor.brand, tractor.model].filter(Boolean).join(' · ') || '—'} · {tractor.plate || '—'}
+                        </div>
+                      </td>
+                      <td className="p-3 hidden md:table-cell typo-body-muted">
+                        {[tractor.brand, tractor.model].filter(Boolean).join(' · ') || '—'}
+                      </td>
+                      <td className="p-3 hidden md:table-cell typo-body-muted">
+                        {tractor.plate || '—'}
+                      </td>
+                      <td className="p-3 hidden lg:table-cell whitespace-nowrap">
+                        <AppMoney value={tractor.standard_hour_cost ?? 0} size="sm" />
+                      </td>
+                      <td className="p-3 whitespace-nowrap">
+                        <AppBadge variant={tractor.is_active ? 'success' : 'default'}>
+                          {tractor.is_active ? 'Ativo' : 'Inativo'}
+                        </AppBadge>
+                      </td>
+                      <td className="p-3 text-right whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
+                        <div className="inline-flex items-center gap-3">
+                          <Link
+                            to={ROUTES.TRACTOR_EDIT(tractor.id)}
+                            className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors font-medium"
+                          >
+                            <Edit className="h-3 w-3" />
+                            Editar
+                          </Link>
+                          {tractor.is_active && (
+                            <button
+                              onClick={() => {
+                                if (confirm('Desativar este trator?')) deactivate.mutate(tractor.id)
+                              }}
+                              className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-destructive transition-colors font-medium"
+                            >
+                              <PowerOff className="h-3 w-3" />
+                              Desativar
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
         </>
