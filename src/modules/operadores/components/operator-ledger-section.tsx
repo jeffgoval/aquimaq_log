@@ -135,13 +135,15 @@ export const OperatorLedgerSection = ({ operatorId }: OperatorLedgerSectionProps
 
   const onEditSubmit = editForm.handleSubmit(async (v) => {
     if (!editingRow) return
+    const keepNotes = !editForm.formState.dirtyFields.notes
+    const notesPayload = keepNotes ? (editingRow.notes ?? null) : (v.notes?.trim() || null)
     await update.mutateAsync({
       id: editingRow.id,
       payload: {
         entry_type: v.entry_type,
         amount: v.amount,
         entry_date: v.entry_date,
-        notes: v.notes?.trim() || null,
+        notes: notesPayload,
         service_id: v.service_id || null,
         commission_percent: v.entry_type === 'commission' ? (v.commission_percent ?? null) : null,
       },
