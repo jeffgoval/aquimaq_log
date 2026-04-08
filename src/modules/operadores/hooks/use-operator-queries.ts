@@ -8,6 +8,7 @@ import type { Inserts, Updates } from '@/integrations/supabase/db-types'
 
 type OperatorUpdate = Updates<'operators'>
 type OperatorLedgerInsert = Inserts<'operator_ledger'>
+type OperatorLedgerUpdate = Updates<'operator_ledger'>
 
 export const useOperatorList = () => useQuery({ queryKey: queryKeys.operators, queryFn: operatorRepository.list })
 export const useOperatorOptions = () => useQuery({ queryKey: queryKeys.operatorOptions, queryFn: operatorRepository.listActive })
@@ -26,6 +27,20 @@ export function useInsertOperatorLedgerEntry(operatorId: string) {
       qc.invalidateQueries({ queryKey: queryKeys.operatorLedger(operatorId) })
       qc.invalidateQueries({ queryKey: queryKeys.operatorLedgerRows(operatorId) })
       toast.success('Lançamento registado!')
+    },
+    onError: (e: Error) => toast.error(parseSupabaseError(e)),
+  })
+}
+
+export function useUpdateOperatorLedgerEntry(operatorId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: OperatorLedgerUpdate }) =>
+      operatorRepository.updateLedgerRow(id, payload),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.operatorLedger(operatorId) })
+      qc.invalidateQueries({ queryKey: queryKeys.operatorLedgerRows(operatorId) })
+      toast.success('Lançamento atualizado!')
     },
     onError: (e: Error) => toast.error(parseSupabaseError(e)),
   })

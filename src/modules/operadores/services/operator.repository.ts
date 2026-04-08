@@ -8,6 +8,7 @@ export type OperatorLedgerRowWithService = Tables<'operator_ledger'> & {
 type OperatorInsert = Inserts<'operators'>
 type OperatorUpdate = Updates<'operators'>
 type OperatorLedgerInsert = Inserts<'operator_ledger'>
+type OperatorLedgerUpdate = Updates<'operator_ledger'>
 
 export const operatorRepository = {
   async list(): Promise<Tables<'operators'>[]> {
@@ -55,6 +56,12 @@ export const operatorRepository = {
 
   async insertLedgerRow(payload: OperatorLedgerInsert): Promise<Tables<'operator_ledger'>> {
     const { data, error } = await supabase.from('operator_ledger').insert(payload).select().single()
+    if (error) throw error
+    return data
+  },
+
+  async updateLedgerRow(id: string, payload: OperatorLedgerUpdate): Promise<Tables<'operator_ledger'>> {
+    const { data, error } = await supabase.from('operator_ledger').update(payload).eq('id', id).select().single()
     if (error) throw error
     return data
   },
