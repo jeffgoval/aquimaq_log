@@ -13,6 +13,7 @@ import { useOperatorOptions } from '@/modules/operadores/hooks/use-operator-quer
 import { computeWorklogLineAmounts, type ChargeType } from '@/modules/servicos/lib/service-financial-summary'
 import { Clock, Plus, Tag, Pencil, Trash2 } from 'lucide-react'
 import dayjs from '@/shared/lib/dayjs'
+import { cn } from '@/shared/lib/cn'
 
 type ServiceWorklogStatus = 'draft' | 'in_progress' | 'completed' | 'cancelled'
 
