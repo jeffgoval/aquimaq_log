@@ -218,7 +218,7 @@ export function ServiceDetailPage() {
         {/* ABA: DADOS */}
         {activeTab === 'dados' && (
           <div className="space-y-4 animate-in fade-in duration-150">
-            <div className="rounded-xl border border-border bg-card divide-y divide-border overflow-hidden">
+            <div className="rounded-xl border border-border bg-card overflow-hidden">
 
               {/* Linha: Cliente */}
               <div className="flex items-center gap-4 px-5 py-4">
