@@ -5,12 +5,28 @@ import { cn } from '@/shared/lib/cn'
 /** Props de telefone/documento sem `format`/`mask` fixos (definidos no componente). */
 type BrPatternFieldProps = Omit<PatternFormatProps, 'format' | 'mask'>
 
+function selectAllOnFocus(e: React.FocusEvent<HTMLInputElement>) {
+  const el = e.currentTarget
+  // Deixa o browser terminar o foco antes de mexer no cursor/seleção.
+  requestAnimationFrame(() => {
+    try {
+      el.setSelectionRange(0, el.value.length)
+    } catch {
+      // Alguns inputs mascarados podem não suportar selectionRange em certos contextos.
+    }
+  })
+}
+
 export const AppCurrencyInput = forwardRef<HTMLInputElement, NumericFormatProps>((props, ref) => {
   return (
     <NumericFormat
       {...props}
       getInputRef={ref}
       className={cn('field', props.className)}
+      onFocus={(e) => {
+        props.onFocus?.(e)
+        selectAllOnFocus(e as React.FocusEvent<HTMLInputElement>)
+      }}
       prefix="R$ "
       decimalSeparator=","
       thousandSeparator="."
@@ -28,6 +44,10 @@ export const AppDecimalInput = forwardRef<HTMLInputElement, NumericFormatProps>(
       {...props}
       getInputRef={ref}
       className={cn('field', props.className)}
+      onFocus={(e) => {
+        props.onFocus?.(e)
+        selectAllOnFocus(e as React.FocusEvent<HTMLInputElement>)
+      }}
       decimalSeparator=","
       thousandSeparator="."
       allowNegative={false}
