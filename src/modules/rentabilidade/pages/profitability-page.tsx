@@ -69,7 +69,7 @@ export function ProfitabilityPage() {
         backTo={ROUTES.DASHBOARD}
         backLabel="Voltar ao início"
         title="Rentabilidade"
-        description="Resumo simples para decisão do dia a dia; detalhes e exportação na aba Detalhes. Não substitui a contabilidade fiscal."
+        description="Visão de gestão para tomar decisões no dia a dia. Use “Detalhes” para entender de onde vêm os números e exportar."
       />
 
       <ProfitabilityToolbar

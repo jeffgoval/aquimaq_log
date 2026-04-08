@@ -104,7 +104,7 @@ export const ProfitabilityProPanel = ({
       {fleetTab === 'tractor' ? (
         <details className="rounded-xl border border-border bg-card p-4 group">
           <summary className="cursor-pointer text-sm font-semibold text-foreground list-none flex items-center justify-between">
-            Glossário e bases de cálculo — tratores
+            Como ler estes números — tratores
             <span className="text-muted-foreground text-xs font-normal group-open:hidden">Abrir</span>
             <span className="text-muted-foreground text-xs font-normal hidden group-open:inline">Fechar</span>
           </summary>
@@ -112,43 +112,26 @@ export const ProfitabilityProPanel = ({
             <li>
               <strong className="text-foreground">Período:</strong>
               {' '}
-              receita e apontamentos filtrados pela
-              {' '}
-              <strong className="text-foreground">data do serviço</strong>
-              ; custos de máquina pela
-              {' '}
-              <strong className="text-foreground">data do lançamento</strong>
-              .
+              usamos a <strong className="text-foreground">data do serviço</strong> para receita e horas; custos de máquina usam a <strong className="text-foreground">data do lançamento</strong>.
             </li>
             <li>
-              <strong className="text-foreground">Receita bruta:</strong>
-              {' '}
-              soma de parcelas (contas a receber) não canceladas, ligadas a serviços no período.
+              <strong className="text-foreground">Receita:</strong> soma das parcelas de serviços no período (exceto canceladas).
             </li>
             <li>
-              <strong className="text-foreground">Custo máquina / horas:</strong>
-              {' '}
-              horas trabalhadas × custo/hora padrão do equipamento (derivado de compra, residual e vida útil em horas).
+              <strong className="text-foreground">Custos:</strong> incluem máquina (depreciação), operacional e mão de obra.
             </li>
             <li>
-              <strong className="text-foreground">CPH:</strong>
-              {' '}
-              custo total por hora (custo máquina + operacional + mão de obra) / horas.
+              <strong className="text-foreground">Custo por hora:</strong> custos totais ÷ horas no período.
             </li>
             <li>
-              <strong className="text-foreground">Recuperação do investimento:</strong>
-              {' '}
-              lucro gerencial acumulado no período face à
-              {' '}
-              <strong className="text-foreground">base depreciável (compra − residual)</strong>
-              . Não equivale a fluxo de caixa nem a lucro fiscal.
+              <strong className="text-foreground">Lucro:</strong> receita menos custos (visão de gestão; não substitui contabilidade).
             </li>
           </ul>
         </details>
       ) : (
         <details className="rounded-xl border border-border bg-card p-4 group">
           <summary className="cursor-pointer text-sm font-semibold text-foreground list-none flex items-center justify-between">
-            Glossário e bases de cálculo — guinchos
+            Como ler estes números — guinchos
             <span className="text-muted-foreground text-xs font-normal group-open:hidden">Abrir</span>
             <span className="text-muted-foreground text-xs font-normal hidden group-open:inline">Fechar</span>
           </summary>
@@ -156,28 +139,16 @@ export const ProfitabilityProPanel = ({
             <li>
               <strong className="text-foreground">Período:</strong>
               {' '}
-              receita e apontamentos (km) pela
-              {' '}
-              <strong className="text-foreground">data do serviço</strong>
-              ; custos de máquina pela
-              {' '}
-              <strong className="text-foreground">data do lançamento</strong>
-              .
+              usamos a <strong className="text-foreground">data do serviço</strong> para receita e km; custos de máquina usam a <strong className="text-foreground">data do lançamento</strong>.
             </li>
             <li>
-              <strong className="text-foreground">Receita bruta:</strong>
-              {' '}
-              parcelas de serviços com guincho associado, no período.
+              <strong className="text-foreground">Receita:</strong> soma das parcelas de serviços com guincho no período.
             </li>
             <li>
-              <strong className="text-foreground">Depreciação gerencial:</strong>
-              {' '}
-              km × (compra − residual) / vida útil em km.
+              <strong className="text-foreground">Custo por km:</strong> custos totais ÷ km no período.
             </li>
             <li>
-              <strong className="text-foreground">Custo/km médio:</strong>
-              {' '}
-              (depreciação + custos operacionais + mão de obra no período) / km rodados.
+              <strong className="text-foreground">Lucro por km:</strong> receita por km menos custo por km.
             </li>
           </ul>
         </details>
@@ -189,16 +160,16 @@ export const ProfitabilityProPanel = ({
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
             <AppStatCard title="Receita bruta" value={<AppMoney value={totals.revenue} />} icon={DollarSign} />
             <AppStatCard
-              title="Custos totais"
+              title="Custos"
               value={<AppMoney value={totals.depreciation + totals.operational + totals.operatorCost} />}
               icon={TrendingDown}
-              description="Máquina + operacional + M.O."
+              description="Máquina + operacional + mão de obra"
             />
             <AppStatCard title="Mão de obra" value={<AppMoney value={totals.operatorCost} />} icon={Users} />
             <AppStatCard title="Margem líquida" value={<AppMoney value={totals.margin} colored />} icon={TrendingUp} />
             <AppStatCard title="Horas totais" value={`${totals.hours.toFixed(1)}h`} icon={Clock} />
             <AppStatCard
-              title="CPH médio frota"
+              title="Custo por hora"
               value={<AppMoney value={fleetCph} />}
               icon={Tractor}
               description={`Receita/h: ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(fleetRevPerHour)}`}
@@ -262,8 +233,8 @@ export const ProfitabilityProPanel = ({
                       <th className="p-3 font-medium text-right whitespace-nowrap">Margem</th>
                       <th className="p-3 font-medium whitespace-nowrap hidden md:table-cell">%</th>
                       <th className="p-3 font-medium text-right whitespace-nowrap hidden xl:table-cell">Receita/h</th>
-                      <th className="p-3 font-medium text-right whitespace-nowrap hidden xl:table-cell">CPH</th>
-                      <th className="p-3 font-medium text-right whitespace-nowrap hidden xl:table-cell">Spread/h</th>
+                      <th className="p-3 font-medium text-right whitespace-nowrap hidden xl:table-cell">Custo/h</th>
+                      <th className="p-3 font-medium text-right whitespace-nowrap hidden xl:table-cell">Lucro/h</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -452,7 +423,7 @@ export const ProfitabilityProPanel = ({
                     <th className="p-3 font-medium whitespace-nowrap hidden md:table-cell">%</th>
                     <th className="p-3 font-medium text-right whitespace-nowrap hidden xl:table-cell">Receita/km</th>
                     <th className="p-3 font-medium text-right whitespace-nowrap hidden xl:table-cell">Custo/km</th>
-                    <th className="p-3 font-medium text-right whitespace-nowrap hidden xl:table-cell">Spread/km</th>
+                    <th className="p-3 font-medium text-right whitespace-nowrap hidden xl:table-cell">Lucro/km</th>
                   </tr>
                 </thead>
                 <tbody>

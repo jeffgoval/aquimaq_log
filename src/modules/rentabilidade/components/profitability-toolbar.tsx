@@ -39,36 +39,14 @@ export const ProfitabilityToolbar = ({
 }: Props) => {
   return (
     <div className="mb-6 space-y-4 rounded-xl border border-border bg-card p-4">
-      <div className="flex flex-col gap-3">
-        <div className="flex w-full max-w-full flex-wrap rounded-lg border border-border bg-muted/30 p-0.5 sm:inline-flex sm:w-fit">
-          <button
-            type="button"
-            onClick={() => onFleetTab('tractor')}
-            className={cn(
-              'rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
-              fleetTab === 'tractor' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground',
-            )}
-          >
-            Tratores
-          </button>
-          <button
-            type="button"
-            onClick={() => onFleetTab('truck')}
-            className={cn(
-              'rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
-              fleetTab === 'truck' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground',
-            )}
-          >
-            Guinchos
-          </button>
-        </div>
-        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-          <div className="flex w-full max-w-full flex-wrap rounded-lg border border-border bg-muted/30 p-0.5 sm:inline-flex sm:w-auto">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between lg:justify-start lg:gap-3">
+          <div className="flex w-full max-w-full rounded-lg border border-border bg-muted/30 p-0.5 sm:w-auto">
             <button
               type="button"
               onClick={() => onTab('owner')}
               className={cn(
-                'rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
+                'flex-1 sm:flex-none rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
                 tab === 'owner' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground',
               )}
             >
@@ -78,19 +56,42 @@ export const ProfitabilityToolbar = ({
               type="button"
               onClick={() => onTab('pro')}
               className={cn(
-                'rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
+                'flex-1 sm:flex-none rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
                 tab === 'pro' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground',
               )}
             >
               Detalhes
             </button>
           </div>
-          <p className="max-w-full min-w-0 break-words text-sm text-muted-foreground">
-            Período:
-            {' '}
-            <span className="font-medium text-foreground">{periodSummary}</span>
-          </p>
+
+          <div className="flex w-full max-w-full rounded-lg border border-border bg-muted/30 p-0.5 sm:w-auto">
+            <button
+              type="button"
+              onClick={() => onFleetTab('tractor')}
+              className={cn(
+                'flex-1 sm:flex-none rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
+                fleetTab === 'tractor' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground',
+              )}
+            >
+              Tratores
+            </button>
+            <button
+              type="button"
+              onClick={() => onFleetTab('truck')}
+              className={cn(
+                'flex-1 sm:flex-none rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
+                fleetTab === 'truck' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground',
+              )}
+            >
+              Guinchos
+            </button>
+          </div>
         </div>
+
+        <p className="max-w-full min-w-0 wrap-break-word text-sm text-muted-foreground lg:text-right">
+          Período:{' '}
+          <span className="font-medium text-foreground">{periodSummary}</span>
+        </p>
       </div>
 
       <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:gap-4">
