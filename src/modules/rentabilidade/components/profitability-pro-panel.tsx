@@ -1,6 +1,4 @@
 import { FleetSpendCategoryChart } from './fleet-spend-category-chart'
-import { ProfitabilityTractorProCard } from './profitability-tractor-pro-card'
-import { ProfitabilityTruckProCard } from './profitability-truck-pro-card'
 import { AppEmptyState } from '@/shared/components/app/app-empty-state'
 import { AppMoney } from '@/shared/components/app/app-money'
 import { AppStatCard } from '@/shared/components/app/app-stat-card'
@@ -253,10 +251,52 @@ export const ProfitabilityProPanel = ({
             {!tractors.length ? (
               <AppEmptyState title="Sem tratores" description="Cadastre tratores e lance serviços no período." />
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                {tractors.map((t) => (
-                  <ProfitabilityTractorProCard key={t.tractor_id ?? ''} t={t} />
-                ))}
+              <div className="overflow-x-auto rounded-xl border border-border bg-card">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-border bg-muted/30 text-left">
+                      <th className="p-3 font-medium">Trator</th>
+                      <th className="p-3 font-medium whitespace-nowrap">Horas</th>
+                      <th className="p-3 font-medium text-right whitespace-nowrap">Receita</th>
+                      <th className="p-3 font-medium text-right whitespace-nowrap hidden lg:table-cell">Custos</th>
+                      <th className="p-3 font-medium text-right whitespace-nowrap">Margem</th>
+                      <th className="p-3 font-medium whitespace-nowrap hidden md:table-cell">%</th>
+                      <th className="p-3 font-medium text-right whitespace-nowrap hidden xl:table-cell">Receita/h</th>
+                      <th className="p-3 font-medium text-right whitespace-nowrap hidden xl:table-cell">CPH</th>
+                      <th className="p-3 font-medium text-right whitespace-nowrap hidden xl:table-cell">Spread/h</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {tractors.map((t) => {
+                      const revenue = Number(t.gross_revenue)
+                      const margin = Number(t.net_margin)
+                      const hours = Number(t.total_hours)
+                      const costs = Number(t.depreciation_cost) + Number(t.operational_cost) + Number(t.operator_cost)
+                      const pct = revenue > 0 ? (margin / revenue) * 100 : 0
+                      const revPerHour = Number(t.revenue_per_hour)
+                      const cph = Number(t.cost_per_hour)
+                      const spread = revPerHour - cph
+                      return (
+                        <tr key={t.tractor_id ?? ''} className="border-b border-border last:border-0 hover:bg-muted/20">
+                          <td className="p-3 min-w-0">
+                            <div className="font-medium text-foreground truncate">{t.tractor_name || '—'}</div>
+                            <div className="text-xs text-muted-foreground lg:hidden truncate">
+                              Custos: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(costs)}
+                            </div>
+                          </td>
+                          <td className="p-3 tabular-nums whitespace-nowrap">{hours.toFixed(1)}h</td>
+                          <td className="p-3 text-right tabular-nums whitespace-nowrap"><AppMoney value={revenue} size="sm" /></td>
+                          <td className="p-3 text-right tabular-nums whitespace-nowrap hidden lg:table-cell"><AppMoney value={costs} size="sm" /></td>
+                          <td className="p-3 text-right tabular-nums whitespace-nowrap"><AppMoney value={margin} size="sm" colored /></td>
+                          <td className="p-3 tabular-nums whitespace-nowrap hidden md:table-cell">{pct.toFixed(1)}%</td>
+                          <td className="p-3 text-right tabular-nums whitespace-nowrap hidden xl:table-cell"><AppMoney value={revPerHour} size="sm" /></td>
+                          <td className="p-3 text-right tabular-nums whitespace-nowrap hidden xl:table-cell"><AppMoney value={cph} size="sm" /></td>
+                          <td className="p-3 text-right tabular-nums whitespace-nowrap hidden xl:table-cell"><AppMoney value={spread} size="sm" colored /></td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
               </div>
             )}
           </div>
@@ -400,10 +440,52 @@ export const ProfitabilityProPanel = ({
           {!trucks.length ? (
             <AppEmptyState title="Sem guinchos" description="Cadastre caminhões e lance serviços no período." />
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-              {trucks.map((t) => (
-                <ProfitabilityTruckProCard key={t.truck_id} t={t} />
-              ))}
+            <div className="overflow-x-auto rounded-xl border border-border bg-card">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border bg-muted/30 text-left">
+                    <th className="p-3 font-medium">Guincho</th>
+                    <th className="p-3 font-medium whitespace-nowrap">KM</th>
+                    <th className="p-3 font-medium text-right whitespace-nowrap">Receita</th>
+                    <th className="p-3 font-medium text-right whitespace-nowrap hidden lg:table-cell">Custos</th>
+                    <th className="p-3 font-medium text-right whitespace-nowrap">Margem</th>
+                    <th className="p-3 font-medium whitespace-nowrap hidden md:table-cell">%</th>
+                    <th className="p-3 font-medium text-right whitespace-nowrap hidden xl:table-cell">Receita/km</th>
+                    <th className="p-3 font-medium text-right whitespace-nowrap hidden xl:table-cell">Custo/km</th>
+                    <th className="p-3 font-medium text-right whitespace-nowrap hidden xl:table-cell">Spread/km</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {trucks.map((t) => {
+                    const revenue = Number(t.gross_revenue)
+                    const margin = Number(t.net_margin)
+                    const km = Number(t.total_km)
+                    const costs = Number(t.depreciation_cost) + Number(t.operational_cost) + Number(t.operator_cost)
+                    const pct = revenue > 0 ? (margin / revenue) * 100 : 0
+                    const revPerKm = Number(t.revenue_per_km)
+                    const cpk = Number(t.cost_per_km)
+                    const spread = revPerKm - cpk
+                    return (
+                      <tr key={t.truck_id ?? ''} className="border-b border-border last:border-0 hover:bg-muted/20">
+                        <td className="p-3 min-w-0">
+                          <div className="font-medium text-foreground truncate">{t.truck_name || '—'}</div>
+                          <div className="text-xs text-muted-foreground lg:hidden truncate">
+                            Custos: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(costs)}
+                          </div>
+                        </td>
+                        <td className="p-3 tabular-nums whitespace-nowrap">{km.toFixed(1)} km</td>
+                        <td className="p-3 text-right tabular-nums whitespace-nowrap"><AppMoney value={revenue} size="sm" /></td>
+                        <td className="p-3 text-right tabular-nums whitespace-nowrap hidden lg:table-cell"><AppMoney value={costs} size="sm" /></td>
+                        <td className="p-3 text-right tabular-nums whitespace-nowrap"><AppMoney value={margin} size="sm" colored /></td>
+                        <td className="p-3 tabular-nums whitespace-nowrap hidden md:table-cell">{pct.toFixed(1)}%</td>
+                        <td className="p-3 text-right tabular-nums whitespace-nowrap hidden xl:table-cell"><AppMoney value={revPerKm} size="sm" /></td>
+                        <td className="p-3 text-right tabular-nums whitespace-nowrap hidden xl:table-cell"><AppMoney value={cpk} size="sm" /></td>
+                        <td className="p-3 text-right tabular-nums whitespace-nowrap hidden xl:table-cell"><AppMoney value={spread} size="sm" colored /></td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
             </div>
           )}
         </div>

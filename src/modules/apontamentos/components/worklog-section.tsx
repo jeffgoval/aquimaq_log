@@ -3,7 +3,6 @@ import { toast } from 'sonner'
 import { useWorklogsByService, useCreateWorklog, useUpdateWorklog, useDeleteWorklog } from '../hooks/use-worklog-queries'
 import { AppLoadingState } from '@/shared/components/app/app-loading-state'
 import { AppEmptyState } from '@/shared/components/app/app-empty-state'
-import { AppDataCard } from '@/shared/components/app/app-data-card'
 import { AppBadge } from '@/shared/components/app/app-badge'
 import { AppButton } from '@/shared/components/app/app-button'
 import { useDisclosure } from '@/shared/hooks/use-disclosure'
@@ -496,53 +495,81 @@ export function WorklogSection({
           }
         />
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {data?.map((log) => {
-            const workedQty = isTruck
-              ? (log.worked_km ?? (log.end_odometer ?? 0) - (log.start_odometer ?? 0))
-              : (log.worked_hours ?? 0)
-            const line = computeWorklogLineAmounts(
-              workedQty,
-              contractedHourRate,
-              log.operators?.default_hour_rate,
-              chargeType,
-              !isTruck,
-            )
-            return (
-              <div key={log.id} className="relative">
-                <AppDataCard
-                  title={dayjs(log.work_date).format('DD/MM/YYYY')}
-                  subtitle={log.operators?.name || 'Sem operador'}
-                  icon={Clock}
-                  badge={
-                    <AppBadge variant="success">
-                      {isTruck
-                        ? `${workedQty.toFixed(1)} km`
-                        : `${(log.worked_hours ?? 0).toFixed(1)} h`}
-                    </AppBadge>
-                  }
-                  items={[
-                    { label: isTruck ? 'Odômetro início' : 'Horímetro início', value: `${isTruck ? log.start_odometer : log.start_hourmeter} ${isTruck ? 'km' : 'h'}` },
-                    { label: isTruck ? 'Odômetro fim' : 'Horímetro fim', value: `${isTruck ? log.end_odometer : log.end_hourmeter} ${isTruck ? 'km' : 'h'}` },
-                    ...(chargeType !== 'valor_fixo' ? [
-                      { label: 'Faturação (cliente)', value: <AppMoney value={line.billingLine} size="sm" /> },
-                    ] : [
-                      { label: 'Faturação', value: <span className="text-xs text-muted-foreground">Valor fixo</span> },
-                    ]),
-                    ...(!isTruck ? [
-                      { label: 'Custo operador', value: <AppMoney value={line.operatorCostLine} size="sm" /> },
-                      { label: 'Margem linha', value: <AppMoney value={line.marginLine} size="sm" colored /> },
-                    ] : []),
-                  ]}
-                  footer={
-                    <div className="space-y-2">
-                      {log.notes ? (
-                        <div className="flex gap-1.5 items-start pt-2 border-t border-border/50">
-                          <Tag className="h-3 w-3 text-muted-foreground mt-0.5 shrink-0" />
-                          <p className="text-xs text-muted-foreground italic line-clamp-2">&ldquo;{log.notes}&rdquo;</p>
-                        </div>
-                      ) : null}
-                      <div className="flex flex-wrap gap-2 pt-1">
+        <div className="overflow-x-auto rounded-xl border border-border bg-card">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border bg-muted/30 text-left">
+                <th className="p-3 font-medium whitespace-nowrap">Data</th>
+                <th className="p-3 font-medium">Operador</th>
+                <th className="p-3 font-medium whitespace-nowrap">{isTruck ? 'KM' : 'Horas'}</th>
+                <th className="p-3 font-medium hidden lg:table-cell whitespace-nowrap">
+                  {isTruck ? 'Odômetro' : 'Horímetro'}
+                </th>
+                <th className="p-3 font-medium hidden md:table-cell whitespace-nowrap">Faturação</th>
+                {!isTruck ? (
+                  <>
+                    <th className="p-3 font-medium hidden md:table-cell whitespace-nowrap">Custo operador</th>
+                    <th className="p-3 font-medium hidden md:table-cell whitespace-nowrap">Margem</th>
+                  </>
+                ) : null}
+                <th className="p-3 font-medium hidden xl:table-cell">Observações</th>
+                <th className="p-3 font-medium text-right whitespace-nowrap">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data?.map((log) => {
+                const workedQty = isTruck
+                  ? (log.worked_km ?? (log.end_odometer ?? 0) - (log.start_odometer ?? 0))
+                  : (log.worked_hours ?? 0)
+                const line = computeWorklogLineAmounts(
+                  workedQty,
+                  contractedHourRate,
+                  log.operators?.default_hour_rate,
+                  chargeType,
+                  !isTruck,
+                )
+                const meter = isTruck
+                  ? `${log.start_odometer ?? 0} → ${log.end_odometer ?? 0}`
+                  : `${log.start_hourmeter ?? 0} → ${log.end_hourmeter ?? 0}`
+                return (
+                  <tr key={log.id} className="border-b border-border last:border-0 hover:bg-muted/20">
+                    <td className="p-3 tabular-nums whitespace-nowrap">
+                      {dayjs(log.work_date).format('DD/MM/YYYY')}
+                    </td>
+                    <td className="p-3 min-w-0">
+                      <div className="font-medium text-foreground truncate">{log.operators?.name || 'Sem operador'}</div>
+                      <div className="text-xs text-muted-foreground md:hidden truncate">
+                        {meter} · {chargeType !== 'valor_fixo' ? `Fatur.: ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(line.billingLine)}` : 'Valor fixo'}
+                      </div>
+                    </td>
+                    <td className="p-3 whitespace-nowrap">
+                      <AppBadge variant="success">
+                        {isTruck ? `${workedQty.toFixed(1)} km` : `${workedQty.toFixed(1)} h`}
+                      </AppBadge>
+                    </td>
+                    <td className="p-3 hidden lg:table-cell typo-body-muted whitespace-nowrap">
+                      {meter}
+                    </td>
+                    <td className="p-3 hidden md:table-cell whitespace-nowrap">
+                      {chargeType !== 'valor_fixo'
+                        ? <AppMoney value={line.billingLine} size="sm" />
+                        : <span className="text-xs text-muted-foreground">Valor fixo</span>}
+                    </td>
+                    {!isTruck ? (
+                      <>
+                        <td className="p-3 hidden md:table-cell whitespace-nowrap">
+                          <AppMoney value={line.operatorCostLine} size="sm" />
+                        </td>
+                        <td className="p-3 hidden md:table-cell whitespace-nowrap">
+                          <AppMoney value={line.marginLine} size="sm" colored />
+                        </td>
+                      </>
+                    ) : null}
+                    <td className="p-3 hidden xl:table-cell typo-body-muted max-w-[420px] truncate" title={log.notes ?? ''}>
+                      {log.notes || '—'}
+                    </td>
+                    <td className="p-3 text-right whitespace-nowrap">
+                      <div className="inline-flex items-center gap-3">
                         {serviceLocked ? (
                           <button
                             type="button"
@@ -550,7 +577,7 @@ export function WorklogSection({
                             className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
                           >
                             <Pencil className="h-3 w-3" />
-                            {log.notes ? 'Editar observação' : 'Adicionar observação'}
+                            {log.notes ? 'Editar obs.' : 'Adicionar obs.'}
                           </button>
                         ) : (
                           <>
@@ -574,12 +601,12 @@ export function WorklogSection({
                           </>
                         )}
                       </div>
-                    </div>
-                  }
-                />
-              </div>
-            )
-          })}
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
         </div>
       )}
     </div>

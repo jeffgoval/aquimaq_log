@@ -21,7 +21,6 @@ import { AppButton } from '@/shared/components/app/app-button'
 import { useDisclosure } from '@/shared/hooks/use-disclosure'
 import { AppBadge } from '@/shared/components/app/app-badge'
 import { AppSearchInput } from '@/shared/components/app/app-search-input'
-import { AppDataCard } from '@/shared/components/app/app-data-card'
 import { ChevronRight, Plus, Wrench } from 'lucide-react'
 import type { MachineCostWithTractor } from '@/integrations/supabase/db-types'
 import { MachineCostDetailPanel } from '../components/machine-cost-detail-panel'
@@ -330,47 +329,74 @@ export function MachineCostListPage() {
           )
           : (
             <>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                {sortedFiltered?.map((cost) => {
-                  const payment = paymentBadgeForCost(cost.status)
-                  return (
-                  <AppDataCard
-                    key={cost.id}
-                    onClick={() => setSelectedCost(cost)}
-                    title={cost.tractors?.name || cost.trucks?.name || 'Maquinário'}
-                    subtitle={dayjs(cost.cost_date).format('DD [de] MMMM')}
-                    icon={Wrench}
-                    badge={
-                      <div className="flex flex-wrap gap-1 justify-end">
-                        <AppBadge variant="default" className="shrink-0">
-                          {COST_TYPE_BADGE_LABELS[cost.cost_type as keyof typeof COST_TYPE_BADGE_LABELS]}
-                        </AppBadge>
-                        <AppBadge variant={payment.variant}>{payment.label}</AppBadge>
-                      </div>
-                    }
-                    items={[
-                      { label: 'Valor', value: <AppMoney value={cost.amount} size="sm" /> },
-                      { label: 'Fornecedor', value: cost.suppliers?.name || cost.supplier_name || '—' },
-                    ]}
-                    footer={
-                      <div className="space-y-2 border-t border-border/50 pt-2">
-                        {cost.receipt_storage_path ? (
-                          <div className="w-fit" onClick={(e) => e.stopPropagation()}>
-                            <ReceiptViewButton storagePath={cost.receipt_storage_path} variant="secondary" size="sm" />
-                          </div>
-                        ) : null}
-                        {cost.description ? (
-                          <p className="text-xs text-muted-foreground line-clamp-2 italic">"{cost.description}"</p>
-                        ) : null}
-                        <p className="flex items-center gap-1 text-xs font-semibold text-primary">
-                          <ChevronRight className="h-3.5 w-3.5 shrink-0" aria-hidden />
-                          Abrir ficha — pagamento, observação e notinha
-                        </p>
-                      </div>
-                    }
-                  />
-                  )
-                })}
+              <div className="overflow-x-auto rounded-xl border border-border bg-card">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-border bg-muted/30 text-left">
+                      <th className="p-3 font-medium whitespace-nowrap">Data</th>
+                      <th className="p-3 font-medium">Veículo</th>
+                      <th className="p-3 font-medium whitespace-nowrap">Tipo</th>
+                      <th className="p-3 font-medium hidden lg:table-cell">Fornecedor</th>
+                      <th className="p-3 font-medium text-right whitespace-nowrap">Valor</th>
+                      <th className="p-3 font-medium whitespace-nowrap">Status</th>
+                      <th className="p-3 font-medium text-right whitespace-nowrap">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sortedFiltered?.map((cost) => {
+                      const payment = paymentBadgeForCost(cost.status)
+                      const vehicle = cost.tractors?.name || cost.trucks?.name || 'Maquinário'
+                      const supplier = cost.suppliers?.name || cost.supplier_name || '—'
+                      const desc = cost.description || '—'
+                      return (
+                        <tr
+                          key={cost.id}
+                          className="border-b border-border last:border-0 hover:bg-muted/20 cursor-pointer"
+                          onClick={() => setSelectedCost(cost)}
+                        >
+                          <td className="p-3 tabular-nums whitespace-nowrap">
+                            {dayjs(cost.cost_date).format('DD/MM/YYYY')}
+                          </td>
+                          <td className="p-3 min-w-0">
+                            <div className="font-medium text-foreground truncate">{vehicle}</div>
+                            <div className="text-xs text-muted-foreground lg:hidden truncate" title={desc}>
+                              {desc}
+                            </div>
+                          </td>
+                          <td className="p-3 whitespace-nowrap">
+                            <AppBadge variant="default">
+                              {COST_TYPE_BADGE_LABELS[cost.cost_type as keyof typeof COST_TYPE_BADGE_LABELS]}
+                            </AppBadge>
+                          </td>
+                          <td className="p-3 hidden lg:table-cell typo-body-muted max-w-[340px] truncate" title={supplier}>
+                            {supplier}
+                          </td>
+                          <td className="p-3 text-right tabular-nums whitespace-nowrap">
+                            <AppMoney value={cost.amount} size="sm" />
+                          </td>
+                          <td className="p-3 whitespace-nowrap">
+                            <AppBadge variant={payment.variant}>{payment.label}</AppBadge>
+                          </td>
+                          <td className="p-3 text-right whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
+                            <div className="inline-flex items-center gap-2">
+                              {cost.receipt_storage_path ? (
+                                <ReceiptViewButton storagePath={cost.receipt_storage_path} variant="secondary" size="sm" />
+                              ) : null}
+                              <button
+                                type="button"
+                                className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
+                                onClick={() => setSelectedCost(cost)}
+                              >
+                                <ChevronRight className="h-3.5 w-3.5 shrink-0" aria-hidden />
+                                Abrir
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
               </div>
               {selectedCost ? (
                 <MachineCostDetailPanel
