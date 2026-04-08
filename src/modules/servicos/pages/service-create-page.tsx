@@ -471,7 +471,7 @@ export function ServiceCreatePage() {
       {/* Navegação do wizard */}
       <div className="flex items-center justify-between gap-4 mt-6">
         {step > 1 ? (
-          <AppButton type="button" variant="secondary" size="md" className="flex items-center" onClick={() => setStep((s) => s - 1)}>
+          <AppButton type="button" variant="secondary" size="md" onClick={() => setStep((s) => s - 1)}>
             <ChevronLeft className="h-4 w-4 mr-1" />
             Voltar
           </AppButton>
@@ -486,7 +486,6 @@ export function ServiceCreatePage() {
             type="button"
             variant="primary"
             size="md"
-            className="flex items-center"
             onClick={goNext}
             disabled={
               (step === 1 && !step1Valid) ||
@@ -502,7 +501,6 @@ export function ServiceCreatePage() {
             type="button"
             variant="primary"
             size="md"
-            className="flex items-center"
             loading={createService.isPending}
             loadingText="Criando serviço..."
             onClick={() => void onSubmit()}

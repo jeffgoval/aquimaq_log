@@ -57,7 +57,7 @@ export function AppButton({
   return (
     <button
       disabled={disabled || loading}
-      className={cn(variantClasses[variant], sizeClasses[size][variant], className)}
+      className={cn('inline-flex items-center justify-center gap-1.5', variantClasses[variant], sizeClasses[size][variant], className)}
       {...props}
     >
       {loading ? loadingText : children}
