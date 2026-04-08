@@ -237,7 +237,12 @@ export const OperatorLedgerSection = ({ operatorId }: OperatorLedgerSectionProps
 
           <div>
             <label className="field-label">Observações</label>
-            <input className="field" placeholder="Ex.: quinzena fechada" {...editForm.register('notes')} />
+            <textarea
+              className="field resize-none"
+              rows={3}
+              placeholder="Ex.: quinzena fechada"
+              {...editForm.register('notes')}
+            />
           </div>
 
           <div className="flex items-center justify-end gap-2 pt-1">
@@ -293,7 +298,12 @@ export const OperatorLedgerSection = ({ operatorId }: OperatorLedgerSectionProps
           {serviceSelect(advanceForm)}
           <div>
             <label className="field-label">Observações</label>
-            <input className="field" placeholder="Ex.: vale combustível" {...advanceForm.register('notes')} />
+            <textarea
+              className="field resize-none"
+              rows={2}
+              placeholder="Ex.: vale combustível"
+              {...advanceForm.register('notes')}
+            />
           </div>
           <AppButton type="submit" size="sm" loading={insert.isPending} loadingText="...">
             Registrar vale
@@ -329,7 +339,12 @@ export const OperatorLedgerSection = ({ operatorId }: OperatorLedgerSectionProps
           {serviceSelect(paymentForm)}
           <div>
             <label className="field-label">Observações</label>
-            <input className="field" placeholder="Ex.: quinzena fechada" {...paymentForm.register('notes')} />
+            <textarea
+              className="field resize-none"
+              rows={2}
+              placeholder="Ex.: quinzena fechada"
+              {...paymentForm.register('notes')}
+            />
           </div>
           <AppButton type="submit" size="sm" variant="secondary" loading={insert.isPending} loadingText="...">
             Registrar pagamento
@@ -399,7 +414,12 @@ export const OperatorLedgerSection = ({ operatorId }: OperatorLedgerSectionProps
           </div>
           <div>
             <label className="field-label">Observações</label>
-            <input className="field" placeholder="Ex.: 10% frete São Paulo–Campinas" {...commissionForm.register('notes')} />
+            <textarea
+              className="field resize-none"
+              rows={2}
+              placeholder="Ex.: 10% frete São Paulo–Campinas"
+              {...commissionForm.register('notes')}
+            />
           </div>
           <AppButton type="submit" size="sm" className="bg-purple-600 hover:bg-purple-700 text-white" loading={insert.isPending} loadingText="...">
             Registrar comissão
