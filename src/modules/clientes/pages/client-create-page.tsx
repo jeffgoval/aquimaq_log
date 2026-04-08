@@ -8,6 +8,7 @@ import { ROUTES } from '@/shared/constants/routes'
 import { AppPageHeader } from '@/shared/components/app/app-page-header'
 import { AppButton } from '@/shared/components/app/app-button'
 import { AppPhoneInput, AppCpfCnpjInput } from '@/shared/components/app/app-numeric-input'
+import { AppCard } from '@/shared/components/app/app-card'
 
 type ReturnState = { returnTo?: string; draftKey?: string }
 
@@ -37,9 +38,9 @@ export function ClientCreatePage() {
   return (
     <div className="max-w-2xl">
       <AppPageHeader backTo={ROUTES.CLIENTS} backLabel="Voltar aos clientes" title="Novo Cliente" />
-      <form onSubmit={onSubmit} className="space-y-6">
-        <div className="rounded-xl border border-border bg-card p-6 space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <form onSubmit={onSubmit} className="space-y-5">
+        <AppCard className="space-y-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div className="sm:col-span-2">
               <label className="field-label">Nome / Razão Social *</label>
               <input {...register('name')} className="field" placeholder="Nome do cliente" />
@@ -91,7 +92,7 @@ export function ClientCreatePage() {
               </label>
             </div>
           </div>
-        </div>
+        </AppCard>
         <div className="flex items-center gap-3">
           <AppButton type="submit" variant="primary" size="lg" loading={create.isPending} loadingText="Salvando...">
             Cadastrar cliente

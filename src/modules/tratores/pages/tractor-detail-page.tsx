@@ -10,6 +10,7 @@ import { Edit, Clock, DollarSign, Droplets, TrendingDown } from 'lucide-react'
 import { ROUTES } from '@/shared/constants/routes'
 import { cn } from '@/shared/lib/cn'
 import { useTractorLatestHourmeterQuery } from '../hooks/use-preventive-oil-alerts'
+import { AppCard } from '@/shared/components/app/app-card'
 import {
   getOilChangeStatus,
   OIL_CHANGE_CRITICAL_HOURS,
@@ -137,7 +138,7 @@ export function TractorDetailPage() {
       )}
 
       {/* Details */}
-      <div className="rounded-xl border border-border bg-card p-6">
+      <AppCard>
         <h2 className="typo-section-title mb-4">Detalhes</h2>
         <dl className="grid grid-cols-2 gap-4 text-sm">
           {[
@@ -158,7 +159,7 @@ export function TractorDetailPage() {
             <dd className="text-sm text-foreground">{tractor.notes}</dd>
           </div>
         )}
-      </div>
+      </AppCard>
     </div>
   )
 }

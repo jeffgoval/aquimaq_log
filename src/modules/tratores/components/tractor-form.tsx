@@ -22,7 +22,7 @@ export const TractorForm = ({ controller }: TractorFormProps) => {
   const { form, onSubmit, isSubmitting, isEditing } = controller
 
   return (
-    <form onSubmit={onSubmit} className="space-y-6">
+    <form onSubmit={onSubmit} className="space-y-5">
       <FormSection title="Identificação">
         <FormGrid columns={2}>
           <RHFTextField

@@ -14,7 +14,7 @@ export interface FormGridProps {
 }
 
 export const FormGrid = ({ columns = 2, className, children }: FormGridProps) => (
-  <div className={cn('grid grid-cols-1 gap-4', columns > 1 && columnsClass[columns], className)}>
+  <div className={cn('grid grid-cols-1 gap-3 sm:gap-4', columns > 1 && columnsClass[columns], className)}>
     {children}
   </div>
 )

@@ -12,6 +12,7 @@ import { useServicesByOperatorWorklogs } from '@/modules/servicos/hooks/use-serv
 import dayjs from '@/shared/lib/dayjs'
 import { cn } from '@/shared/lib/cn'
 import { NumericFormat } from 'react-number-format'
+import { AppCard } from '@/shared/components/app/app-card'
 
 const ENTRY_LABELS: Record<string, string> = {
   advance: 'Adiantamento / Vale',
@@ -331,7 +332,7 @@ export const OperatorLedgerSection = ({ operatorId }: OperatorLedgerSectionProps
   ) : null
 
   return (
-    <div className="rounded-xl border border-border bg-card p-6 space-y-6">
+    <AppCard className="space-y-5">
       {typeof document !== 'undefined' ? createPortal(editModal, document.body) : null}
       {typeof document !== 'undefined' ? createPortal(viewModal, document.body) : null}
 
@@ -519,6 +520,6 @@ export const OperatorLedgerSection = ({ operatorId }: OperatorLedgerSectionProps
               </div>
             )}
       </div>
-    </div>
+    </AppCard>
   )
 }

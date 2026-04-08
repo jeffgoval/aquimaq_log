@@ -14,8 +14,8 @@ export const TruckForm = ({ form, onSubmit, isLoading, submitLabel }: Props) => 
   const { register, handleSubmit, formState: { errors }, control } = form
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 max-w-2xl">
-      <div className="grid gap-6 sm:grid-cols-2">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 max-w-2xl">
+      <div className="grid gap-4 sm:grid-cols-2">
         <div className="sm:col-span-2">
           <label className="field-label">Nome / Identificação *</label>
           <input className="field" {...register('name')} placeholder="Ex: Guincho 01" autoFocus />
@@ -27,7 +27,7 @@ export const TruckForm = ({ form, onSubmit, isLoading, submitLabel }: Props) => 
           <input className="field uppercase" {...register('plate')} placeholder="ABC1D23" />
         </div>
         
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4">
           <div>
             <label className="field-label">Marca</label>
             <input className="field" {...register('brand')} placeholder="Ex: VW" />

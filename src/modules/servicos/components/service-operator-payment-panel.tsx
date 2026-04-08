@@ -11,6 +11,7 @@ import { Link } from 'react-router-dom'
 import { ROUTES } from '@/shared/constants/routes'
 import { AppMoney } from '@/shared/components/app/app-money'
 import dayjs from '@/shared/lib/dayjs'
+import { AppCard } from '@/shared/components/app/app-card'
 
 const serviceOperatorPaymentSchema = z.object({
   operator_payment_status: z.enum(['pending', 'paid']),
@@ -68,7 +69,7 @@ export const ServiceOperatorPaymentPanel = ({
   if (!showPanel) return null
 
   return (
-    <div className="rounded-xl border border-border bg-card p-6 space-y-4">
+    <AppCard className="space-y-3">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
           <h2 className="typo-section-title mb-1">Pagamento ao operador</h2>
@@ -159,6 +160,6 @@ export const ServiceOperatorPaymentPanel = ({
           Guardar
         </AppButton>
       </form>
-    </div>
+    </AppCard>
   )
 }

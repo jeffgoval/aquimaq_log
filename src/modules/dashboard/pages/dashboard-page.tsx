@@ -10,6 +10,7 @@ import { Link } from 'react-router-dom'
 import { ROUTES } from '@/shared/constants/routes'
 import { PreventiveOilAlertsCard } from '../components/preventive-oil-alerts-card'
 import { AppBadge } from '@/shared/components/app/app-badge'
+import { AppCard } from '@/shared/components/app/app-card'
 import {
   getServicePaymentBadgeKind,
   getServicePaymentBadgeProps,
@@ -147,7 +148,7 @@ export function DashboardPage() {
 
       {/* Active services */}
       {activeServices.length > 0 && (
-        <div className="rounded-xl border border-border bg-card p-6">
+        <AppCard>
           <h2 className="typo-section-title mb-4">Serviços em aberto</h2>
           <div className="space-y-2">
             {activeServices.slice(0, 5).map(s => {
@@ -167,7 +168,7 @@ export function DashboardPage() {
               )
             })}
           </div>
-        </div>
+        </AppCard>
       )}
     </div>
   )

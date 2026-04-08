@@ -4,6 +4,7 @@ import { AppPageHeader } from '@/shared/components/app/app-page-header'
 import { AppLoadingState } from '@/shared/components/app/app-loading-state'
 import { AppErrorState } from '@/shared/components/app/app-error-state'
 import { ROUTES } from '@/shared/constants/routes'
+import { AppCard } from '@/shared/components/app/app-card'
 
 export function ClientDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -29,7 +30,7 @@ export function ClientDetailPage() {
           </Link>
         }
       />
-      <div className="rounded-xl border border-border bg-card p-6">
+      <AppCard>
         <dl className="grid grid-cols-2 gap-4 text-sm">
           {[
             { label: 'Documento', value: client.document || '—' },
@@ -41,7 +42,7 @@ export function ClientDetailPage() {
           ))}
         </dl>
         {client.notes && <p className="mt-4 pt-4 border-t border-border text-sm text-foreground">{client.notes}</p>}
-      </div>
+      </AppCard>
     </div>
   )
 }

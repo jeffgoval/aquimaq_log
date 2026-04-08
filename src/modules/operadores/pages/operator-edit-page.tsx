@@ -6,6 +6,7 @@ import { UnsavedChangesBanner } from '@/shared/components/app/unsaved-changes-ba
 import { useUnsavedWarning } from '@/shared/hooks/use-unsaved-warning'
 import { AppCurrencyInput, AppPhoneInput, AppCnhInput } from '@/shared/components/app/app-numeric-input'
 import { AppButton } from '@/shared/components/app/app-button'
+import { AppCard } from '@/shared/components/app/app-card'
 import { operatorSchema, type OperatorInput } from '../schemas/operator.schema'
 import { useOperator, useUpdateOperator } from '../hooks/use-operator-queries'
 import { ROUTES } from '@/shared/constants/routes'
@@ -69,9 +70,9 @@ export function OperatorEditPage() {
         description={operator?.name}
       />
       <UnsavedChangesBanner isDirty={isDirty} className="mb-4" />
-      <form onSubmit={onSubmit} className="space-y-6">
-        <div className="rounded-xl border border-border bg-card p-6 space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <form onSubmit={onSubmit} className="space-y-5">
+        <AppCard className="space-y-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div className="sm:col-span-2">
               <label className="field-label">Nome *</label>
               <input {...register('name')} className="field" placeholder="Nome completo" />
@@ -133,7 +134,7 @@ export function OperatorEditPage() {
             <label className="field-label">Observações</label>
             <textarea {...register('notes')} rows={3} className="field resize-none" placeholder="..." />
           </div>
-        </div>
+        </AppCard>
         <div className="flex items-center gap-3">
           <AppButton type="submit" variant="primary" size="lg" loading={update.isPending} loadingText="Salvando...">
             Salvar alterações

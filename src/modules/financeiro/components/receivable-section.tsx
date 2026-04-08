@@ -20,6 +20,7 @@ import dayjs from '@/shared/lib/dayjs'
 import { Banknote, DollarSign, Pencil, ChevronRight, ChevronLeft } from 'lucide-react'
 import { formatMoneyInputValue, parseMoneyInput } from '@/shared/lib/currency'
 import { cn } from '@/shared/lib/cn'
+import { AppCard } from '@/shared/components/app/app-card'
 
 interface ReceivableSectionProps {
   serviceId: string
@@ -208,7 +209,7 @@ export function ReceivableSection({ serviceId, clientId, suggestedTotal }: Recei
   const hasReceivables = !!data?.length
 
   return (
-    <div className="rounded-xl border border-border bg-card p-6 space-y-4">
+    <AppCard className="space-y-3">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h2 className="typo-section-title">Cobranças ao cliente</h2>
@@ -606,6 +607,6 @@ export function ReceivableSection({ serviceId, clientId, suggestedTotal }: Recei
           ))}
         </div>
       )}
-    </div>
+    </AppCard>
   )
 }

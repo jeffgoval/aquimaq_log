@@ -17,6 +17,7 @@ import { clientSchema, type ClientInput } from '@/modules/clientes/schemas/clien
 import { AppPhoneInput } from '@/shared/components/app/app-numeric-input'
 import { cn } from '@/shared/lib/cn'
 import dayjs from '@/shared/lib/dayjs'
+import { AppCard } from '@/shared/components/app/app-card'
 
 const STEPS = [
   { id: 1, label: 'Cliente' },
@@ -86,7 +87,7 @@ function NewClientModal({ onClose, onCreated }: { onClose: () => void; onCreated
       aria-modal="true"
       onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
     >
-      <div className="w-full max-w-md rounded-xl border border-border bg-card p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+      <div className="w-full max-w-md rounded-xl border border-border bg-card p-4 sm:p-5 shadow-2xl" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
           <div>
             <p className="font-semibold text-foreground">Cadastrar novo cliente</p>
@@ -250,7 +251,7 @@ export function ServiceCreatePage() {
 
       <StepBar current={step} />
 
-      <div className="rounded-xl border border-border bg-card p-6">
+      <AppCard>
 
         {/* PASSO 1 — Cliente */}
         {step === 1 && (
@@ -466,7 +467,7 @@ export function ServiceCreatePage() {
             </p>
           </div>
         )}
-      </div>
+      </AppCard>
 
       {/* Navegação do wizard */}
       <div className="flex items-center justify-between gap-4 mt-6">

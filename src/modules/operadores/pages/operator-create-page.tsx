@@ -2,6 +2,7 @@ import { useForm, Controller, type Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { AppCurrencyInput, AppPhoneInput, AppCnhInput } from '@/shared/components/app/app-numeric-input'
 import { AppButton } from '@/shared/components/app/app-button'
+import { AppCard } from '@/shared/components/app/app-card'
 import { useNavigate, Link } from 'react-router-dom'
 import { operatorSchema, type OperatorInput } from '../schemas/operator.schema'
 import { useCreateOperator } from '../hooks/use-operator-queries'
@@ -22,9 +23,9 @@ export function OperatorCreatePage() {
   return (
     <div className="max-w-2xl">
       <AppPageHeader backTo={ROUTES.OPERATORS} backLabel="Voltar aos operadores" title="Novo Operador" />
-      <form onSubmit={onSubmit} className="space-y-6">
-        <div className="rounded-xl border border-border bg-card p-6 space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <form onSubmit={onSubmit} className="space-y-5">
+        <AppCard className="space-y-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div className="sm:col-span-2">
               <label className="field-label">Nome *</label>
               <input {...register('name')} className="field" placeholder="Nome completo" />
@@ -86,7 +87,7 @@ export function OperatorCreatePage() {
             <label className="field-label">Observações</label>
             <textarea {...register('notes')} rows={3} className="field resize-none" placeholder="..." />
           </div>
-        </div>
+        </AppCard>
         <div className="flex items-center gap-3">
           <AppButton type="submit" variant="primary" size="lg" loading={create.isPending} loadingText="Salvando...">
             Cadastrar operador

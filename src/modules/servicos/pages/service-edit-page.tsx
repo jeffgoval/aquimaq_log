@@ -23,6 +23,7 @@ import { removeReceiptAtPathIfExists, uploadServiceReceipt, uploadServiceCheckou
 import type { Updates } from '@/integrations/supabase/db-types'
 import { UnsavedChangesBanner } from '@/shared/components/app/unsaved-changes-banner'
 import { useUnsavedWarning } from '@/shared/hooks/use-unsaved-warning'
+import { AppCard } from '@/shared/components/app/app-card'
 
 type ServiceUpdate = Updates<'services'>
 
@@ -164,9 +165,9 @@ export function ServiceEditPage() {
           Cliente, trator, data e taxa ficam bloqueados; use a secção de horímetro no detalhe do serviço para notas por lançamento.
         </p>
       )}
-      <form onSubmit={onSubmit} className="space-y-6">
-        <div className="rounded-xl border border-border bg-card p-6 space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <form onSubmit={onSubmit} className="space-y-5">
+        <AppCard className="space-y-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
             {locked ? (
               <>
                 <input type="hidden" {...register('client_id')} />
@@ -269,7 +270,7 @@ export function ServiceEditPage() {
                 {vehicleType === 'truck' && (
                   <div className="sm:col-span-3 pt-2 border-t border-border mt-2">
                     <h3 className="typo-section-title text-sm mb-3">Dados Logísticos (Guincho)</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                       <div>
                         <label className="field-label">Forma de Cobrança</label>
                         <select {...register('charge_type')} className="field">
@@ -341,7 +342,7 @@ export function ServiceEditPage() {
               <ReceiptPhotoPicker file={receiptFile} onChange={setReceiptFile} disabled={update.isPending} />
             </div>
           </div>
-        </div>
+        </AppCard>
         <div className="flex items-center gap-3">
           <AppButton type="submit" variant="primary" size="lg" loading={update.isPending} loadingText="Salvando...">
             Salvar alterações

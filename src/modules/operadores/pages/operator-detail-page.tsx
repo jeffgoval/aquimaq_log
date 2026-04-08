@@ -9,6 +9,7 @@ import { Clock, DollarSign, TrendingDown, ArrowUpRight, Banknote } from 'lucide-
 import { OperatorLedgerSection } from '../components/operator-ledger-section'
 import { Link } from 'react-router-dom'
 import { ROUTES } from '@/shared/constants/routes'
+import { AppCard } from '@/shared/components/app/app-card'
 
 export function OperatorDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -47,7 +48,7 @@ export function OperatorDetailPage() {
       )}
       <OperatorLedgerSection operatorId={operator.id} />
 
-      <div className="rounded-xl border border-border bg-card p-6 mt-6">
+      <AppCard className="mt-6">
         <h2 className="typo-section-title mb-4">Dados</h2>
         <dl className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
           {[
@@ -59,7 +60,7 @@ export function OperatorDetailPage() {
           ))}
         </dl>
         {operator.notes && <p className="mt-4 pt-4 border-t border-border text-sm text-foreground">{operator.notes}</p>}
-      </div>
+      </AppCard>
     </div>
   )
 }

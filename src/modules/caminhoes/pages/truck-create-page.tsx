@@ -16,14 +16,14 @@ export function TruckCreatePage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <AppPageHeader
         backTo={ROUTES.TRUCKS}
         backLabel="Voltar aos guinchos"
         title="Novo Guincho"
         description="Cadastro de veículo rodoviário"
       />
-      <div className="card max-w-3xl">
+      <div className="max-w-3xl rounded-xl border border-border bg-card p-4 sm:p-5">
         <TruckForm
           form={form}
           onSubmit={onSubmit}

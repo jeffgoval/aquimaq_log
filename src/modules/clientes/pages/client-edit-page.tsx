@@ -13,6 +13,7 @@ import { AppButton } from '@/shared/components/app/app-button'
 import { AppLoadingState } from '@/shared/components/app/app-loading-state'
 import { AppErrorState } from '@/shared/components/app/app-error-state'
 import { AppPhoneInput, AppCpfCnpjInput } from '@/shared/components/app/app-numeric-input'
+import { AppCard } from '@/shared/components/app/app-card'
 
 function nullIfEmpty(s: string | undefined): string | null {
   const t = s?.trim()
@@ -70,9 +71,9 @@ export function ClientEditPage() {
         description={client?.name}
       />
       <UnsavedChangesBanner isDirty={isDirty} className="mb-4" />
-      <form onSubmit={onSubmit} className="space-y-6">
-        <div className="rounded-xl border border-border bg-card p-6 space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <form onSubmit={onSubmit} className="space-y-5">
+        <AppCard className="space-y-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div className="sm:col-span-2">
               <label className="field-label">Nome / Razão Social *</label>
               <input {...register('name')} className="field" placeholder="Nome do cliente" />
@@ -124,7 +125,7 @@ export function ClientEditPage() {
               </label>
             </div>
           </div>
-        </div>
+        </AppCard>
         <div className="flex items-center gap-3">
           <AppButton type="submit" variant="primary" size="lg" loading={update.isPending} loadingText="Salvando...">
             Salvar alterações

@@ -8,7 +8,7 @@ export interface FormSectionProps {
 }
 
 export const FormSection = ({ title, className, children }: FormSectionProps) => (
-  <div className={cn('rounded-xl border border-border bg-card p-6 space-y-4', className)}>
+  <div className={cn('rounded-xl border border-border bg-card p-4 sm:p-5 space-y-3', className)}>
     <h2 className="typo-section-title">{title}</h2>
     {children}
   </div>

@@ -3,6 +3,7 @@ import { AppPageHeader } from '@/shared/components/app/app-page-header'
 import { AppButton } from '@/shared/components/app/app-button'
 import { AppPasswordInput } from '@/shared/components/app/app-password-input'
 import { AppLoadingState } from '@/shared/components/app/app-loading-state'
+import { AppCard } from '@/shared/components/app/app-card'
 import {
   useAccountProfileController,
   useAccountPasswordController,
@@ -26,7 +27,7 @@ export function AccountSettingsPage() {
   const { register: regPwd, formState: { errors: pwdErrors } } = password.form
 
   return (
-    <div className="max-w-2xl space-y-8">
+    <div className="max-w-2xl space-y-6">
       <AppPageHeader
         backTo={ROUTES.DASHBOARD}
         backLabel="Voltar ao início"
@@ -34,7 +35,7 @@ export function AccountSettingsPage() {
         description="Dados do perfil e segurança da sua conta."
       />
 
-      <section className="rounded-xl border border-border bg-card p-6 space-y-4">
+      <AppCard className="space-y-3">
         <h2 className="text-sm font-semibold text-foreground">Perfil</h2>
         <div>
           <label className="field-label">E-mail</label>
@@ -50,7 +51,7 @@ export function AccountSettingsPage() {
             O e-mail não pode ser alterado aqui.
           </p>
         </div>
-        <form onSubmit={profile.onSubmit} className="space-y-4">
+        <form onSubmit={profile.onSubmit} className="space-y-3">
           <div>
             <label className="field-label">Nome para exibição</label>
             <input
@@ -68,14 +69,14 @@ export function AccountSettingsPage() {
             {profile.isSubmitting ? 'Salvando…' : 'Salvar nome'}
           </AppButton>
         </form>
-      </section>
+      </AppCard>
 
-      <section className="rounded-xl border border-border bg-card p-6 space-y-4">
+      <AppCard className="space-y-3">
         <h2 className="text-sm font-semibold text-foreground">Alterar senha</h2>
         <p className="typo-caption text-muted-foreground">
           Confirme a senha atual por segurança antes de definir uma nova.
         </p>
-        <form onSubmit={password.onSubmit} className="space-y-4">
+        <form onSubmit={password.onSubmit} className="space-y-3">
           <div>
             <label className="field-label">Senha atual</label>
             <AppPasswordInput
@@ -110,7 +111,7 @@ export function AccountSettingsPage() {
             {password.isSubmitting ? 'Alterando…' : 'Alterar senha'}
           </AppButton>
         </form>
-      </section>
+      </AppCard>
     </div>
   )
 }

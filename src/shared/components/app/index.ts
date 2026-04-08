@@ -1,5 +1,6 @@
 export { AppBadge } from './app-badge'
 export { AppButton } from './app-button'
+export { AppCard } from './app-card'
 export { AppDataCard } from './app-data-card'
 export { AppEmptyState } from './app-empty-state'
 export { AppErrorState } from './app-error-state'
