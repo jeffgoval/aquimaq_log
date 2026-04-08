@@ -1,16 +1,48 @@
-import { Link } from 'react-router-dom'
+import { useEffect } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useCreateServiceController } from '../hooks/use-create-service-controller'
 import { Controller } from 'react-hook-form'
 import { AppCurrencyInput } from '@/shared/components/app/app-numeric-input'
 import { AppPageHeader } from '@/shared/components/app/app-page-header'
 import { AppButton } from '@/shared/components/app/app-button'
 import { ROUTES } from '@/shared/constants/routes'
+import type { CreateServiceInput } from '../schemas/service.schema'
+
+type ReturnState = { newClientId?: string; draftKey?: string }
 
 export function ServiceCreatePage() {
   const { form, onSubmit, isSubmitting, clients, tractors, trucks } = useCreateServiceController()
   const { register, control, watch, formState: { errors } } = form
+  const navigate = useNavigate()
+  const location = useLocation()
 
   const vehicleType = watch('vehicle_type')
+
+  useEffect(() => {
+    const state = (location.state ?? {}) as ReturnState
+    const draftKey = state.draftKey ?? 'service-create-draft'
+    const raw = sessionStorage.getItem(draftKey)
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw) as Partial<CreateServiceInput>
+        form.reset({ ...form.getValues(), ...parsed })
+      } finally {
+        sessionStorage.removeItem(draftKey)
+      }
+    }
+    if (state.newClientId) {
+      form.setValue('client_id', state.newClientId)
+      navigate(location.pathname, { replace: true, state: null })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const goCreateClient = () => {
+    const draftKey = 'service-create-draft'
+    const draft = form.getValues()
+    sessionStorage.setItem(draftKey, JSON.stringify(draft))
+    navigate(ROUTES.CLIENT_NEW, { state: { returnTo: `${location.pathname}${location.search}`, draftKey } })
+  }
 
   return (
     <div className="max-w-2xl">
@@ -31,9 +63,13 @@ export function ServiceCreatePage() {
               </select>
               {errors.client_id && <p className="field-error">{errors.client_id.message}</p>}
               <p className="mt-1.5 typo-caption">
-                <Link to={ROUTES.CLIENT_NEW} className="text-primary font-medium hover:underline">
+                <button
+                  type="button"
+                  className="text-primary font-medium hover:underline"
+                  onClick={goCreateClient}
+                >
                   Cadastrar cliente
-                </Link>
+                </button>
               </p>
             </div>
             <div className="sm:col-span-2">

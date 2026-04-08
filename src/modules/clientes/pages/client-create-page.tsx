@@ -1,4 +1,4 @@
-import { useNavigate, Link } from 'react-router-dom'
+import { useLocation, useNavigate, Link } from 'react-router-dom'
 import { useForm, Controller, type Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { clientSchema, type ClientInput } from '../schemas/client.schema'
@@ -8,8 +8,11 @@ import { AppPageHeader } from '@/shared/components/app/app-page-header'
 import { AppButton } from '@/shared/components/app/app-button'
 import { AppPhoneInput, AppCpfCnpjInput } from '@/shared/components/app/app-numeric-input'
 
+type ReturnState = { returnTo?: string; draftKey?: string }
+
 export function ClientCreatePage() {
   const navigate = useNavigate()
+  const location = useLocation()
   const create = useCreateClient()
   const form = useForm<ClientInput>({
     resolver: zodResolver(clientSchema) as Resolver<ClientInput>,
@@ -17,7 +20,15 @@ export function ClientCreatePage() {
   })
   const { register, control, formState: { errors } } = form
 
-  const onSubmit = form.handleSubmit(async (v) => { await create.mutateAsync(v); navigate(ROUTES.CLIENTS) })
+  const onSubmit = form.handleSubmit(async (v) => {
+    const created = await create.mutateAsync(v)
+    const state = (location.state ?? {}) as ReturnState
+    if (state.returnTo) {
+      navigate(state.returnTo, { replace: true, state: { newClientId: created.id, draftKey: state.draftKey } })
+      return
+    }
+    navigate(ROUTES.CLIENTS)
+  })
 
   return (
     <div className="max-w-2xl">
