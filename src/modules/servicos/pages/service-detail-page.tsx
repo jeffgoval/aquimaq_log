@@ -222,7 +222,7 @@ export function ServiceDetailPage() {
               <h2 className="typo-section-title mb-3">Dados do serviço</h2>
               <dl className="grid grid-cols-1 gap-4 typo-body sm:grid-cols-2 lg:grid-cols-4">
                 {[
-                  service.tractor_id ? {
+                  service.tractor_id && laborOperatorAttribution.kind !== 'none' ? {
                     label: 'Operador(es)',
                     value: <LaborOperatorsInService attribution={laborOperatorAttribution} />,
                   } : null,
