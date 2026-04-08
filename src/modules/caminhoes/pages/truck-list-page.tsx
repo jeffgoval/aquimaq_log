@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { Plus, Search, Truck } from 'lucide-react'
+import { Plus, Search } from 'lucide-react'
 import { useState } from 'react'
 import { useTrucks } from '../hooks/use-truck-queries'
 import { ROUTES } from '@/shared/constants/routes'
@@ -8,6 +8,7 @@ import { AppLoadingState } from '@/shared/components/app/app-loading-state'
 import { AppErrorState } from '@/shared/components/app/app-error-state'
 import { AppEmptyState } from '@/shared/components/app/app-empty-state'
 import { AppButton } from '@/shared/components/app/app-button'
+import { AppBadge } from '@/shared/components/app/app-badge'
 
 export function TruckListPage() {
   const { data: trucks, isLoading, isError, error } = useTrucks()
@@ -56,34 +57,48 @@ export function TruckListPage() {
           description={search ? 'Tente buscar com outros termos.' : 'Comece cadastrando um novo veículo na frota.'}
         />
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((t) => (
-            <div
-              key={t.id}
-              onClick={() => navigate(ROUTES.TRUCK_DETAIL(t.id))}
-              className="group cursor-pointer rounded-xl border border-border bg-card p-5 hover:border-primary/30 hover:shadow-md transition-all active:scale-[0.98]"
-            >
-              <div className="flex items-start justify-between">
-                <div>
-                  <h3 className="typo-section-title group-hover:text-primary transition-colors">{t.name}</h3>
-                  <div className="flex items-center gap-2 mt-1">
-                    {t.plate && <span className="typo-caption px-2 py-0.5 rounded-md bg-secondary text-secondary-foreground uppercase font-mono">{t.plate}</span>}
-                    {t.brand && <span className="typo-caption text-muted-foreground">{t.brand} {t.model}</span>}
-                  </div>
-                </div>
-                {!t.is_active && (
-                  <span className="shrink-0 text-[10px] font-medium px-2 py-1 bg-muted text-muted-foreground rounded-full">INATIVO</span>
-                )}
-              </div>
-              
-              <div className="mt-4 pt-4 border-t border-border/50 grid grid-cols-2 gap-4">
-                <div>
-                  <p className="typo-caption text-muted-foreground mb-0.5">Odômetro</p>
-                  <p className="font-semibold tabular-nums">{t.current_odometer.toLocaleString('pt-BR')} KM</p>
-                </div>
-              </div>
-            </div>
-          ))}
+        <div className="overflow-x-auto rounded-xl border border-border bg-card">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border bg-muted/30 text-left">
+                <th className="p-3 font-medium">Guincho</th>
+                <th className="p-3 font-medium hidden md:table-cell">Marca/Modelo</th>
+                <th className="p-3 font-medium hidden md:table-cell">Placa</th>
+                <th className="p-3 font-medium whitespace-nowrap">Odômetro</th>
+                <th className="p-3 font-medium whitespace-nowrap">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((t) => (
+                <tr
+                  key={t.id}
+                  className="border-b border-border last:border-0 hover:bg-muted/20 cursor-pointer"
+                  onClick={() => navigate(ROUTES.TRUCK_DETAIL(t.id))}
+                >
+                  <td className="p-3 min-w-0">
+                    <div className="font-medium text-foreground truncate">{t.name}</div>
+                    <div className="text-xs text-muted-foreground md:hidden truncate">
+                      {[t.brand, t.model].filter(Boolean).join(' ') || '—'} · {t.plate || '—'}
+                    </div>
+                  </td>
+                  <td className="p-3 hidden md:table-cell typo-body-muted">
+                    {[t.brand, t.model].filter(Boolean).join(' ') || '—'}
+                  </td>
+                  <td className="p-3 hidden md:table-cell typo-body-muted font-mono uppercase">
+                    {t.plate || '—'}
+                  </td>
+                  <td className="p-3 tabular-nums whitespace-nowrap">
+                    {t.current_odometer.toLocaleString('pt-BR')} km
+                  </td>
+                  <td className="p-3 whitespace-nowrap">
+                    <AppBadge variant={t.is_active ? 'success' : 'default'}>
+                      {t.is_active ? 'Ativo' : 'Inativo'}
+                    </AppBadge>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
     </div>
