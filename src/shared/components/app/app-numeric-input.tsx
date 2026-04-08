@@ -43,7 +43,7 @@ export const AppDecimalInput = forwardRef<HTMLInputElement, NumericFormatProps>(
     <NumericFormat
       {...props}
       getInputRef={ref}
-      className={cn('field', props.className)}
+      className={cn('field', props.disabled && 'opacity-40 cursor-not-allowed bg-muted/50', props.className)}
       onFocus={(e) => {
         props.onFocus?.(e)
         selectAllOnFocus(e as React.FocusEvent<HTMLInputElement>)

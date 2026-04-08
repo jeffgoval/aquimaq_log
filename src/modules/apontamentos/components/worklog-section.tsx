@@ -304,25 +304,32 @@ export function WorklogSection({
             </div>
             <div className="grid grid-cols-2 gap-2 sm:col-span-2 lg:col-span-1">
               <div>
-                <label className="field-label" title={isTruck ? "Odômetro inicial" : "Horímetro inicial"}>
+                <label className={cn('field-label', !form.operator_id && 'opacity-40')}>
                   {isTruck ? 'Odômetro inicial' : 'Horímetro inicial'}
                 </label>
                 <AppDecimalInput
                   value={form.start_value}
                   onValueChange={(v) => setForm((f) => ({ ...f, start_value: v.value }))}
                   placeholder="0,0"
+                  disabled={!form.operator_id}
                 />
               </div>
               <div>
-                <label className="field-label" title={isTruck ? "Odômetro final" : "Horímetro final"}>
+                <label className={cn('field-label', !form.operator_id && 'opacity-40')}>
                   {isTruck ? 'Odômetro final' : 'Horímetro final'}
                 </label>
                 <AppDecimalInput
                   value={form.end_value}
                   onValueChange={(v) => setForm((f) => ({ ...f, end_value: v.value }))}
                   placeholder="0,0"
+                  disabled={!form.operator_id}
                 />
               </div>
+              {!form.operator_id && (
+                <p className="col-span-2 text-xs text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 rounded-md px-3 py-2">
+                  Selecione o operador primeiro para liberar o {isTruck ? 'odômetro' : 'horímetro'}.
+                </p>
+              )}
             </div>
             <div className="sm:col-span-2 lg:col-span-3">
               <label className="field-label">Observações</label>
