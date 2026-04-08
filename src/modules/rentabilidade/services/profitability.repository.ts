@@ -18,7 +18,7 @@ function throwProfitabilityRpcError(error: PostgrestError): never {
     || /404/.test(msg)
   ) {
     throw new Error(
-      'Funções de rentabilidade em falta no Supabase. Aplique as migrações: npm run db:push (projeto hziovsgaqmrwthnlqobd).',
+      'Não foi possível carregar os dados de rentabilidade no momento. Tente novamente em instantes.',
     )
   }
   throw error

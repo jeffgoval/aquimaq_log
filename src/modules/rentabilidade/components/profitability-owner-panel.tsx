@@ -171,7 +171,7 @@ export const ProfitabilityOwnerPanel = ({
 
       {fleetSpendError ? (
         <p className="typo-body text-destructive rounded-lg border border-destructive/25 bg-destructive/5 px-4 py-3">
-          Não foi possível carregar o gráfico de gastos. Confirme que as funções de rentabilidade estão no Supabase (npm run db:push).
+          Não foi possível carregar o gráfico de gastos. Tente novamente em instantes.
         </p>
       ) : (
         <FleetSpendCategoryChart row={fleetSpend} isLoading={fleetSpendLoading} />
