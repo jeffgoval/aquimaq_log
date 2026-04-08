@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useForm, Controller, type Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Pencil, X } from 'lucide-react'
+import { Eye, Pencil, X } from 'lucide-react'
 import { AppButton } from '@/shared/components/app/app-button'
 import { AppCurrencyInput } from '@/shared/components/app/app-numeric-input'
 import { AppMoney } from '@/shared/components/app/app-money'
@@ -55,8 +55,11 @@ export const OperatorLedgerSection = ({ operatorId }: OperatorLedgerSectionProps
   const update = useUpdateOperatorLedgerEntry(operatorId)
 
   const [editingId, setEditingId] = useState<string | null>(null)
+  const [viewingId, setViewingId] = useState<string | null>(null)
   const editingRow = useMemo(() => (rows ?? []).find((r) => r.id === editingId) ?? null, [rows, editingId])
+  const viewingRow = useMemo(() => (rows ?? []).find((r) => r.id === viewingId) ?? null, [rows, viewingId])
   const editOpen = !!editingRow
+  const viewOpen = !!viewingRow
 
   const [selectedType, setSelectedType] = useState<OperatorLedgerMovementInput['entry_type']>('advance')
 
@@ -124,6 +127,8 @@ export const OperatorLedgerSection = ({ operatorId }: OperatorLedgerSectionProps
     setEditingId(null)
     editForm.reset(makeDefaults('advance'))
   }
+
+  const closeView = () => setViewingId(null)
 
   const onEditSubmit = editForm.handleSubmit(async (v) => {
     if (!editingRow) return
@@ -250,9 +255,85 @@ export const OperatorLedgerSection = ({ operatorId }: OperatorLedgerSectionProps
     </div>
   ) : null
 
+  const viewModal = viewOpen ? (
+    <div
+      className="fixed inset-0 z-100 flex items-center justify-center bg-black/60 p-4 animate-in fade-in duration-150"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Visualizar lançamento"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) closeView()
+      }}
+    >
+      <div className="w-full max-w-lg rounded-xl border border-border bg-card p-5 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-start justify-between gap-3 mb-4">
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-foreground">Lançamento</p>
+            <p className="text-xs text-muted-foreground">Visualização do registro (somente leitura).</p>
+          </div>
+          <AppButton type="button" variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={closeView} aria-label="Fechar">
+            <X className="h-4 w-4" />
+          </AppButton>
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-2 text-sm">
+          <div className="rounded-lg border border-border bg-muted/10 p-3">
+            <p className="text-xs text-muted-foreground">Tipo</p>
+            <p className="font-medium text-foreground">{ENTRY_LABELS[viewingRow.entry_type] ?? viewingRow.entry_type}</p>
+          </div>
+          <div className="rounded-lg border border-border bg-muted/10 p-3">
+            <p className="text-xs text-muted-foreground">Data</p>
+            <p className="font-medium text-foreground">{dayjs(viewingRow.entry_date).format('DD/MM/YYYY')}</p>
+          </div>
+          <div className="rounded-lg border border-border bg-muted/10 p-3">
+            <p className="text-xs text-muted-foreground">Valor</p>
+            <p className="font-medium text-foreground"><AppMoney value={viewingRow.amount} size="sm" /></p>
+          </div>
+          <div className="rounded-lg border border-border bg-muted/10 p-3">
+            <p className="text-xs text-muted-foreground">Serviço</p>
+            <p className="font-medium text-foreground">
+              {viewingRow.services
+                ? `${dayjs(viewingRow.services.service_date).format('DD/MM/YYYY')} · ${viewingRow.services.clients?.name ?? '—'}`
+                : '—'}
+            </p>
+          </div>
+          {viewingRow.entry_type === 'commission' && (viewingRow as { commission_percent?: number | null }).commission_percent != null ? (
+            <div className="rounded-lg border border-border bg-muted/10 p-3 sm:col-span-2">
+              <p className="text-xs text-muted-foreground">% (referência)</p>
+              <p className="font-medium text-foreground">
+                {Number((viewingRow as { commission_percent?: number | null }).commission_percent).toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}%
+              </p>
+            </div>
+          ) : null}
+          <div className="rounded-lg border border-border bg-muted/10 p-3 sm:col-span-2">
+            <p className="text-xs text-muted-foreground">Observações</p>
+            <p className="font-medium text-foreground whitespace-pre-wrap wrap-break-word">{viewingRow.notes || '—'}</p>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-end gap-2 pt-4">
+          <AppButton type="button" variant="secondary" size="sm" onClick={closeView}>
+            Fechar
+          </AppButton>
+          <AppButton
+            type="button"
+            size="sm"
+            onClick={() => {
+              setEditingId(viewingRow.id)
+              closeView()
+            }}
+          >
+            Editar
+          </AppButton>
+        </div>
+      </div>
+    </div>
+  ) : null
+
   return (
     <div className="rounded-xl border border-border bg-card p-6 space-y-6">
       {typeof document !== 'undefined' ? createPortal(editModal, document.body) : null}
+      {typeof document !== 'undefined' ? createPortal(viewModal, document.body) : null}
 
       <div>
         <h2 className="typo-section-title mb-1">Registrar movimentação financeira</h2>
@@ -408,16 +489,28 @@ export const OperatorLedgerSection = ({ operatorId }: OperatorLedgerSectionProps
                           {row.notes || '—'}
                         </td>
                         <td className="p-3 text-right">
-                          <AppButton
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            className="gap-2"
-                            onClick={() => setEditingId(row.id)}
-                          >
-                            <Pencil className="h-4 w-4" />
-                            Editar
-                          </AppButton>
+                          <div className="inline-flex items-center gap-2 justify-end">
+                            <AppButton
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              className="gap-2"
+                              onClick={() => setViewingId(row.id)}
+                            >
+                              <Eye className="h-4 w-4" />
+                              Ver
+                            </AppButton>
+                            <AppButton
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              className="gap-2"
+                              onClick={() => setEditingId(row.id)}
+                            >
+                              <Pencil className="h-4 w-4" />
+                              Editar
+                            </AppButton>
+                          </div>
                         </td>
                       </tr>
                     ))}
