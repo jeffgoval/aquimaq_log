@@ -15,7 +15,7 @@ VITE_SUPABASE_ANON_KEY=…`}
           </pre>
         </div>
         <p className="typo-caption text-muted-foreground">
-          Depois de guardar o ficheiro, reinicie o servidor (<kbd className="px-1 rounded bg-muted">npm run dev</kbd>
+          Depois de salvar o arquivo, reinicie o servidor (<kbd className="px-1 rounded bg-muted">npm run dev</kbd>
           ).
         </p>
       </div>

@@ -26,12 +26,12 @@ export function ForgotPasswordPage() {
     <div>
       <h2 className="typo-auth-screen-title mb-1">Recuperar senha</h2>
       <p className="typo-body-muted mb-8">
-        Enviaremos um link para redefinir sua senha
+        Enviaremos um link para você redefinir sua senha.
       </p>
 
       {isSubmitSuccessful ? (
         <p className="text-sm text-green-800 bg-green-100 dark:text-green-400 dark:bg-green-500/15 rounded-lg p-4">
-          Verifique sua caixa de e-mail para o link de recuperação.
+          Verifique sua caixa de entrada para acessar o link de recuperação.
         </p>
       ) : (
         <form onSubmit={onSubmit} className="space-y-4">

@@ -65,23 +65,23 @@ export function AppPwaInstall() {
   if (isStandalone || !isVisible) return null
 
   return (
-    <div className="fixed bottom-20 left-4 right-4 z-[100] max-w-[calc(100vw-2rem)] lg:hidden animate-in slide-in-from-bottom-5 duration-300">
+    <div className="fixed bottom-20 left-4 right-4 z-100 max-w-[calc(100vw-2rem)] lg:hidden animate-in slide-in-from-bottom-5 duration-300">
       <div className="flex max-w-full min-w-0 items-center justify-between gap-3 rounded-2xl border border-primary/20 bg-card/95 p-4 shadow-2xl backdrop-blur-xl sm:gap-4">
         <div className="flex min-w-0 flex-1 items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl gradient-cat shrink-0 shadow-lg shadow-primary/20">
             <Download className="h-5 w-5 text-primary-foreground" />
           </div>
           <div className="min-w-0">
-            <p className="text-sm font-bold break-words text-foreground">Instalar Aquimaq Log</p>
+            <p className="text-sm font-bold wrap-break-word text-foreground">Instalar Aquimaq Log</p>
             {isIOS ? (
               <div className="mt-0.5 flex items-start gap-1.5">
                 <Share className="mt-0.5 h-3 w-3 shrink-0 text-muted-foreground" />
-                <p className="text-xs leading-tight break-words text-muted-foreground">
-                  Toque em "Compartilhar" e "Adicionar à Tela de Início"
+                <p className="text-xs leading-tight wrap-break-word text-muted-foreground">
+                  Toque em "Compartilhar" e depois em "Adicionar à Tela de Início".
                 </p>
               </div>
             ) : (
-              <p className="text-xs break-words text-muted-foreground">Experimente como um app nativo</p>
+              <p className="text-xs wrap-break-word text-muted-foreground">Instale para usar como um app.</p>
             )}
           </div>
         </div>
@@ -92,7 +92,7 @@ export function AppPwaInstall() {
               onClick={handleInstallClick}
               className="bg-primary text-primary-foreground text-xs font-bold px-4 py-2 rounded-lg hover:opacity-90 active:scale-95 transition-all"
             >
-              Baixar
+              Instalar
             </button>
           )}
           <button

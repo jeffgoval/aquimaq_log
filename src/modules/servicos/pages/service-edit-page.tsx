@@ -325,7 +325,7 @@ export function ServiceEditPage() {
             <div className="sm:col-span-3 rounded-lg border border-border/80 bg-muted/20 p-4 space-y-3">
               <p className="text-sm font-medium text-foreground">Recibo / nota do serviço</p>
               <p className="text-xs text-muted-foreground">
-                Guarde a foto do recibo assinado ou da NF para consulta futura (bucket seguro no Supabase).
+                Guarde a foto do recibo assinado ou da NF (bucket seguro no Supabase).
               </p>
               {service.receipt_storage_path ? (
                 <div className="flex flex-wrap items-center gap-2">

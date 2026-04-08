@@ -6,7 +6,7 @@ interface AppErrorStateProps {
 }
 
 export function AppErrorState({
-  message = 'Erro ao carregar dados.',
+  message = 'Não foi possível carregar os dados.',
   onRetry,
 }: AppErrorStateProps) {
   return (

@@ -11,7 +11,7 @@ export interface ReceiptPhotoPickerProps {
   label?: string
 }
 
-export const ReceiptPhotoPicker = ({ file, onChange, disabled, className, label = 'Foto da notinha' }: ReceiptPhotoPickerProps) => {
+export const ReceiptPhotoPicker = ({ file, onChange, disabled, className, label = 'Foto do recibo' }: ReceiptPhotoPickerProps) => {
   const inputId = useId()
   const inputRef = useRef<HTMLInputElement>(null)
   const previewUrl = useMemo(() => (file ? URL.createObjectURL(file) : null), [file])
@@ -62,7 +62,7 @@ export const ReceiptPhotoPicker = ({ file, onChange, disabled, className, label 
             onClick={() => inputRef.current?.click()}
           >
             <Camera className="h-4 w-4 shrink-0" />
-            Tirar / anexar foto
+            Tirar ou anexar foto
           </AppButton>
         </div>
       ) : (

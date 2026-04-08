@@ -18,7 +18,7 @@ export function ServiceCreatePage() {
         backTo={ROUTES.SERVICES}
         backLabel="Voltar aos serviços"
         title="Novo Serviço"
-        description="Cadastre o trabalho. Desconto do dono (R$) e contas a receber ficam na ficha do serviço depois de criar."
+        description="Cadastre o serviço. O desconto do proprietário (R$) e as contas a receber ficam disponíveis após a criação."
       />
       <form onSubmit={onSubmit} className="space-y-6">
         <div className="rounded-xl border border-border bg-card p-6 space-y-4">
@@ -87,12 +87,12 @@ export function ServiceCreatePage() {
             </div>
             <div className="sm:col-span-3">
               <label className="field-label">Observações</label>
-              <textarea {...register('notes')} rows={2} className="field resize-none" placeholder="Detalhes, condições, localidade..." />
+              <textarea {...register('notes')} rows={2} className="field resize-none" placeholder="Detalhes, condições, local…" />
             </div>
             {vehicleType === 'truck' && (
               <>
                 <div className="sm:col-span-3 pt-2 border-t border-border mt-2">
-                  <h3 className="typo-section-title text-sm mb-3">Dados Logísticos (Guincho)</h3>
+                  <h3 className="typo-section-title text-sm mb-3">Dados logísticos (guincho)</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div>
                       <label className="field-label">Forma de Cobrança</label>
@@ -108,7 +108,7 @@ export function ServiceCreatePage() {
                     </div>
                     <div>
                       <label className="field-label">Marca/Modelo</label>
-                      <input {...register('towed_vehicle_brand')} className="field" placeholder="Ex: VW Gol" />
+                      <input {...register('towed_vehicle_brand')} className="field" placeholder="Ex.: VW Gol" />
                     </div>
                     <div className="sm:col-span-1.5">
                       <label className="field-label">Origem</label>

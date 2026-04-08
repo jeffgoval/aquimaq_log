@@ -34,7 +34,7 @@ export class AppErrorBoundary extends Component<Props, State> {
           <div className="space-y-1">
             <h1 className="text-lg font-bold text-foreground">Algo deu errado</h1>
             <p className="text-sm text-muted-foreground max-w-xs">
-              O app encontrou um erro inesperado. O problema foi registrado automaticamente.
+              O app encontrou um erro inesperado. Registramos o incidente automaticamente.
             </p>
           </div>
           <div className="flex flex-col gap-2 w-full max-w-xs mt-2">
