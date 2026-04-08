@@ -218,53 +218,112 @@ export function ServiceDetailPage() {
         {/* ABA: DADOS */}
         {activeTab === 'dados' && (
           <div className="space-y-4 animate-in fade-in duration-150">
-            <div className="rounded-xl border border-border bg-card p-6">
-              <h2 className="typo-section-title mb-3">Dados do serviço</h2>
-              <dl className="grid grid-cols-1 gap-4 typo-body sm:grid-cols-2 lg:grid-cols-4">
-                {[
-                  service.tractor_id && laborOperatorAttribution.kind !== 'none' ? {
-                    label: 'Operador(es)',
-                    value: <LaborOperatorsInService attribution={laborOperatorAttribution} />,
-                  } : null,
-                  { label: 'Data', value: dayjs(service.service_date).format('DD/MM/YYYY') },
-                  service.tractor_id
-                    ? (service.tractors
-                        ? { label: 'Custo/h base', value: service.tractors.standard_hour_cost != null ? <AppMoney value={Number(service.tractors.standard_hour_cost)} size="sm" /> : '—' }
-                        : { label: 'Custo/h base', value: '—' })
-                    : null,
-                  ...(service.truck_id ? [
-                    { label: 'Cobrança', value: service.charge_type === 'por_km' ? 'Por KM' : service.charge_type === 'valor_fixo' ? 'Valor Fixo' : 'Por Hora' },
-                    { label: 'Placa socorrido', value: service.towed_vehicle_plate || '—' },
-                    { label: 'Veículo socorrido', value: service.towed_vehicle_brand ? `${service.towed_vehicle_brand} ${service.towed_vehicle_model || ''}`.trim() : service.towed_vehicle_model || '—' },
-                    { label: 'Origem', value: service.origin_location || '—' },
-                    { label: 'Destino', value: service.destination_location || '—' },
-                  ] : []),
-                ].filter(Boolean).map((item) => {
-                  const { label, value } = item as { label: string; value: React.ReactNode }
-                  return (
-                    <div key={label}>
-                      <dt className="typo-caption truncate">{label}</dt>
-                      <dd className="font-medium mt-1 uppercase text-sm">{value}</dd>
-                    </div>
-                  )
-                })}
-              </dl>
-              {service.notes && <p className="mt-4 pt-4 border-t border-border typo-body-muted">{service.notes}</p>}
-              {service.truck_id && (service.checkout_photo_path || service.checkout_notes) ? (
-                <div className="mt-4 pt-4 border-t border-amber-200 dark:border-amber-500/30 space-y-2">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-amber-700 dark:text-amber-400">Vistoria antes do reboque</p>
-                  {service.checkout_notes && <p className="text-sm text-muted-foreground">{service.checkout_notes}</p>}
-                  {service.checkout_photo_path && (
-                    <ReceiptViewButton storagePath={service.checkout_photo_path} label="Ver foto da vistoria" variant="secondary" size="sm" />
-                  )}
+            <div className="rounded-xl border border-border bg-card divide-y divide-border overflow-hidden">
+
+              {/* Linha: Cliente */}
+              <div className="flex items-center gap-4 px-5 py-4">
+                <span className="w-36 shrink-0 text-sm text-muted-foreground">Cliente</span>
+                <span className="text-sm font-medium text-foreground">{service.clients?.name ?? '—'}</span>
+              </div>
+
+              {/* Linha: Veículo */}
+              <div className="flex items-center gap-4 px-5 py-4">
+                <span className="w-36 shrink-0 text-sm text-muted-foreground">
+                  {service.truck_id ? 'Guincho / Caminhão' : 'Trator'}
+                </span>
+                <span className="text-sm font-medium text-foreground">
+                  {service.tractors?.name || service.trucks?.name || '—'}
+                </span>
+              </div>
+
+              {/* Linha: Data */}
+              <div className="flex items-center gap-4 px-5 py-4">
+                <span className="w-36 shrink-0 text-sm text-muted-foreground">Data</span>
+                <span className="text-sm font-medium text-foreground">
+                  {dayjs(service.service_date).format('DD/MM/YYYY')}
+                </span>
+              </div>
+
+              {/* Linha: Operador(es) — só se houver */}
+              {laborOperatorAttribution.kind !== 'none' && (
+                <div className="flex items-center gap-4 px-5 py-4">
+                  <span className="w-36 shrink-0 text-sm text-muted-foreground">Operador</span>
+                  <span className="text-sm font-medium text-foreground">
+                    <LaborOperatorsInService attribution={laborOperatorAttribution} />
+                  </span>
                 </div>
-              ) : null}
-              {service.receipt_storage_path ? (
-                <div className="mt-4 pt-4 border-t border-border flex flex-wrap items-center gap-3">
-                  <span className="typo-caption">Recibo anexado</span>
+              )}
+
+              {/* Linhas específicas de guincho */}
+              {service.truck_id && (
+                <>
+                  {service.charge_type && (
+                    <div className="flex items-center gap-4 px-5 py-4">
+                      <span className="w-36 shrink-0 text-sm text-muted-foreground">Cobrança</span>
+                      <span className="text-sm font-medium text-foreground">
+                        {service.charge_type === 'por_km' ? 'Por KM rodado' : service.charge_type === 'valor_fixo' ? 'Valor fixo' : 'Por hora'}
+                      </span>
+                    </div>
+                  )}
+                  {service.towed_vehicle_plate && (
+                    <div className="flex items-center gap-4 px-5 py-4">
+                      <span className="w-36 shrink-0 text-sm text-muted-foreground">Placa socorrido</span>
+                      <span className="text-sm font-medium text-foreground">{service.towed_vehicle_plate}</span>
+                    </div>
+                  )}
+                  {(service.towed_vehicle_brand || service.towed_vehicle_model) && (
+                    <div className="flex items-center gap-4 px-5 py-4">
+                      <span className="w-36 shrink-0 text-sm text-muted-foreground">Veículo socorrido</span>
+                      <span className="text-sm font-medium text-foreground">
+                        {[service.towed_vehicle_brand, service.towed_vehicle_model].filter(Boolean).join(' ')}
+                      </span>
+                    </div>
+                  )}
+                  {service.origin_location && (
+                    <div className="flex items-center gap-4 px-5 py-4">
+                      <span className="w-36 shrink-0 text-sm text-muted-foreground">Origem</span>
+                      <span className="text-sm font-medium text-foreground">{service.origin_location}</span>
+                    </div>
+                  )}
+                  {service.destination_location && (
+                    <div className="flex items-center gap-4 px-5 py-4">
+                      <span className="w-36 shrink-0 text-sm text-muted-foreground">Destino</span>
+                      <span className="text-sm font-medium text-foreground">{service.destination_location}</span>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* Observações */}
+              {service.notes && (
+                <div className="flex items-start gap-4 px-5 py-4">
+                  <span className="w-36 shrink-0 text-sm text-muted-foreground">Observações</span>
+                  <span className="text-sm text-foreground">{service.notes}</span>
+                </div>
+              )}
+
+              {/* Vistoria (guincho) */}
+              {service.truck_id && (service.checkout_photo_path || service.checkout_notes) && (
+                <div className="flex items-start gap-4 px-5 py-4 bg-amber-50/50 dark:bg-amber-500/5">
+                  <span className="w-36 shrink-0 text-sm text-muted-foreground">Vistoria</span>
+                  <div className="space-y-2">
+                    {service.checkout_notes && (
+                      <p className="text-sm text-foreground">{service.checkout_notes}</p>
+                    )}
+                    {service.checkout_photo_path && (
+                      <ReceiptViewButton storagePath={service.checkout_photo_path} label="Ver foto da vistoria" variant="secondary" size="sm" />
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Recibo */}
+              {service.receipt_storage_path && (
+                <div className="flex items-center gap-4 px-5 py-4">
+                  <span className="w-36 shrink-0 text-sm text-muted-foreground">Recibo</span>
                   <ReceiptViewButton storagePath={service.receipt_storage_path} variant="secondary" size="sm" />
                 </div>
-              ) : null}
+              )}
             </div>
 
             <ServiceOwnerDiscountCard
