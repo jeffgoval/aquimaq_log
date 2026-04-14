@@ -12,6 +12,7 @@ const baseTractor = (over: Partial<Tables<'tractors'>>): Tables<'tractors'> => (
   plate: null,
   brand: null,
   model: null,
+  default_hour_rate: 0,
   purchase_value: 0,
   residual_value: 0,
   useful_life_hours: 5000,
