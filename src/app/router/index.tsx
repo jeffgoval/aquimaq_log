@@ -3,6 +3,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { Navigate } from 'react-router-dom'
 import { AppRouteShell } from './scroll-to-top'
 import { ProtectedRoute } from './protected-route'
+import { RequirePermission } from './require-permission'
 import { AppLayout } from '@/app/layouts/app-layout'
 import { AuthLayout } from '@/app/layouts/auth-layout'
 import { ROUTES } from '@/shared/constants/routes'
@@ -91,13 +92,18 @@ const router = createBrowserRouter([
               { path: ROUTES.RECEIVABLES,        element: <ReceivableListPage /> },
               { path: ROUTES.MACHINE_COSTS,      element: <MachineCostListPage /> },
               { path: ROUTES.PROFITABILITY,      element: <ProfitabilityPage /> },
-              { path: ROUTES.RESOURCES,          element: <ResourceListPage /> },
-              { path: ROUTES.RESOURCE_NEW,       element: <ResourceCreatePage /> },
-              { path: '/recursos/:id',           element: <ResourceDetailPage /> },
-              { path: '/recursos/:id/editar',    element: <ResourceEditPage /> },
-              { path: ROUTES.BOOKINGS_CALENDAR,  element: <ReservasCalendarPage /> },
-              { path: ROUTES.BOOKING_NEW,        element: <ReservasCreatePage /> },
-              { path: ROUTES.BOOKINGS_LIST,      element: <ReservasListPage /> },
+              {
+                element: <RequirePermission permission="bookings.view" />,
+                children: [
+                  { path: ROUTES.RESOURCES,          element: <ResourceListPage /> },
+                  { path: ROUTES.RESOURCE_NEW,       element: <ResourceCreatePage /> },
+                  { path: '/recursos/:id',           element: <ResourceDetailPage /> },
+                  { path: '/recursos/:id/editar',    element: <ResourceEditPage /> },
+                  { path: ROUTES.BOOKINGS_CALENDAR,  element: <ReservasCalendarPage /> },
+                  { path: ROUTES.BOOKING_NEW,        element: <ReservasCreatePage /> },
+                  { path: ROUTES.BOOKINGS_LIST,      element: <ReservasListPage /> },
+                ],
+              },
               { path: ROUTES.ACCOUNT,            element: <AccountSettingsPage /> },
             ],
           },

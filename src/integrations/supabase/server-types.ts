@@ -1350,6 +1350,7 @@ export type Database = {
           useful_life_km: number
         }[]
       }
+      get_my_permissions: { Args: never; Returns: string[] }
       log_check_availability: {
         Args: {
           p_end_date: string
