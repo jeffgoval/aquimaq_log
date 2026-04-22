@@ -39,7 +39,7 @@ export const NAV_ITEMS: NavItem[] = [
 /** Barra inferior mobile (4 atalhos) — deriva de NAV_ITEMS para não duplicar rotas. */
 const MOBILE_BOTTOM_HREFS: readonly string[] = [
   ROUTES.DASHBOARD,
-  ROUTES.MACHINE_COSTS,
+  ROUTES.BOOKINGS_CALENDAR,
   ROUTES.SERVICES,
   ROUTES.RECEIVABLES,
 ]
