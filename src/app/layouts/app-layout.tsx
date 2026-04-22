@@ -4,7 +4,6 @@ import { APP_MAIN_SCROLL_ID } from '@/app/router/scroll-to-top'
 import { Sidebar } from './components/sidebar'
 import { MobileHeader } from './components/mobile-header'
 import { MobileBottomNav } from './components/mobile-bottom-nav'
-import { AppPwaInstall } from '@/shared/components/app/app-pwa-install'
 import { AppLoadingState } from '@/shared/components/app/app-loading-state'
 
 export const AppLayout = () => {
@@ -37,8 +36,6 @@ export const AppLayout = () => {
         {/* Navegação Inferior Mobile */}
         <MobileBottomNav />
 
-        {/* Banner de Instalação PWA */}
-        <AppPwaInstall />
       </div>
     </div>
   )
