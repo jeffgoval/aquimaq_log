@@ -1,12 +1,67 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { RefreshCw, X } from 'lucide-react'
 import { useRegisterSW } from 'virtual:pwa-register/react'
 import { cn } from '@/shared/lib/cn'
 
+/**
+ * Limpa Cache Storage e desregista todos os Service Workers, com teto de tempo
+ * por passo (evita promises que nunca resolvem no Safari / PWA reinstalado).
+ */
+async function clearPwaAndServiceWorkersForReload(): Promise<void> {
+  if ('caches' in window) {
+    try {
+      const names = await Promise.race([
+        caches.keys(),
+        new Promise<string[]>((r) => {
+          setTimeout(() => {
+            r([])
+          }, 4000)
+        }),
+      ])
+      for (const name of names) {
+        try {
+          await Promise.race([
+            caches.delete(name),
+            new Promise<boolean>((r) => {
+              setTimeout(() => {
+                r(false)
+              }, 3000)
+            }),
+          ])
+        } catch {
+          /* noop */
+        }
+      }
+    } catch {
+      /* noop */
+    }
+  }
+
+  if ('serviceWorker' in navigator) {
+    try {
+      const regs = await Promise.race([
+        navigator.serviceWorker.getRegistrations(),
+        new Promise<ServiceWorkerRegistration[]>((r) => {
+          setTimeout(() => {
+            r([])
+          }, 4000)
+        }),
+      ])
+      await Promise.race([
+        Promise.all(regs.map((reg) => reg.unregister())),
+        new Promise<void>((r) => {
+          setTimeout(r, 4000)
+        }),
+      ])
+    } catch {
+      /* noop */
+    }
+  }
+}
+
 export function PwaUpdatePrompt() {
   const {
     needRefresh: [needRefresh, setNeedRefresh],
-    updateServiceWorker,
   } = useRegisterSW({
     immediate: true,
     onOfflineReady() {
@@ -16,50 +71,29 @@ export function PwaUpdatePrompt() {
     },
   })
 
-  const [isUpdating, setIsUpdating] = useState(false)
+  const [isBusy, setIsBusy] = useState(false)
+  const runOnceRef = useRef(false)
 
   if (!needRefresh) return null
 
   const handleUpdate = () => {
-    if (isUpdating) return
-    setIsUpdating(true)
+    if (isBusy || runOnceRef.current) return
+    runOnceRef.current = true
+    setIsBusy(true)
 
-    // `updateServiceWorker` pode ficar pendente (ex.: mensagem ao SW sem resposta).
-    // Recarregamos no `controllerchange` (caminho normal) ou após timeout (fallback).
-    const fallbackMs = 4000
-    const raceMs = 2000
-    let fallbackId: ReturnType<typeof setTimeout> | undefined
-
-    const clearFallback = () => {
-      if (fallbackId !== undefined) {
-        window.clearTimeout(fallbackId)
-        fallbackId = undefined
-      }
-    }
-
-    const reload = () => {
-      clearFallback()
+    // Sempre sair deste fluxo com reload, mesmo que promises fiquem presas.
+    const safetyId = window.setTimeout(() => {
       window.location.reload()
-    }
-
-    fallbackId = window.setTimeout(reload, fallbackMs)
-
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.addEventListener('controllerchange', reload, { once: true })
-    }
+    }, 9000)
 
     void (async () => {
       try {
-        await Promise.race([
-          updateServiceWorker(true),
-          new Promise<void>((resolve) => {
-            window.setTimeout(resolve, raceMs)
-          }),
-        ])
+        await clearPwaAndServiceWorkersForReload()
       } catch {
-        // ignorar — o fallback ou controllerchange trata o reload
+        /* sem-op: reload cobre tudo */
       } finally {
-        setIsUpdating(false)
+        window.clearTimeout(safetyId)
+        window.location.reload()
       }
     })()
   }
@@ -80,20 +114,20 @@ export function PwaUpdatePrompt() {
       <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
         <button
           type="button"
-          disabled={isUpdating}
+          disabled={isBusy}
           onClick={handleUpdate}
           className={cn(
             'inline-flex items-center gap-1.5 rounded-md bg-primary-foreground px-2.5 py-1.5 text-xs font-semibold',
             'text-primary shadow-sm transition-opacity disabled:opacity-60 sm:px-3 sm:text-sm'
           )}
         >
-          <RefreshCw className={cn('h-3.5 w-3.5 sm:h-4 sm:w-4', isUpdating && 'animate-spin')} aria-hidden />
-          {isUpdating ? 'A atualizar…' : 'Atualizar'}
+          <RefreshCw className="h-3.5 w-3.5 sm:h-4 sm:w-4" aria-hidden />
+          Atualizar
         </button>
         <button
           type="button"
           onClick={() => setNeedRefresh(false)}
-          disabled={isUpdating}
+          disabled={isBusy}
           className="rounded-md p-1.5 text-primary-foreground/90 transition-colors hover:bg-primary-foreground/15 disabled:opacity-50"
           aria-label="Fechar aviso de atualização"
         >
