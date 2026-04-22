@@ -66,8 +66,13 @@ export default defineConfig({
             },
           },
           {
-            // Supabase API — network first, fall back to cache
-            urlPattern: /^https:\/\/.*\.supabase\.co\/.*/i,
+            // Supabase auth endpoints — nunca cachear (refresh token, session, logout)
+            urlPattern: /^https:\/\/.*\.supabase\.co\/auth\/.*/i,
+            handler: 'NetworkOnly',
+          },
+          {
+            // Supabase API (dados) — network first, sem cache de auth
+            urlPattern: /^https:\/\/.*\.supabase\.co\/(?!auth\/).*/i,
             handler: 'NetworkFirst',
             options: {
               cacheName: 'supabase-api-cache',
