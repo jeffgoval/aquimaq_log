@@ -32,20 +32,23 @@ export function ResourceCreatePage() {
   })
 
   const onSubmit = async (values: ResourceInput) => {
-    const created = await createResource.mutateAsync({
-      payload: {
-        name: values.name,
-        type: values.type,
-        billing_type: values.type === 'equipment' ? 'daily' : values.billing_type,
-        rate: values.type === 'equipment' ? values.equipment_pricing?.daily ?? 0 : values.rate,
-        brand: values.brand || null,
-        model: values.model || null,
-        status: values.status,
-      },
-      equipmentPricing: values.type === 'equipment' ? values.equipment_pricing : undefined,
-    })
-
-    navigate(ROUTES.RESOURCE_DETAIL(created.id))
+    try {
+      const created = await createResource.mutateAsync({
+        payload: {
+          name: values.name,
+          type: values.type,
+          billing_type: values.type === 'equipment' ? 'daily' : values.billing_type,
+          rate: values.type === 'equipment' ? values.equipment_pricing?.daily ?? 0 : values.rate,
+          brand: values.brand || null,
+          model: values.model || null,
+          status: values.status,
+        },
+        equipmentPricing: values.type === 'equipment' ? values.equipment_pricing : undefined,
+      })
+      navigate(ROUTES.RESOURCE_DETAIL(created.id))
+    } catch {
+      // Erro já tratado em useCreateResource.onError (toast)
+    }
   }
 
   return (

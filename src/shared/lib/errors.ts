@@ -22,8 +22,34 @@ export function isLogResourcePricingUnavailable(error: unknown): boolean {
   )
 }
 
+/** Evita pedidos repetidos à API e toasts a cada gravação quando a tabela não existe no projeto remoto. */
+export type LogResourcePricingRemoteState = 'unknown' | 'ok' | 'absent'
+
+let logResourcePricingRemote: LogResourcePricingRemoteState = 'unknown'
+
+export function getLogResourcePricingRemoteState(): LogResourcePricingRemoteState {
+  return logResourcePricingRemote
+}
+
+export function markLogResourcePricingRemoteOk(): void {
+  logResourcePricingRemote = 'ok'
+}
+
+export function markLogResourcePricingRemoteAbsent(): void {
+  logResourcePricingRemote = 'absent'
+}
+
+let pricingTableDevWarned = false
+
+/** Um único aviso em dev por sessão de bundle (evita spam na consola). */
+export function warnLogResourcePricingMissingOnce(message: string): void {
+  if (!import.meta.env.DEV || pricingTableDevWarned) return
+  pricingTableDevWarned = true
+  console.warn('[log_resource_pricing]', message)
+}
+
 const PRICING_TABLE_MESSAGE =
-  'O projeto Supabase ainda não expõe a tabela log_resource_pricing (migrations em falta). Na raiz: npm run db:push com o CLI autenticado; no dashboard, confirme que a migration 20260422160720 (ou posterior) foi aplicada.'
+  'Tabela log_resource_pricing indisponível neste projeto Supabase. Depois de aplicar migrations no remoto, recarregue a página (F5).'
 
 export function parseSupabaseError(error: unknown): string {
   if (!error) return 'Erro desconhecido'

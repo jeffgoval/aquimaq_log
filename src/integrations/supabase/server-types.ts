@@ -193,6 +193,57 @@ export type Database = {
           },
         ]
       }
+      log_resource_pricing: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          id: string
+          is_active: boolean
+          pricing_mode: string
+          rate: number
+          resource_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          id?: string
+          is_active?: boolean
+          pricing_mode: string
+          rate: number
+          resource_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          id?: string
+          is_active?: boolean
+          pricing_mode?: string
+          rate?: number
+          resource_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "log_resource_pricing_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "log_resource_pricing_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "log_resources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       log_resources: {
         Row: {
           billing_type: string
@@ -242,57 +293,6 @@ export type Database = {
             columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      log_resource_pricing: {
-        Row: {
-          created_at: string
-          created_by: string | null
-          deleted_at: string | null
-          id: string
-          is_active: boolean
-          pricing_mode: string
-          rate: number
-          resource_id: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          created_by?: string | null
-          deleted_at?: string | null
-          id?: string
-          is_active?: boolean
-          pricing_mode: string
-          rate: number
-          resource_id: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          created_by?: string | null
-          deleted_at?: string | null
-          id?: string
-          is_active?: boolean
-          pricing_mode?: string
-          rate?: number
-          resource_id?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "log_resource_pricing_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "log_resource_pricing_resource_id_fkey"
-            columns: ["resource_id"]
-            isOneToOne: false
-            referencedRelation: "log_resources"
             referencedColumns: ["id"]
           },
         ]
@@ -1364,7 +1364,7 @@ export type Database = {
         Returns: undefined
       }
       log_convert_booking_to_service: {
-        Args: { p_booking_id: string; p_operator_id?: string | null }
+        Args: { p_booking_id: string; p_operator_id: string }
         Returns: string
       }
       mark_overdue_receivables: { Args: never; Returns: undefined }

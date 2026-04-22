@@ -8,7 +8,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- 7.4 Controle de Acesso (Adaptado para Supabase Auth)
-CREATE TABLE profiles (
+CREATE TABLE IF NOT EXISTS profiles (
     id              UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
     name            TEXT NOT NULL,
     email           TEXT NOT NULL UNIQUE,
@@ -17,11 +17,12 @@ CREATE TABLE profiles (
     updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     deleted_at      TIMESTAMPTZ DEFAULT NULL
 );
+DROP TRIGGER IF EXISTS trg_profiles_updated_at ON profiles;
 CREATE TRIGGER trg_profiles_updated_at
     BEFORE UPDATE ON profiles
     FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
-CREATE TABLE roles (
+CREATE TABLE IF NOT EXISTS roles (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name            TEXT NOT NULL UNIQUE,
     description     TEXT,
@@ -29,11 +30,12 @@ CREATE TABLE roles (
     updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     deleted_at      TIMESTAMPTZ DEFAULT NULL
 );
+DROP TRIGGER IF EXISTS trg_roles_updated_at ON roles;
 CREATE TRIGGER trg_roles_updated_at
     BEFORE UPDATE ON roles
     FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
-CREATE TABLE permissions (
+CREATE TABLE IF NOT EXISTS permissions (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     code            TEXT NOT NULL UNIQUE,
     module          TEXT NOT NULL,
@@ -42,20 +44,20 @@ CREATE TABLE permissions (
     updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE role_permissions (
+CREATE TABLE IF NOT EXISTS role_permissions (
     role_id         UUID NOT NULL REFERENCES roles(id) ON DELETE CASCADE,
     permission_id   UUID NOT NULL REFERENCES permissions(id) ON DELETE CASCADE,
     PRIMARY KEY (role_id, permission_id)
 );
 
-CREATE TABLE user_roles (
+CREATE TABLE IF NOT EXISTS user_roles (
     user_id         UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
     role_id         UUID NOT NULL REFERENCES roles(id) ON DELETE CASCADE,
     PRIMARY KEY (user_id, role_id)
 );
 
 -- 7.1 Resources -> log_resources
-CREATE TABLE log_resources (
+CREATE TABLE IF NOT EXISTS log_resources (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name            TEXT NOT NULL,
     type            TEXT NOT NULL CHECK (type IN ('tractor','truck','equipment')),
@@ -70,12 +72,13 @@ CREATE TABLE log_resources (
     created_by      UUID REFERENCES profiles(id),
     deleted_at      TIMESTAMPTZ DEFAULT NULL
 );
+DROP TRIGGER IF EXISTS trg_log_resources_updated_at ON log_resources;
 CREATE TRIGGER trg_log_resources_updated_at
     BEFORE UPDATE ON log_resources
     FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
 -- 7.2 Bookings -> log_bookings
-CREATE TABLE log_bookings (
+CREATE TABLE IF NOT EXISTS log_bookings (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     client_id       UUID NOT NULL REFERENCES clients(id),
     resource_id     UUID NOT NULL REFERENCES log_resources(id),
@@ -90,12 +93,13 @@ CREATE TABLE log_bookings (
     deleted_at      TIMESTAMPTZ DEFAULT NULL,
     CONSTRAINT chk_log_booking_dates CHECK (end_date > start_date)
 );
+DROP TRIGGER IF EXISTS trg_log_bookings_updated_at ON log_bookings;
 CREATE TRIGGER trg_log_bookings_updated_at
     BEFORE UPDATE ON log_bookings
     FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
 -- 7.3 Services -> log_services
-CREATE TABLE log_services (
+CREATE TABLE IF NOT EXISTS log_services (
     id                      UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     booking_id              UUID UNIQUE NOT NULL REFERENCES log_bookings(id),
     client_id               UUID NOT NULL REFERENCES clients(id),
@@ -117,24 +121,25 @@ CREATE TABLE log_services (
     created_by              UUID REFERENCES profiles(id),
     deleted_at              TIMESTAMPTZ DEFAULT NULL
 );
+DROP TRIGGER IF EXISTS trg_log_services_updated_at ON log_services;
 CREATE TRIGGER trg_log_services_updated_at
     BEFORE UPDATE ON log_services
     FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
 -- 7.5 Índices Críticos
-CREATE INDEX idx_log_bookings_resource_dates
+CREATE INDEX IF NOT EXISTS idx_log_bookings_resource_dates
     ON log_bookings(resource_id, start_date, end_date)
     WHERE deleted_at IS NULL AND status NOT IN ('cancelled');
 
-CREATE INDEX idx_log_services_resource_dates
+CREATE INDEX IF NOT EXISTS idx_log_services_resource_dates
     ON log_services(resource_id, started_at, ended_at)
     WHERE deleted_at IS NULL AND status NOT IN ('cancelled','closed');
 
-CREATE INDEX idx_log_services_operator ON log_services(operator_id);
-CREATE INDEX idx_log_resources_active    ON log_resources(id) WHERE deleted_at IS NULL;
-CREATE INDEX idx_log_bookings_active     ON log_bookings(id)  WHERE deleted_at IS NULL;
-CREATE INDEX idx_log_services_active     ON log_services(id)  WHERE deleted_at IS NULL;
-CREATE INDEX idx_profiles_active         ON profiles(id)      WHERE deleted_at IS NULL;
+CREATE INDEX IF NOT EXISTS idx_log_services_operator ON log_services(operator_id);
+CREATE INDEX IF NOT EXISTS idx_log_resources_active    ON log_resources(id) WHERE deleted_at IS NULL;
+CREATE INDEX IF NOT EXISTS idx_log_bookings_active     ON log_bookings(id)  WHERE deleted_at IS NULL;
+CREATE INDEX IF NOT EXISTS idx_log_services_active     ON log_services(id)  WHERE deleted_at IS NULL;
+CREATE INDEX IF NOT EXISTS idx_profiles_active         ON profiles(id)      WHERE deleted_at IS NULL;
 
 -- 12. Seed de Permissões
 INSERT INTO permissions (code, module, description) VALUES

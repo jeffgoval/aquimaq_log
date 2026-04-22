@@ -58,6 +58,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS trg_prevent_overbooking ON log_bookings;
 CREATE TRIGGER trg_prevent_overbooking
     BEFORE INSERT OR UPDATE ON log_bookings
     FOR EACH ROW

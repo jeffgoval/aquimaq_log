@@ -40,7 +40,11 @@ export function ReservasListPage() {
       return
     }
 
-    await convertBooking.mutateAsync({ bookingId, operatorId: operatorId ?? null })
+    try {
+      await convertBooking.mutateAsync({ bookingId, operatorId: operatorId ?? null })
+    } catch {
+      // Toast em useConvertBooking.onError
+    }
   }
 
   return (
@@ -183,7 +187,11 @@ export function ReservasListPage() {
                         <AppButton
                           variant="secondary"
                           size="sm"
-                          onClick={() => startOperation.mutateAsync(service.id)}
+                          onClick={() => {
+                            void startOperation.mutateAsync(service.id).catch(() => {
+                              /* toast em onError */
+                            })
+                          }}
                           loading={startOperation.isPending && startOperation.variables === service.id}
                           disabled={startOperation.isPending || closeService.isPending}
                         >
@@ -195,7 +203,13 @@ export function ReservasListPage() {
                         <AppButton
                           variant="success"
                           size="sm"
-                          onClick={() => closeService.mutateAsync({ serviceId: service.id, isCancel: false })}
+                          onClick={() => {
+                            void closeService
+                              .mutateAsync({ serviceId: service.id, isCancel: false })
+                              .catch(() => {
+                                /* toast em onError */
+                              })
+                          }}
                           loading={closeService.isPending && closeService.variables?.serviceId === service.id && closeService.variables?.isCancel === false}
                           disabled={closeService.isPending || startOperation.isPending}
                         >
@@ -209,9 +223,14 @@ export function ReservasListPage() {
                         className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
                         disabled={closeService.isPending || startOperation.isPending}
                         onClick={() => {
-                          if (confirm('Deseja realmente cancelar este serviço? O valor será calculado como Pro Rata.')) {
-                            closeService.mutateAsync({ serviceId: service.id, isCancel: true })
+                          if (!confirm('Deseja realmente cancelar este serviço? O valor será calculado como Pro Rata.')) {
+                            return
                           }
+                          void closeService
+                            .mutateAsync({ serviceId: service.id, isCancel: true })
+                            .catch(() => {
+                              /* toast em onError */
+                            })
                         }}
                       >
                         <XCircle className="w-4 h-4 mr-1" />

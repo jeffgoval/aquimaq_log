@@ -1,7 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/integrations/supabase/client'
 import { toast } from 'sonner'
-import { isLogResourcePricingUnavailable, parseSupabaseError } from '@/shared/lib/errors'
+import {
+  getLogResourcePricingRemoteState,
+  isLogResourcePricingUnavailable,
+  markLogResourcePricingRemoteAbsent,
+  markLogResourcePricingRemoteOk,
+  parseSupabaseError,
+  warnLogResourcePricingMissingOnce,
+} from '@/shared/lib/errors'
 import type { TablesInsert } from '@/integrations/supabase/server-types'
 
 export const queryKeys = {
@@ -45,6 +52,10 @@ export function useResources() {
       if (resourcesError) throw resourcesError
       if (!resources?.length) return []
 
+      if (getLogResourcePricingRemoteState() === 'absent') {
+        return resources.map((r) => ({ ...r, pricing: [] }))
+      }
+
       const ids = resources.map((r) => r.id)
       const { data: pricingRows, error: pricingError } = await supabase
         .from('log_resource_pricing')
@@ -53,13 +64,14 @@ export function useResources() {
 
       if (pricingError) {
         if (isLogResourcePricingUnavailable(pricingError)) {
-          if (import.meta.env.DEV) {
-            console.warn('[log_resource_pricing]', pricingError.message)
-          }
-          return resources.map((r) => ({ ...r, pricing: [] as NonNullable<typeof pricingRows> }))
+          markLogResourcePricingRemoteAbsent()
+          warnLogResourcePricingMissingOnce(pricingError.message ?? '')
+          return resources.map((r) => ({ ...r, pricing: [] }))
         }
         throw pricingError
       }
+
+      markLogResourcePricingRemoteOk()
 
       const byResource = new Map<string, NonNullable<typeof pricingRows>>()
       for (const row of pricingRows ?? []) {

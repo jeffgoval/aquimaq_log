@@ -2,7 +2,14 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/integrations/supabase/client'
 import type { Tables, TablesInsert, TablesUpdate } from '@/integrations/supabase/server-types'
 import { toast } from 'sonner'
-import { isLogResourcePricingUnavailable, parseSupabaseError } from '@/shared/lib/errors'
+import {
+  getLogResourcePricingRemoteState,
+  isLogResourcePricingUnavailable,
+  markLogResourcePricingRemoteAbsent,
+  markLogResourcePricingRemoteOk,
+  parseSupabaseError,
+  warnLogResourcePricingMissingOnce,
+} from '@/shared/lib/errors'
 
 export type ResourceRow = Tables<'log_resources'>
 export type ResourcePricingRow = Tables<'log_resource_pricing'>
@@ -30,6 +37,10 @@ const upsertResourcePricing = async ({
   resourceId: string
   pricing: Array<Pick<ResourcePricingInsert, 'pricing_mode' | 'rate'>>
 }) => {
+  if (getLogResourcePricingRemoteState() === 'absent') {
+    return
+  }
+
   const { error: deleteError } = await supabase
     .from('log_resource_pricing')
     .update({ deleted_at: new Date().toISOString(), is_active: false })
@@ -38,9 +49,9 @@ const upsertResourcePricing = async ({
 
   if (deleteError) {
     if (isLogResourcePricingUnavailable(deleteError)) {
-      throw new Error(
-        'log_resource_pricing não existe neste projeto. Aplique as migrations: npm run db:push',
-      )
+      markLogResourcePricingRemoteAbsent()
+      warnLogResourcePricingMissingOnce(deleteError.message ?? '')
+      return
     }
     throw deleteError
   }
@@ -58,12 +69,14 @@ const upsertResourcePricing = async ({
 
   if (insertError) {
     if (isLogResourcePricingUnavailable(insertError)) {
-      throw new Error(
-        'log_resource_pricing não existe neste projeto. Aplique as migrations: npm run db:push',
-      )
+      markLogResourcePricingRemoteAbsent()
+      warnLogResourcePricingMissingOnce(insertError.message ?? '')
+      return
     }
     throw insertError
   }
+
+  markLogResourcePricingRemoteOk()
 }
 
 export function useResourceList() {
@@ -97,6 +110,10 @@ export function useResourceById(id?: string) {
 
       if (resourceError) throw resourceError
 
+      if (getLogResourcePricingRemoteState() === 'absent') {
+        return { ...resource, pricing: [] }
+      }
+
       const { data: pricing, error: pricingError } = await supabase
         .from('log_resource_pricing')
         .select('*')
@@ -105,14 +122,14 @@ export function useResourceById(id?: string) {
 
       if (pricingError) {
         if (isLogResourcePricingUnavailable(pricingError)) {
-          if (import.meta.env.DEV) {
-            console.warn('[log_resource_pricing]', pricingError.message)
-          }
+          markLogResourcePricingRemoteAbsent()
+          warnLogResourcePricingMissingOnce(pricingError.message ?? '')
           return { ...resource, pricing: [] }
         }
         throw pricingError
       }
 
+      markLogResourcePricingRemoteOk()
       return { ...resource, pricing: pricing ?? [] }
     },
   })
