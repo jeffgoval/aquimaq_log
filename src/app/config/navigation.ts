@@ -35,3 +35,19 @@ export const NAV_ITEMS: NavItem[] = [
   { label: 'Rentabilidade', href: ROUTES.PROFITABILITY, icon: TrendingUp },
   { label: 'Minha conta', href: ROUTES.ACCOUNT, icon: UserCircle },
 ]
+
+/** Barra inferior mobile (4 atalhos) — deriva de NAV_ITEMS para não duplicar rotas. */
+const MOBILE_BOTTOM_HREFS: readonly string[] = [
+  ROUTES.DASHBOARD,
+  ROUTES.MACHINE_COSTS,
+  ROUTES.SERVICES,
+  ROUTES.RECEIVABLES,
+]
+
+export const MOBILE_BOTTOM_NAV: NavItem[] = MOBILE_BOTTOM_HREFS.map((href) => {
+  const item = NAV_ITEMS.find((i) => i.href === href)
+  if (!item) {
+    throw new Error(`NAV_ITEMS: falta rota em MOBILE_BOTTOM_HREFS: ${href}`)
+  }
+  return item
+})

@@ -1,7 +1,7 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { RefreshCw, X } from 'lucide-react'
-import { useRegisterSW } from 'virtual:pwa-register/react'
 import { cn } from '@/shared/lib/cn'
+import { EVENT_PWA_NEED_REFRESH } from '@/app/pwa-register'
 
 /**
  * Limpa Cache Storage e desregista todos os Service Workers, com teto de tempo
@@ -60,16 +60,13 @@ async function clearPwaAndServiceWorkersForReload(): Promise<void> {
 }
 
 export function PwaUpdatePrompt() {
-  const {
-    needRefresh: [needRefresh, setNeedRefresh],
-  } = useRegisterSW({
-    immediate: true,
-    onOfflineReady() {
-      if (import.meta.env.DEV) {
-        console.info('[PWA] Pronto para uso offline.')
-      }
-    },
-  })
+  const [needRefresh, setNeedRefresh] = useState(false)
+
+  useEffect(() => {
+    const onNeed = () => setNeedRefresh(true)
+    window.addEventListener(EVENT_PWA_NEED_REFRESH, onNeed)
+    return () => window.removeEventListener(EVENT_PWA_NEED_REFRESH, onNeed)
+  }, [])
 
   const [isBusy, setIsBusy] = useState(false)
   const runOnceRef = useRef(false)
@@ -81,7 +78,6 @@ export function PwaUpdatePrompt() {
     runOnceRef.current = true
     setIsBusy(true)
 
-    // Sempre sair deste fluxo com reload, mesmo que promises fiquem presas.
     const safetyId = window.setTimeout(() => {
       window.location.reload()
     }, 9000)

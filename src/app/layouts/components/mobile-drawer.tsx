@@ -1,23 +1,10 @@
 import { NavLink, useNavigate } from 'react-router-dom'
-import { X, LogOut, Tractor, Truck, LayoutDashboard, Users, Building2, Store, ClipboardList, DollarSign, Wrench, TrendingUp, UserCircle } from 'lucide-react'
+import { X, LogOut, Tractor } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
+import { NAV_ITEMS } from '@/app/config/navigation'
 import { ROUTES } from '@/shared/constants/routes'
 import { supabase } from '@/integrations/supabase/client'
 import { toast } from 'sonner'
-
-const ALL_NAV = [
-  { label: 'Dashboard',     href: ROUTES.DASHBOARD,     icon: LayoutDashboard, end: true,  sectionLabel: undefined },
-  { label: 'Tratores',      href: ROUTES.TRACTORS,      icon: Tractor,         end: false },
-  { label: 'Guinchos',      href: ROUTES.TRUCKS,        icon: Truck,           end: false, sectionLabel: undefined },
-  { label: 'Operadores',    href: ROUTES.OPERATORS,     icon: Users,           end: false },
-  { label: 'Clientes',      href: ROUTES.CLIENTS,       icon: Building2,       end: false },
-  { label: 'Fornecedores',  href: ROUTES.SUPPLIERS,     icon: Store,           end: false },
-  { label: 'Serviços',      href: ROUTES.SERVICES,      icon: ClipboardList,   end: false },
-  { label: 'Financeiro',    href: ROUTES.RECEIVABLES,   icon: DollarSign,      end: false },
-  { label: 'Custos',        href: ROUTES.MACHINE_COSTS, icon: Wrench,          end: false },
-  { label: 'Rentabilidade', href: ROUTES.PROFITABILITY, icon: TrendingUp,      end: false },
-  { label: 'Minha conta', href: ROUTES.ACCOUNT, icon: UserCircle, end: false },
-]
 
 interface MobileDrawerProps {
   open: boolean
@@ -36,21 +23,19 @@ export function MobileDrawer({ open, onClose }: MobileDrawerProps) {
 
   return (
     <>
-      {/* Backdrop */}
       <div
         className={cn(
-          'lg:hidden fixed inset-0 z-[55] bg-black/60 backdrop-blur-sm transition-opacity duration-300',
-          open ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+          'pointer-events-none fixed inset-0 z-55 bg-black/60 opacity-0 backdrop-blur-sm transition-opacity duration-300 lg:hidden',
+          open && 'pointer-events-auto opacity-100'
         )}
         onClick={onClose}
         aria-hidden="true"
       />
 
-      {/* Drawer panel */}
       <div
         className={cn(
-          'lg:hidden fixed top-0 left-0 bottom-0 z-[60] w-72 flex flex-col transition-transform duration-300 ease-in-out border-r border-border',
-          open ? 'translate-x-0' : '-translate-x-full'
+          'fixed top-0 bottom-0 left-0 z-60 flex w-72 -translate-x-full flex-col border-r border-border transition-transform duration-300 ease-in-out lg:hidden',
+          open && 'translate-x-0'
         )}
         style={{
           background: 'hsl(var(--card))',
@@ -60,42 +45,40 @@ export function MobileDrawer({ open, onClose }: MobileDrawerProps) {
         aria-modal="true"
         aria-label="Menu de navegação"
       >
-        {/* Drawer header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-border shrink-0">
+        <div className="flex shrink-0 items-center justify-between border-b border-border px-5 py-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg gradient-cat shrink-0">
+            <div className="gradient-cat flex h-8 w-8 shrink-0 items-center justify-center rounded-lg">
               <Tractor className="h-4 w-4 text-primary-foreground" />
             </div>
             <div>
-              <p className="text-base font-bold text-foreground leading-none">Aquimaq Log</p>
+              <p className="text-base font-bold leading-none text-foreground">Aquimaq Log</p>
               <p className="typo-caption mt-0.5">Gestão de Frota</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="flex items-center justify-center h-8 w-8 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
             aria-label="Fechar menu"
           >
             <X className="h-4 w-4" />
           </button>
         </div>
 
-        {/* Nav items */}
-        <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
-          {ALL_NAV.map((item) => (
+        <nav className="min-h-0 flex-1 space-y-0.5 overflow-y-auto px-3 py-4">
+          {NAV_ITEMS.map((item) => (
             <div key={item.href}>
               {item.sectionLabel && (
-                <p className="px-3 pt-3 pb-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 select-none">
+                <p className="px-3 pb-1 pt-3 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 select-none">
                   {item.sectionLabel}
                 </p>
               )}
               <NavLink
                 to={item.href}
-                end={item.end}
+                end={item.href === ROUTES.DASHBOARD}
                 onClick={onClose}
                 className={({ isActive }) =>
                   cn(
-                    'flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-all duration-150 min-h-[44px]',
+                    'flex min-h-[44px] items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-all duration-150',
                     isActive
                       ? 'bg-primary/15 text-primary'
                       : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
@@ -109,11 +92,13 @@ export function MobileDrawer({ open, onClose }: MobileDrawerProps) {
           ))}
         </nav>
 
-        {/* Logout */}
-        <div className="px-3 py-4 border-t border-border shrink-0" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 1rem)' }}>
+        <div
+          className="shrink-0 border-t border-border px-3 py-4"
+          style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 1rem)' }}
+        >
           <button
             onClick={handleSignOut}
-            className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors min-h-[44px]"
+            className="flex min-h-[44px] w-full items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
           >
             <LogOut className="h-4 w-4" />
             Sair
