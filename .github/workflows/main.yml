@@ -25,7 +25,13 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      - name: Check types
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Verify DB types markers
+        run: npm run verify:db-types
+
+      - name: Build
         run: npm run build
 
       - name: Run tests

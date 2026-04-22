@@ -21,8 +21,20 @@ vi.mock('../hooks/use-booking-queries', () => ({
   }),
   useResources: () => ({
     data: [
-      { id: 'resource-1', name: 'Trator 01', type: 'tractor', status: 'available' },
-      { id: 'resource-2', name: 'Guincho 01', type: 'truck', status: 'available' },
+      { id: 'resource-1', name: 'Trator 01', type: 'tractor', status: 'available', pricing: [] },
+      { id: 'resource-2', name: 'Guincho 01', type: 'truck', status: 'available', pricing: [] },
+      {
+        id: 'resource-3',
+        name: 'Equipamento 01',
+        type: 'equipment',
+        status: 'available',
+        pricing: [
+          { pricing_mode: 'hourly', rate: 120, is_active: true, deleted_at: null },
+          { pricing_mode: 'daily', rate: 700, is_active: true, deleted_at: null },
+          { pricing_mode: 'equipment_15d', rate: 9000, is_active: true, deleted_at: null },
+          { pricing_mode: 'equipment_30d', rate: 15000, is_active: true, deleted_at: null },
+        ],
+      },
     ],
   }),
 }))
@@ -88,6 +100,35 @@ describe('ReservasCalendarPage - modal rapido', () => {
 
     await waitFor(() => {
       expect(mockRefetch).toHaveBeenCalled()
+    })
+  })
+
+  it('salva reserva de equipamento com pricing_mode selecionado', async () => {
+    render(
+      <MemoryRouter>
+        <ReservasCalendarPage />
+      </MemoryRouter>,
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Abrir modal rapido' }))
+
+    const [clientSelect, resourceSelect] = screen.getAllByRole('combobox')
+    fireEvent.change(clientSelect, { target: { value: 'client-1' } })
+    fireEvent.change(resourceSelect, { target: { value: 'resource-3' } })
+
+    const selectsAfterEquipment = await screen.findAllByRole('combobox')
+    const pricingModeSelect = selectsAfterEquipment[2]
+    fireEvent.change(pricingModeSelect, { target: { value: 'equipment_15d' } })
+    fireEvent.click(screen.getByRole('button', { name: /Salvar Reserva/i }))
+
+    await waitFor(() => {
+      expect(mockMutateAsync).toHaveBeenCalledWith(
+        expect.objectContaining({
+          resource_id: 'resource-3',
+          pricing_mode: 'equipment_15d',
+          status: 'pending',
+        }),
+      )
     })
   })
 })

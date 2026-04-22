@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/integrations/supabase/client'
 import { toast } from 'sonner'
-import { parseSupabaseError } from '@/shared/lib/errors'
+import { isLogResourcePricingUnavailable, parseSupabaseError } from '@/shared/lib/errors'
 import type { TablesInsert } from '@/integrations/supabase/server-types'
 
 export const queryKeys = {
@@ -36,13 +36,42 @@ export function useResources() {
   return useQuery({
     queryKey: queryKeys.resources,
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data: resources, error: resourcesError } = await supabase
         .from('log_resources')
         .select('*')
         .is('deleted_at', null)
         .order('name')
-      if (error) throw error
-      return data
+
+      if (resourcesError) throw resourcesError
+      if (!resources?.length) return []
+
+      const ids = resources.map((r) => r.id)
+      const { data: pricingRows, error: pricingError } = await supabase
+        .from('log_resource_pricing')
+        .select('resource_id, pricing_mode, rate, is_active, deleted_at')
+        .in('resource_id', ids)
+
+      if (pricingError) {
+        if (isLogResourcePricingUnavailable(pricingError)) {
+          if (import.meta.env.DEV) {
+            console.warn('[log_resource_pricing]', pricingError.message)
+          }
+          return resources.map((r) => ({ ...r, pricing: [] as NonNullable<typeof pricingRows> }))
+        }
+        throw pricingError
+      }
+
+      const byResource = new Map<string, NonNullable<typeof pricingRows>>()
+      for (const row of pricingRows ?? []) {
+        const list = byResource.get(row.resource_id) ?? []
+        list.push(row)
+        byResource.set(row.resource_id, list)
+      }
+
+      return resources.map((r) => ({
+        ...r,
+        pricing: byResource.get(r.id) ?? [],
+      }))
     },
   })
 }

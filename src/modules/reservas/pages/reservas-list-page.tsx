@@ -142,6 +142,7 @@ export function ReservasListPage() {
               columns={[
                 { header: 'Cliente' },
                 { header: 'Recurso' },
+                { header: 'Cobrança' },
                 { header: 'Status' },
                 { header: 'Operador' },
                 { header: 'Ações', align: 'right' },
@@ -155,6 +156,17 @@ export function ReservasListPage() {
                       <>
                   <AppTableCell className="font-medium">{service.booking?.client?.name}</AppTableCell>
                   <AppTableCell>{service.resource?.name}</AppTableCell>
+                  <AppTableCell className="text-muted-foreground">
+                    {service.billing_type_snapshot === 'hourly'
+                      ? 'Hora'
+                      : service.billing_type_snapshot === 'daily'
+                        ? 'Diária'
+                        : service.billing_type_snapshot === 'equipment_15d'
+                          ? 'Pacote 15 dias'
+                          : service.billing_type_snapshot === 'equipment_30d'
+                            ? 'Pacote 30 dias'
+                            : 'Fixo'}
+                  </AppTableCell>
                   <AppTableCell>
                     <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
                       service.status === 'in_progress'
@@ -227,6 +239,7 @@ export function ReservasListPage() {
               columns={[
                 { header: 'Cliente' },
                 { header: 'Recurso' },
+                { header: 'Cobrança' },
                 { header: 'Encerrado em' },
                 { header: 'Tipo' },
                 { header: 'Valor', align: 'right' },
@@ -236,6 +249,17 @@ export function ReservasListPage() {
                 <AppTableRow key={service.id}>
                   <AppTableCell className="font-medium">{service.booking?.client?.name}</AppTableCell>
                   <AppTableCell>{service.resource?.name}</AppTableCell>
+                  <AppTableCell className="text-muted-foreground">
+                    {service.billing_type_snapshot === 'hourly'
+                      ? 'Hora'
+                      : service.billing_type_snapshot === 'daily'
+                        ? 'Diária'
+                        : service.billing_type_snapshot === 'equipment_15d'
+                          ? 'Pacote 15 dias'
+                          : service.billing_type_snapshot === 'equipment_30d'
+                            ? 'Pacote 30 dias'
+                            : 'Fixo'}
+                  </AppTableCell>
                   <AppTableCell className="text-muted-foreground">
                     {service.ended_at ? dayjs(service.ended_at).tz(TZ_APP).format('DD/MM/YYYY HH:mm') : '-'}
                   </AppTableCell>

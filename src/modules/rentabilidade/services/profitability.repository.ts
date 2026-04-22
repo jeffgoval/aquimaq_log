@@ -27,8 +27,8 @@ function throwProfitabilityRpcError(error: PostgrestError): never {
 export const profitabilityRepository = {
   async getTractorProfitability(range?: ProfitabilityDateRange): Promise<TractorProfitabilityRow[]> {
     const { data, error } = await supabase.rpc('fn_tractor_profitability_range', {
-      p_start: range?.from ?? null,
-      p_end: range?.to ?? null,
+      p_start: range?.from ?? undefined,
+      p_end: range?.to ?? undefined,
     })
     if (error) throwProfitabilityRpcError(error)
     return (data ?? []) as TractorProfitabilityRow[]
@@ -36,8 +36,8 @@ export const profitabilityRepository = {
 
   async getTruckProfitability(range?: ProfitabilityDateRange): Promise<TruckProfitabilityRow[]> {
     const { data, error } = await supabase.rpc('fn_truck_profitability_range', {
-      p_start: range?.from ?? null,
-      p_end: range?.to ?? null,
+      p_start: range?.from ?? undefined,
+      p_end: range?.to ?? undefined,
     })
     if (error) throwProfitabilityRpcError(error)
     return (data ?? []) as TruckProfitabilityRow[]
@@ -45,8 +45,8 @@ export const profitabilityRepository = {
 
   async getClientRevenue(range?: ProfitabilityDateRange): Promise<ClientRevenueRow[]> {
     const { data, error } = await supabase.rpc('fn_client_revenue_range', {
-      p_start: range?.from ?? null,
-      p_end: range?.to ?? null,
+      p_start: range?.from ?? undefined,
+      p_end: range?.to ?? undefined,
     })
     if (error) throwProfitabilityRpcError(error)
     const rows = (data ?? []) as ClientRevenueRow[]
@@ -55,8 +55,8 @@ export const profitabilityRepository = {
 
   async getFleetSpendByCategory(range?: ProfitabilityDateRange): Promise<Views<'v_fleet_spend_by_category'>> {
     const { data, error } = await supabase.rpc('fn_fleet_spend_by_category_range', {
-      p_start: range?.from ?? null,
-      p_end: range?.to ?? null,
+      p_start: range?.from ?? undefined,
+      p_end: range?.to ?? undefined,
     })
     if (error) throwProfitabilityRpcError(error)
     const row = data?.[0]

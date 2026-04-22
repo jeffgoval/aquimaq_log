@@ -52,6 +52,12 @@ export const ROUTES = {
   // Profitability
   PROFITABILITY: '/rentabilidade',
 
+  // Resources
+  RESOURCES: '/recursos',
+  RESOURCE_NEW: '/recursos/novo',
+  RESOURCE_DETAIL: (id: string) => `/recursos/${id}`,
+  RESOURCE_EDIT: (id: string) => `/recursos/${id}/editar`,
+
   // Reservas
   BOOKINGS_CALENDAR: '/reservas',
   BOOKINGS_LIST: '/reservas/lista',

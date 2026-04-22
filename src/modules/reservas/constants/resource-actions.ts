@@ -15,7 +15,8 @@ export const RESOURCE_ACTIONS_MAP: Record<ResourceType, ResourceActions> = {
   truck: {
     requiresOperatorOnPickup: false,
     canStartOperation: false,
-    canReturn: false,
+    // Guincho: sem fase “operação” separada, mas deve poder encerrar normalmente (devolução).
+    canReturn: true,
   },
   equipment: {
     requiresOperatorOnPickup: false,

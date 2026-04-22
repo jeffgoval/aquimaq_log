@@ -76,6 +76,8 @@ DECLARE
     v_service_id UUID;
     v_booking log_bookings%ROWTYPE;
     v_resource log_resources%ROWTYPE;
+    v_selected_pricing_mode TEXT;
+    v_selected_rate NUMERIC(10,2);
 BEGIN
     -- 1. Travar a reserva para garantir atomicidade
     SELECT * INTO v_booking FROM log_bookings 
@@ -96,6 +98,23 @@ BEGIN
     -- 3. Atualizar status da reserva
     UPDATE log_bookings SET status = 'converted' WHERE id = p_booking_id;
 
+    -- 3.1 Resolver modalidade/tarifa a partir da seleção da reserva.
+    -- Se não houver seleção explícita, mantém fallback no billing_type atual do recurso.
+    v_selected_pricing_mode := COALESCE(v_booking.pricing_mode, v_resource.billing_type);
+
+    SELECT p.pricing_mode, p.rate
+      INTO v_selected_pricing_mode, v_selected_rate
+      FROM log_resource_pricing p
+     WHERE p.resource_id = v_booking.resource_id
+       AND p.pricing_mode = v_selected_pricing_mode
+       AND p.is_active = TRUE
+       AND p.deleted_at IS NULL
+     LIMIT 1;
+
+    IF v_selected_pricing_mode IS NULL OR v_selected_rate IS NULL THEN
+      RAISE EXCEPTION 'Preço não configurado para a modalidade selecionada (%).', COALESCE(v_booking.pricing_mode, v_resource.billing_type);
+    END IF;
+
     -- 4. Criar o serviço carregando as regras atômicas
     INSERT INTO log_services (
         booking_id, client_id, resource_id, operator_id,
@@ -104,7 +123,7 @@ BEGIN
     ) VALUES (
         v_booking.id, v_booking.client_id, v_booking.resource_id, p_operator_id,
         NOW(), 'open',
-        v_resource.billing_type, v_resource.rate
+        v_selected_pricing_mode, v_selected_rate
     ) RETURNING id INTO v_service_id;
 
     RETURN v_service_id;
@@ -145,6 +164,12 @@ BEGIN
         ELSIF v_service.billing_type_snapshot = 'hourly' THEN
             v_usage_quantity := CEIL(v_duration_seconds / 3600);
             v_total_amount := v_service.rate_snapshot * v_usage_quantity;
+        ELSIF v_service.billing_type_snapshot = 'equipment_15d' THEN
+            v_usage_quantity := 15;
+            v_total_amount := v_service.rate_snapshot; -- pacote fechado, sem pró-rata
+        ELSIF v_service.billing_type_snapshot = 'equipment_30d' THEN
+            v_usage_quantity := 30;
+            v_total_amount := v_service.rate_snapshot; -- pacote fechado, sem pró-rata
         ELSIF v_service.billing_type_snapshot = 'fixed' THEN
             v_usage_quantity := 0;
             v_total_amount := 0; -- Cancelamento de valor fixo não gera cobrança por padrão
@@ -167,6 +192,12 @@ BEGIN
         ELSIF v_service.billing_type_snapshot = 'hourly' THEN
             v_usage_quantity := CEIL(v_duration_seconds / 3600);
             v_total_amount := v_service.rate_snapshot * v_usage_quantity;
+        ELSIF v_service.billing_type_snapshot = 'equipment_15d' THEN
+            v_usage_quantity := 15;
+            v_total_amount := v_service.rate_snapshot; -- pacote fechado
+        ELSIF v_service.billing_type_snapshot = 'equipment_30d' THEN
+            v_usage_quantity := 30;
+            v_total_amount := v_service.rate_snapshot; -- pacote fechado
         ELSIF v_service.billing_type_snapshot = 'fixed' THEN
             v_usage_quantity := 1;
             v_total_amount := v_service.rate_snapshot;

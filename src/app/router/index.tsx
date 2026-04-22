@@ -1,5 +1,6 @@
 import { lazy } from 'react'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { Navigate } from 'react-router-dom'
 import { AppRouteShell } from './scroll-to-top'
 import { ProtectedRoute } from './protected-route'
 import { AppLayout } from '@/app/layouts/app-layout'
@@ -12,11 +13,9 @@ const ForgotPasswordPage      = lazy(() => import('@/modules/auth/pages/forgot-p
 const ResetPasswordPage       = lazy(() => import('@/modules/auth/pages/reset-password-page').then(m => ({ default: m.ResetPasswordPage })))
 const AccountSettingsPage     = lazy(() => import('@/modules/conta/pages/account-settings-page').then(m => ({ default: m.AccountSettingsPage })))
 const DashboardPage           = lazy(() => import('@/modules/dashboard/pages/dashboard-page').then(m => ({ default: m.DashboardPage })))
-const TractorListPage         = lazy(() => import('@/modules/tratores/pages/tractor-list-page').then(m => ({ default: m.TractorListPage })))
 const TractorCreatePage       = lazy(() => import('@/modules/tratores/pages/tractor-create-page').then(m => ({ default: m.TractorCreatePage })))
 const TractorDetailPage       = lazy(() => import('@/modules/tratores/pages/tractor-detail-page').then(m => ({ default: m.TractorDetailPage })))
 const TractorEditPage         = lazy(() => import('@/modules/tratores/pages/tractor-edit-page').then(m => ({ default: m.TractorEditPage })))
-const TruckListPage           = lazy(() => import('@/modules/caminhoes/pages/truck-list-page').then(m => ({ default: m.TruckListPage })))
 const TruckCreatePage         = lazy(() => import('@/modules/caminhoes/pages/truck-create-page').then(m => ({ default: m.TruckCreatePage })))
 const TruckDetailPage         = lazy(() => import('@/modules/caminhoes/pages/truck-detail-page').then(m => ({ default: m.TruckDetailPage })))
 const TruckEditPage           = lazy(() => import('@/modules/caminhoes/pages/truck-edit-page').then(m => ({ default: m.TruckEditPage })))
@@ -39,6 +38,10 @@ const ServiceEditPage         = lazy(() => import('@/modules/servicos/pages/serv
 const ReceivableListPage      = lazy(() => import('@/modules/financeiro/pages/receivable-list-page').then(m => ({ default: m.ReceivableListPage })))
 const MachineCostListPage     = lazy(() => import('@/modules/custos/pages/machine-cost-list-page').then(m => ({ default: m.MachineCostListPage })))
 const ProfitabilityPage       = lazy(() => import('@/modules/rentabilidade/pages/profitability-page').then(m => ({ default: m.ProfitabilityPage })))
+const ResourceListPage        = lazy(() => import('@/modules/recursos/pages/resource-list-page').then(m => ({ default: m.ResourceListPage })))
+const ResourceCreatePage      = lazy(() => import('@/modules/recursos/pages/resource-create-page').then(m => ({ default: m.ResourceCreatePage })))
+const ResourceDetailPage      = lazy(() => import('@/modules/recursos/pages/resource-detail-page').then(m => ({ default: m.ResourceDetailPage })))
+const ResourceEditPage        = lazy(() => import('@/modules/recursos/pages/resource-edit-page').then(m => ({ default: m.ResourceEditPage })))
 const ReservasCalendarPage  = lazy(() => import('@/modules/reservas/pages/reservas-calendar-page').then(m => ({ default: m.ReservasCalendarPage })))
 const ReservasCreatePage    = lazy(() => import('@/modules/reservas/pages/reservas-create-page').then(m => ({ default: m.ReservasCreatePage })))
 const ReservasListPage      = lazy(() => import('@/modules/reservas/pages/reservas-list-page').then(m => ({ default: m.ReservasListPage })))
@@ -61,11 +64,11 @@ const router = createBrowserRouter([
             element: <AppLayout />,
             children: [
               { path: ROUTES.DASHBOARD,          element: <DashboardPage /> },
-              { path: ROUTES.TRACTORS,           element: <TractorListPage /> },
+              { path: ROUTES.TRACTORS,           element: <Navigate to={`${ROUTES.RESOURCES}?type=tractor`} replace /> },
               { path: ROUTES.TRACTOR_NEW,        element: <TractorCreatePage /> },
               { path: '/tratores/:id',           element: <TractorDetailPage /> },
               { path: '/tratores/:id/editar',    element: <TractorEditPage /> },
-              { path: ROUTES.TRUCKS,             element: <TruckListPage /> },
+              { path: ROUTES.TRUCKS,             element: <Navigate to={`${ROUTES.RESOURCES}?type=truck`} replace /> },
               { path: ROUTES.TRUCK_NEW,          element: <TruckCreatePage /> },
               { path: '/guinchos/:id',           element: <TruckDetailPage /> },
               { path: '/guinchos/:id/editar',    element: <TruckEditPage /> },
@@ -88,6 +91,10 @@ const router = createBrowserRouter([
               { path: ROUTES.RECEIVABLES,        element: <ReceivableListPage /> },
               { path: ROUTES.MACHINE_COSTS,      element: <MachineCostListPage /> },
               { path: ROUTES.PROFITABILITY,      element: <ProfitabilityPage /> },
+              { path: ROUTES.RESOURCES,          element: <ResourceListPage /> },
+              { path: ROUTES.RESOURCE_NEW,       element: <ResourceCreatePage /> },
+              { path: '/recursos/:id',           element: <ResourceDetailPage /> },
+              { path: '/recursos/:id/editar',    element: <ResourceEditPage /> },
               { path: ROUTES.BOOKINGS_CALENDAR,  element: <ReservasCalendarPage /> },
               { path: ROUTES.BOOKING_NEW,        element: <ReservasCreatePage /> },
               { path: ROUTES.BOOKINGS_LIST,      element: <ReservasListPage /> },

@@ -6,13 +6,16 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "typecheck": "tsc -b",
+    "verify:db-types": "node scripts/verify-db-types.mjs",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest",
     "test:run": "vitest run",
     "db:push": "node scripts/db-guard.js && npx supabase db push",
     "db:status": "node scripts/db-guard.js && npx supabase migration list",
-    "db:types": "node scripts/db-guard.js && npx supabase gen types typescript --project-id hziovsgaqmrwthnlqobd > src/integrations/supabase/server-types.ts"
+    "db:types": "node scripts/db-guard.js && npx supabase gen types typescript --project-id hziovsgaqmrwthnlqobd > src/integrations/supabase/server-types.ts",
+    "script:close-service": "node scripts/close-log-service.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
