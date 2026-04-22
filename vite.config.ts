@@ -34,6 +34,8 @@ export default defineConfig({
       includeAssets: ['favicon.svg', 'icon-192.png', 'icon-512.png'],
       manifest: false, // We manage our own public/manifest.json
       workbox: {
+        skipWaiting: true,
+        clientsClaim: true,
         // Cache static assets (JS, CSS, fonts, images) — cache-first
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
 
