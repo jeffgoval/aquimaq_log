@@ -36,11 +36,25 @@ export default defineConfig({
       workbox: {
         skipWaiting: true,
         clientsClaim: true,
-        // Cache static assets (JS, CSS, fonts, images) — cache-first
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        // Não incluir *.html: precarregar o shell (index) faz o SW servir o app antigo com JS antigo
+        // (o menu / chunks ficam "presos" em mobile após deploy).
+        globPatterns: ['**/*.{js,css,ico,png,svg,woff2}'],
+        globIgnores: ['**/*.html'],
+        navigateFallback: 'index.html',
+        navigateFallbackDenylist: [/^\/api\//, /\.[^/]+$/],
 
         // Runtime caching rules
         runtimeCaching: [
+          {
+            // Sempre verificar rede no HTML/SPA; evita menu antigo de cache
+            urlPattern: ({ request }) => request.mode === 'navigate',
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'pages-nav',
+              networkTimeoutSeconds: 5,
+              expiration: { maxEntries: 5, maxAgeSeconds: 60 * 5 },
+            },
+          },
           {
             // Google Fonts — cache first
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
