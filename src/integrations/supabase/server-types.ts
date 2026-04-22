@@ -1364,7 +1364,7 @@ export type Database = {
         Returns: undefined
       }
       log_convert_booking_to_service: {
-        Args: { p_booking_id: string; p_operator_id: string }
+        Args: { p_booking_id: string; p_operator_id?: string | null }
         Returns: string
       }
       mark_overdue_receivables: { Args: never; Returns: undefined }

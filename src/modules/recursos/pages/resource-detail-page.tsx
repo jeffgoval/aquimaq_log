@@ -45,7 +45,7 @@ export function ResourceDetailPage() {
         backTo={ROUTES.RESOURCES}
         backLabel="Voltar para recursos"
         title={data?.name ?? 'Detalhes do recurso'}
-        description="Visualize e gerencie os dados do recurso unificado."
+        description="Visualize e gerencie os dados do recurso."
         actions={
           id ? (
             <div className="flex items-center gap-2">
@@ -91,22 +91,6 @@ export function ResourceDetailPage() {
                 <AppBadge variant={statusLabelMap[resourceStatusKey(data.status)].variant}>
                   {statusLabelMap[resourceStatusKey(data.status)].label}
                 </AppBadge>
-              </dd>
-            </div>
-            <div>
-              <dt className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Cobrança</dt>
-              <dd className="mt-1 text-sm font-medium">
-                {data.billing_type === 'hourly'
-                  ? 'Por hora'
-                  : data.billing_type === 'daily'
-                    ? 'Por dia'
-                    : 'Valor fixo'}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Tarifa</dt>
-              <dd className="mt-1 text-sm font-medium">
-                <AppMoney value={data.rate} />
               </dd>
             </div>
             <div>

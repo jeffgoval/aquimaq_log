@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
-import { Edit, Plus, PowerOff } from 'lucide-react'
+import { Plus, PowerOff } from 'lucide-react'
 import { AppBadge } from '@/shared/components/app/app-badge'
 import { AppButton } from '@/shared/components/app/app-button'
 import { AppEmptyState } from '@/shared/components/app/app-empty-state'
@@ -137,8 +137,6 @@ export function ResourceListPage() {
                     <th className="p-3 font-medium">Nome</th>
                     <th className="p-3 font-medium">Tipo</th>
                     <th className="p-3 font-medium hidden md:table-cell">Marca/Modelo</th>
-                    <th className="p-3 font-medium whitespace-nowrap">Cobrança</th>
-                    <th className="p-3 font-medium whitespace-nowrap">Tarifa</th>
                     <th className="p-3 font-medium whitespace-nowrap">Status</th>
                     <th className="p-3 text-right font-medium whitespace-nowrap">Ações</th>
                   </tr>
@@ -156,43 +154,25 @@ export function ResourceListPage() {
                         {[resource.brand, resource.model].filter(Boolean).join(' · ') || '—'}
                       </td>
                       <td className="p-3 whitespace-nowrap">
-                        {resource.billing_type === 'hourly'
-                          ? 'Por hora'
-                          : resource.billing_type === 'daily'
-                            ? 'Por dia'
-                            : 'Fixo'}
-                      </td>
-                      <td className="p-3 whitespace-nowrap">
-                        <AppMoney value={resource.rate} size="sm" />
-                      </td>
-                      <td className="p-3 whitespace-nowrap">
                         <AppBadge variant={statusBadgeMap[resourceStatusKey(resource.status)].variant}>
                           {statusBadgeMap[resourceStatusKey(resource.status)].label}
                         </AppBadge>
                       </td>
                       <td className="p-3 text-right whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
-                        <div className="inline-flex items-center gap-2">
-                          <Link to={ROUTES.RESOURCE_EDIT(resource.id)}>
-                            <AppButton variant="ghost" size="sm" className="text-xs">
-                              <Edit className="mr-1 h-3.5 w-3.5" />
-                              Editar
-                            </AppButton>
-                          </Link>
-                          <AppButton
-                            variant="ghost"
-                            size="sm"
-                            className="text-xs text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
-                            disabled={deactivate.isPending}
-                            onClick={() => {
-                              if (confirm('Desativar este recurso?')) {
-                                deactivate.mutate(resource.id)
-                              }
-                            }}
-                          >
-                            <PowerOff className="mr-1 h-3.5 w-3.5" />
-                            Desativar
-                          </AppButton>
-                        </div>
+                        <AppButton
+                          variant="ghost"
+                          size="sm"
+                          className="text-xs text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                          disabled={deactivate.isPending}
+                          onClick={() => {
+                            if (confirm('Desativar este recurso?')) {
+                              deactivate.mutate(resource.id)
+                            }
+                          }}
+                        >
+                          <PowerOff className="mr-1 h-3.5 w-3.5" />
+                          Desativar
+                        </AppButton>
                       </td>
                     </tr>
                   ))}
