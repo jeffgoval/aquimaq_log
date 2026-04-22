@@ -30,15 +30,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [permissions, setPermissions] = useState<string[]>([])
 
   useEffect(() => {
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      setSession(session)
-      if (session) setPermissions(await fetchPermissions())
-      setIsLoading(false)
-    })
+    supabase.auth
+      .getSession()
+      .then(async ({ data: { session }, error }) => {
+        if (error) {
+          console.error('Session error:', error)
+        }
+        setSession(session)
+        if (session) {
+          try {
+            setPermissions(await fetchPermissions())
+          } catch (err) {
+            console.error('fetchPermissions error:', err)
+          }
+        }
+      })
+      .catch((err) => {
+        console.error('getSession catch:', err)
+      })
+      .finally(() => {
+        setIsLoading(false)
+      })
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setSession(session)
-      setPermissions(session ? await fetchPermissions() : [])
+      if (session) {
+        try {
+          setPermissions(await fetchPermissions())
+        } catch (err) {
+          console.error('fetchPermissions onAuthStateChange error:', err)
+          setPermissions([])
+        }
+      } else {
+        setPermissions([])
+      }
     })
 
     return () => subscription.unsubscribe()
