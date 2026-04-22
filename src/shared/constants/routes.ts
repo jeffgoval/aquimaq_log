@@ -52,6 +52,12 @@ export const ROUTES = {
   // Profitability
   PROFITABILITY: '/rentabilidade',
 
+  // Reservas
+  BOOKINGS_CALENDAR: '/reservas',
+  BOOKINGS_LIST: '/reservas/lista',
+  BOOKING_NEW: '/reservas/nova',
+  BOOKING_DETAIL: (id: string) => `/reservas/${id}`,
+
   // Account
   ACCOUNT: '/conta',
 } as const

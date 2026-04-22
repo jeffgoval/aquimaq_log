@@ -10,6 +10,7 @@ import {
   TrendingUp,
   UserCircle,
   Truck,
+  CalendarCheck,
   type LucideIcon,
 } from 'lucide-react'
 import { ROUTES } from '@/shared/constants/routes'
@@ -29,6 +30,7 @@ export const NAV_ITEMS: NavItem[] = [
   { label: 'Operadores', href: ROUTES.OPERATORS, icon: Users },
   { label: 'Clientes', href: ROUTES.CLIENTS, icon: Building2 },
   { label: 'Fornecedores', href: ROUTES.SUPPLIERS, icon: Store },
+  { label: 'Reservas', href: ROUTES.BOOKINGS_CALENDAR, icon: CalendarCheck },
   { label: 'Serviços', href: ROUTES.SERVICES, icon: ClipboardList },
   { label: 'Financeiro', href: ROUTES.RECEIVABLES, icon: DollarSign },
   { label: 'Custos', href: ROUTES.MACHINE_COSTS, icon: Wrench },

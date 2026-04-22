@@ -39,7 +39,9 @@ const ServiceEditPage         = lazy(() => import('@/modules/servicos/pages/serv
 const ReceivableListPage      = lazy(() => import('@/modules/financeiro/pages/receivable-list-page').then(m => ({ default: m.ReceivableListPage })))
 const MachineCostListPage     = lazy(() => import('@/modules/custos/pages/machine-cost-list-page').then(m => ({ default: m.MachineCostListPage })))
 const ProfitabilityPage       = lazy(() => import('@/modules/rentabilidade/pages/profitability-page').then(m => ({ default: m.ProfitabilityPage })))
-
+const ReservasCalendarPage  = lazy(() => import('@/modules/reservas/pages/reservas-calendar-page').then(m => ({ default: m.ReservasCalendarPage })))
+const ReservasCreatePage    = lazy(() => import('@/modules/reservas/pages/reservas-create-page').then(m => ({ default: m.ReservasCreatePage })))
+const ReservasListPage      = lazy(() => import('@/modules/reservas/pages/reservas-list-page').then(m => ({ default: m.ReservasListPage })))
 const router = createBrowserRouter([
   {
     element: <AppRouteShell />,
@@ -86,6 +88,9 @@ const router = createBrowserRouter([
               { path: ROUTES.RECEIVABLES,        element: <ReceivableListPage /> },
               { path: ROUTES.MACHINE_COSTS,      element: <MachineCostListPage /> },
               { path: ROUTES.PROFITABILITY,      element: <ProfitabilityPage /> },
+              { path: ROUTES.BOOKINGS_CALENDAR,  element: <ReservasCalendarPage /> },
+              { path: ROUTES.BOOKING_NEW,        element: <ReservasCreatePage /> },
+              { path: ROUTES.BOOKINGS_LIST,      element: <ReservasListPage /> },
               { path: ROUTES.ACCOUNT,            element: <AccountSettingsPage /> },
             ],
           },

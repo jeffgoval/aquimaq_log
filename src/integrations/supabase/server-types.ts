@@ -119,6 +119,239 @@ export type Database = {
         }
         Relationships: []
       }
+      log_bookings: {
+        Row: {
+          client_id: string
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          end_date: string
+          id: string
+          notes: string | null
+          resource_id: string
+          start_date: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          end_date: string
+          id?: string
+          notes?: string | null
+          resource_id: string
+          start_date: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          end_date?: string
+          id?: string
+          notes?: string | null
+          resource_id?: string
+          start_date?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "log_bookings_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "log_bookings_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "v_client_revenue"
+            referencedColumns: ["client_id"]
+          },
+          {
+            foreignKeyName: "log_bookings_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "log_bookings_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "log_resources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      log_resources: {
+        Row: {
+          billing_type: string
+          brand: string | null
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          id: string
+          model: string | null
+          name: string
+          rate: number
+          status: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          billing_type: string
+          brand?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          id?: string
+          model?: string | null
+          name: string
+          rate: number
+          status?: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          billing_type?: string
+          brand?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          id?: string
+          model?: string | null
+          name?: string
+          rate?: number
+          status?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "log_resources_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      log_services: {
+        Row: {
+          billing_type_snapshot: string
+          booking_id: string
+          client_id: string
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          ended_at: string | null
+          id: string
+          in_progress_at: string | null
+          is_pro_rata: boolean
+          notes: string | null
+          operator_id: string | null
+          rate_snapshot: number
+          resource_id: string
+          started_at: string
+          status: string
+          total_amount: number | null
+          updated_at: string
+          usage_quantity: number | null
+        }
+        Insert: {
+          billing_type_snapshot: string
+          booking_id: string
+          client_id: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          ended_at?: string | null
+          id?: string
+          in_progress_at?: string | null
+          is_pro_rata?: boolean
+          notes?: string | null
+          operator_id?: string | null
+          rate_snapshot: number
+          resource_id: string
+          started_at: string
+          status?: string
+          total_amount?: number | null
+          updated_at?: string
+          usage_quantity?: number | null
+        }
+        Update: {
+          billing_type_snapshot?: string
+          booking_id?: string
+          client_id?: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          ended_at?: string | null
+          id?: string
+          in_progress_at?: string | null
+          is_pro_rata?: boolean
+          notes?: string | null
+          operator_id?: string | null
+          rate_snapshot?: number
+          resource_id?: string
+          started_at?: string
+          status?: string
+          total_amount?: number | null
+          updated_at?: string
+          usage_quantity?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "log_services_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: true
+            referencedRelation: "log_bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "log_services_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "log_services_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "v_client_revenue"
+            referencedColumns: ["client_id"]
+          },
+          {
+            foreignKeyName: "log_services_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "log_services_operator_id_fkey"
+            columns: ["operator_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "log_services_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "log_resources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       machine_costs: {
         Row: {
           amount: number
@@ -306,6 +539,63 @@ export type Database = {
         }
         Relationships: []
       }
+      permissions: {
+        Row: {
+          code: string
+          created_at: string
+          description: string | null
+          id: string
+          module: string
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          module: string
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          module?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          deleted_at: string | null
+          email: string
+          id: string
+          name: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          deleted_at?: string | null
+          email: string
+          id: string
+          name: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          deleted_at?: string | null
+          email?: string
+          id?: string
+          name?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       receivable_payments: {
         Row: {
           amount: number
@@ -416,6 +706,63 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      role_permissions: {
+        Row: {
+          permission_id: string
+          role_id: string
+        }
+        Insert: {
+          permission_id: string
+          role_id: string
+        }
+        Update: {
+          permission_id?: string
+          role_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "role_permissions_permission_id_fkey"
+            columns: ["permission_id"]
+            isOneToOne: false
+            referencedRelation: "permissions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "role_permissions_role_id_fkey"
+            columns: ["role_id"]
+            isOneToOne: false
+            referencedRelation: "roles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      roles: {
+        Row: {
+          created_at: string
+          deleted_at: string | null
+          description: string | null
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          deleted_at?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          deleted_at?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       service_worklogs: {
         Row: {
@@ -786,6 +1133,36 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          role_id: string
+          user_id: string
+        }
+        Insert: {
+          role_id: string
+          user_id: string
+        }
+        Update: {
+          role_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_roles_role_id_fkey"
+            columns: ["role_id"]
+            isOneToOne: false
+            referencedRelation: "roles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_roles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       v_client_revenue: {
@@ -863,7 +1240,7 @@ export type Database = {
     }
     Functions: {
       fn_client_revenue_range: {
-        Args: { p_end?: string | null; p_start?: string | null }
+        Args: { p_end?: string; p_start?: string }
         Returns: {
           client_id: string
           client_name: string
@@ -875,7 +1252,7 @@ export type Database = {
         }[]
       }
       fn_fleet_spend_by_category_range: {
-        Args: { p_end?: string | null; p_start?: string | null }
+        Args: { p_end?: string; p_start?: string }
         Returns: {
           spend_diesel: number
           spend_maintenance: number
@@ -883,7 +1260,7 @@ export type Database = {
         }[]
       }
       fn_tractor_profitability_range: {
-        Args: { p_end?: string | null; p_start?: string | null }
+        Args: { p_end?: string; p_start?: string }
         Returns: {
           cost_per_hour: number
           depreciation_cost: number
@@ -901,7 +1278,7 @@ export type Database = {
         }[]
       }
       fn_truck_profitability_range: {
-        Args: { p_end?: string | null; p_start?: string | null }
+        Args: { p_end?: string; p_start?: string }
         Returns: {
           cost_per_km: number
           depreciation_cost: number
@@ -918,6 +1295,23 @@ export type Database = {
           truck_name: string
           useful_life_km: number
         }[]
+      }
+      log_check_availability: {
+        Args: {
+          p_end_date: string
+          p_exclude_booking_id?: string
+          p_resource_id: string
+          p_start_date: string
+        }
+        Returns: boolean
+      }
+      log_close_service: {
+        Args: { p_is_cancel?: boolean; p_service_id: string }
+        Returns: undefined
+      }
+      log_convert_booking_to_service: {
+        Args: { p_booking_id: string; p_operator_id: string }
+        Returns: string
       }
       mark_overdue_receivables: { Args: never; Returns: undefined }
     }
