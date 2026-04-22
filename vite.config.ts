@@ -40,8 +40,7 @@ export default defineConfig({
         // (o menu / chunks ficam "presos" em mobile após deploy).
         globPatterns: ['**/*.{js,css,ico,png,svg,woff2}'],
         globIgnores: ['**/*.html'],
-        navigateFallback: 'index.html',
-        navigateFallbackDenylist: [/^\/api\//, /\.[^/]+$/],
+        navigateFallback: null,
 
         // Runtime caching rules
         runtimeCaching: [
