@@ -15,7 +15,6 @@ export {
   AppCnhInput,
 } from './app-numeric-input'
 export { AppPageHeader } from './app-page-header'
-export { AppPwaInstall } from './app-pwa-install'
 export { AppSearchInput } from './app-search-input'
 export { AppStatCard } from './app-stat-card'
 export { AppTable, AppTableRow, AppTableCell } from './app-table'

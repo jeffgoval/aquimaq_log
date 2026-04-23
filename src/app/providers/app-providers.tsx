@@ -1,5 +1,4 @@
 import { EnvConfigMissingScreen } from '@/app/components/env-config-missing-screen'
-import { PwaUpdatePrompt } from '@/app/components/pwa-update-prompt'
 import { envConfigMessage } from '@/app/config/env'
 import { QueryProvider } from './query-provider'
 import { AuthProvider } from './auth-provider'
@@ -22,7 +21,6 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
               toastOptions={{ closeButtonAriaLabel: 'Fechar notificação' }}
               containerAriaLabel="Notificações"
             />
-            <PwaUpdatePrompt />
           </AuthProvider>
         </QueryProvider>
       )}

@@ -1,5 +1,4 @@
 import '@/shared/lib/dayjs'
-import '@/app/pwa-register'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import '@/app/styles/globals.css'
