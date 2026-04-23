@@ -110,7 +110,7 @@ export const MachineCostDetailPanel = ({ cost, onClose, onCostUpdated }: Machine
         <div className="flex items-start justify-between gap-3 border-b border-border px-4 py-4 shrink-0">
           <div className="min-w-0">
             <h2 id="cost-panel-title" className="typo-section-title truncate">
-              {cost.tractors?.name || cost.trucks?.name || 'Custo'}
+              {cost.tractors?.name || cost.trucks?.name || cost.log_resources?.name || 'Custo'}
             </h2>
             <p className="text-sm text-muted-foreground mt-0.5">
               {dayjs(cost.cost_date).format('DD/MM/YYYY')} · {typeLabel}

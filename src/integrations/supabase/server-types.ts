@@ -416,6 +416,7 @@ export type Database = {
           due_date: string | null
           id: string
           receipt_storage_path: string | null
+          resource_id: string | null
           service_id: string | null
           status: string | null
           supplier_id: string | null
@@ -432,6 +433,7 @@ export type Database = {
           due_date?: string | null
           id?: string
           receipt_storage_path?: string | null
+          resource_id?: string | null
           service_id?: string | null
           status?: string | null
           supplier_id?: string | null
@@ -448,6 +450,7 @@ export type Database = {
           due_date?: string | null
           id?: string
           receipt_storage_path?: string | null
+          resource_id?: string | null
           service_id?: string | null
           status?: string | null
           supplier_id?: string | null
@@ -489,6 +492,13 @@ export type Database = {
             columns: ["truck_id"]
             isOneToOne: false
             referencedRelation: "trucks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "machine_costs_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "log_resources"
             referencedColumns: ["id"]
           },
         ]

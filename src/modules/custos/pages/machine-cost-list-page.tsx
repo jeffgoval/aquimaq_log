@@ -10,6 +10,7 @@ import { compressImageToJpeg } from '@/shared/lib/image-compress'
 import { useTractorOptions } from '@/modules/tratores/hooks/use-tractor-queries'
 import { useTrucks } from '@/modules/caminhoes/hooks/use-truck-queries'
 import { useSupplierOptions } from '@/modules/fornecedores/hooks/use-supplier-queries'
+import { useResourceList } from '@/modules/recursos/hooks/use-resource-queries'
 import { ROUTES } from '@/shared/constants/routes'
 import { AppPageHeader } from '@/shared/components/app/app-page-header'
 import { AppLoadingState } from '@/shared/components/app/app-loading-state'
@@ -80,6 +81,7 @@ export function MachineCostListPage() {
   const { data, isLoading, isError, error, refetch } = useMachineCosts()
   const tractors = useTractorOptions()
   const trucks = useTrucks()
+  const resources = useResourceList()
   const suppliers = useSupplierOptions()
   const createCost = useCreateCost()
   const addDialog = useDisclosure()
@@ -88,7 +90,7 @@ export function MachineCostListPage() {
   const [selectedCost, setSelectedCost] = useState<MachineCostWithTractor | null>(null)
 
   const [form, setForm] = useState({
-    vehicle_type: 'tractor' as 'tractor' | 'truck',
+    vehicle_type: 'tractor' as 'tractor' | 'truck' | 'resource',
     vehicle_id: '',
     supplier_id: '',
     cost_type: 'fuel' as const,
@@ -112,7 +114,7 @@ export function MachineCostListPage() {
   const filtered = data?.filter((c) => {
     const q = search.toLowerCase()
     const supplierLabel = c.suppliers?.name || c.supplier_name || ''
-    const vehicleLabel = c.tractors?.name || c.trucks?.name || ''
+    const vehicleLabel = c.tractors?.name || c.trucks?.name || c.log_resources?.name || ''
     return (
       c.description?.toLowerCase().includes(q) ||
       vehicleLabel.toLowerCase().includes(q) ||
@@ -133,6 +135,7 @@ export function MachineCostListPage() {
       const row = await createCost.mutateAsync({
         tractor_id: form.vehicle_type === 'tractor' ? form.vehicle_id : null,
         truck_id: form.vehicle_type === 'truck' ? form.vehicle_id : null,
+        resource_id: form.vehicle_type === 'resource' ? form.vehicle_id : null,
         supplier_id: form.supplier_id || null,
         cost_type: form.cost_type as never,
         amount,
@@ -158,7 +161,7 @@ export function MachineCostListPage() {
     }
     setReceiptFile(null)
     setForm({
-      vehicle_type: 'tractor',
+      vehicle_type: 'tractor' as const,
       vehicle_id: '',
       supplier_id: '',
       cost_type: 'fuel',
@@ -223,22 +226,27 @@ export function MachineCostListPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             <div>
               <label className="field-label">Veículo *</label>
-              <select 
-                value={form.vehicle_type} 
-                onChange={e => setForm(f => ({ ...f, vehicle_type: e.target.value as 'tractor'|'truck', vehicle_id: '' }))} 
+              <select
+                value={form.vehicle_type}
+                onChange={e => setForm(f => ({ ...f, vehicle_type: e.target.value as 'tractor'|'truck'|'resource', vehicle_id: '' }))}
                 className="field mb-2"
               >
                 <option value="tractor">Trator</option>
                 <option value="truck">Guincho</option>
+                <option value="resource">Equipamento</option>
               </select>
               <select value={form.vehicle_id} onChange={e => setForm(f => ({ ...f, vehicle_id: e.target.value }))} className="field">
                 <option value="">Selecione o veículo...</option>
-                {form.vehicle_type === 'tractor' 
+                {form.vehicle_type === 'tractor'
                   ? tractorOptionsSorted.map((t) => (
                       <option key={t.id} value={t.id}>{t.name}</option>
                     ))
-                  : trucks.data?.map((t) => (
+                  : form.vehicle_type === 'truck'
+                  ? trucks.data?.map((t) => (
                       <option key={t.id} value={t.id}>{t.name}</option>
+                    ))
+                  : resources.data?.map((r) => (
+                      <option key={r.id} value={r.id}>{r.name}</option>
                     ))
                 }
               </select>
@@ -345,7 +353,7 @@ export function MachineCostListPage() {
                   <tbody>
                     {sortedFiltered?.map((cost) => {
                       const payment = paymentBadgeForCost(cost.status)
-                      const vehicle = cost.tractors?.name || cost.trucks?.name || 'Maquinário'
+                      const vehicle = cost.tractors?.name || cost.trucks?.name || cost.log_resources?.name || 'Maquinário'
                       const supplier = cost.suppliers?.name || cost.supplier_name || '—'
                       const desc = cost.description || '—'
                       return (
