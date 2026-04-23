@@ -3,7 +3,7 @@ import { toast } from 'sonner'
 import { queryKeys } from '@/integrations/supabase/query-keys'
 import { supplierRepository } from '../services/supplier.repository'
 import { parseSupabaseError } from '@/shared/lib/errors'
-import type { Inserts, Updates } from '@/integrations/supabase/db-types'
+import type { Inserts, Updates, Tables } from '@/integrations/supabase/db-types'
 
 type SupplierInsert = Inserts<'suppliers'>
 type SupplierUpdate = Updates<'suppliers'>
@@ -14,12 +14,16 @@ export const useSupplierList = () =>
 export const useSupplierOptions = () =>
   useQuery({ queryKey: queryKeys.supplierOptions, queryFn: supplierRepository.listActive })
 
-export const useSupplier = (id: string) =>
-  useQuery({
+export const useSupplier = (id: string) => {
+  const qc = useQueryClient()
+  return useQuery({
     queryKey: ['suppliers', id],
     queryFn: () => supplierRepository.getById(id),
     enabled: !!id,
+    initialData: () => qc.getQueryData<Tables<'suppliers'>[]>(queryKeys.suppliers)?.find((s) => s.id === id),
+    initialDataUpdatedAt: () => qc.getQueryState(queryKeys.suppliers)?.dataUpdatedAt,
   })
+}
 
 export function useCreateSupplier() {
   const qc = useQueryClient()

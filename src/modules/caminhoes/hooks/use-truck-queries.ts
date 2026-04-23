@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import * as repo from '../services/truck.repository'
 import { toast } from 'sonner'
 import { parseSupabaseError } from '@/shared/lib/errors'
+import type { TruckRow } from '../types/truck.types'
 
 export const TRUCK_KEYS = {
   all: ['trucks'] as const,
@@ -10,7 +11,16 @@ export const TRUCK_KEYS = {
 }
 
 export const useTrucks = () => useQuery({ queryKey: TRUCK_KEYS.lists(), queryFn: repo.fetchTrucks })
-export const useTruck = (id: string) => useQuery({ queryKey: TRUCK_KEYS.detail(id), queryFn: () => repo.fetchTruckById(id), enabled: !!id })
+export const useTruck = (id: string) => {
+  const qc = useQueryClient()
+  return useQuery({
+    queryKey: TRUCK_KEYS.detail(id),
+    queryFn: () => repo.fetchTruckById(id),
+    enabled: !!id,
+    initialData: () => qc.getQueryData<TruckRow[]>(TRUCK_KEYS.lists())?.find((t) => t.id === id),
+    initialDataUpdatedAt: () => qc.getQueryState(TRUCK_KEYS.lists())?.dataUpdatedAt,
+  })
+}
 
 export const useCreateTruck = () => {
   const qc = useQueryClient()

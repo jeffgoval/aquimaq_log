@@ -4,7 +4,7 @@ import { queryKeys } from '@/integrations/supabase/query-keys'
 import { operatorRepository } from '../services/operator.repository'
 import { parseSupabaseError } from '@/shared/lib/errors'
 import type { OperatorInput } from '../schemas/operator.schema'
-import type { Inserts, Updates } from '@/integrations/supabase/db-types'
+import type { Inserts, Updates, Tables } from '@/integrations/supabase/db-types'
 
 type OperatorUpdate = Updates<'operators'>
 type OperatorLedgerInsert = Inserts<'operator_ledger'>
@@ -12,7 +12,16 @@ type OperatorLedgerUpdate = Updates<'operator_ledger'>
 
 export const useOperatorList = () => useQuery({ queryKey: queryKeys.operators, queryFn: operatorRepository.list })
 export const useOperatorOptions = () => useQuery({ queryKey: queryKeys.operatorOptions, queryFn: operatorRepository.listActive })
-export const useOperator = (id: string) => useQuery({ queryKey: ['operators', id], queryFn: () => operatorRepository.getById(id), enabled: !!id })
+export const useOperator = (id: string) => {
+  const qc = useQueryClient()
+  return useQuery({
+    queryKey: ['operators', id],
+    queryFn: () => operatorRepository.getById(id),
+    enabled: !!id,
+    initialData: () => qc.getQueryData<Tables<'operators'>[]>(queryKeys.operators)?.find((o) => o.id === id),
+    initialDataUpdatedAt: () => qc.getQueryState(queryKeys.operators)?.dataUpdatedAt,
+  })
+}
 export const useOperatorLedger = (id: string) => useQuery({ queryKey: queryKeys.operatorLedger(id), queryFn: () => operatorRepository.getLedger(id), enabled: !!id })
 
 export const useOperatorLedgerRows = (id: string) =>

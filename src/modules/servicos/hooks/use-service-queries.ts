@@ -3,13 +3,22 @@ import { toast } from 'sonner'
 import { queryKeys } from '@/integrations/supabase/query-keys'
 import { serviceRepository } from '../services/service.repository'
 import { parseSupabaseError } from '@/shared/lib/errors'
-import type { Inserts, Updates } from '@/integrations/supabase/db-types'
+import type { Inserts, Updates, ServiceWithJoins } from '@/integrations/supabase/db-types'
 
 type ServiceInsert = Inserts<'services'>
 type ServiceUpdate = Updates<'services'>
 
 export const useServiceList = () => useQuery({ queryKey: queryKeys.services, queryFn: serviceRepository.list })
-export const useService = (id: string) => useQuery({ queryKey: queryKeys.serviceDetails(id), queryFn: () => serviceRepository.getById(id), enabled: !!id })
+export const useService = (id: string) => {
+  const qc = useQueryClient()
+  return useQuery({
+    queryKey: queryKeys.serviceDetails(id),
+    queryFn: () => serviceRepository.getById(id),
+    enabled: !!id,
+    initialData: () => qc.getQueryData<ServiceWithJoins[]>(queryKeys.services)?.find((s) => s.id === id),
+    initialDataUpdatedAt: () => qc.getQueryState(queryKeys.services)?.dataUpdatedAt,
+  })
+}
 
 export const useServicesByOperatorWorklogs = (operatorId: string) =>
   useQuery({

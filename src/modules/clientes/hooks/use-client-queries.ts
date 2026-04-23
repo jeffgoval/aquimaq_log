@@ -10,7 +10,16 @@ type ClientUpdate = Updates<'clients'>
 
 export const useClientList = () => useQuery({ queryKey: queryKeys.clients, queryFn: clientRepository.list })
 export const useClientOptions = () => useQuery({ queryKey: queryKeys.clientOptions, queryFn: clientRepository.listActive })
-export const useClient = (id: string) => useQuery({ queryKey: ['clients', id], queryFn: () => clientRepository.getById(id), enabled: !!id })
+export const useClient = (id: string) => {
+  const qc = useQueryClient()
+  return useQuery({
+    queryKey: ['clients', id],
+    queryFn: () => clientRepository.getById(id),
+    enabled: !!id,
+    initialData: () => qc.getQueryData<Tables<'clients'>[]>(queryKeys.clients)?.find((c) => c.id === id),
+    initialDataUpdatedAt: () => qc.getQueryState(queryKeys.clients)?.dataUpdatedAt,
+  })
+}
 
 export function useCreateClient() {
   const qc = useQueryClient()

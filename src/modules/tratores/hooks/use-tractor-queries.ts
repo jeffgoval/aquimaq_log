@@ -4,6 +4,7 @@ import { queryKeys } from '@/integrations/supabase/query-keys'
 import { tractorRepository } from '../services/tractor.repository'
 import { parseSupabaseError } from '@/shared/lib/errors'
 import type { TractorInput } from '../schemas/tractor.schema'
+import type { Tables } from '@/integrations/supabase/db-types'
 
 export function useTractorList() {
   return useQuery({ queryKey: queryKeys.tractors, queryFn: tractorRepository.list })
@@ -14,10 +15,13 @@ export function useTractorOptions() {
 }
 
 export function useTractor(id: string) {
+  const qc = useQueryClient()
   return useQuery({
     queryKey: queryKeys.tractorById(id),
     queryFn: () => tractorRepository.getById(id),
     enabled: !!id,
+    initialData: () => qc.getQueryData<Tables<'tractors'>[]>(queryKeys.tractors)?.find((t) => t.id === id),
+    initialDataUpdatedAt: () => qc.getQueryState(queryKeys.tractors)?.dataUpdatedAt,
   })
 }
 
