@@ -11,8 +11,9 @@ import { useBookings, useCreateBooking, useResources } from '../hooks/use-bookin
 import { AppLoadingState } from '@/shared/components/app/app-loading-state'
 import { AppErrorState } from '@/shared/components/app/app-error-state'
 import { Link, useNavigate } from 'react-router-dom'
-import { Check, Plus, X } from 'lucide-react'
+import { Check, Plus, UserPlus, X } from 'lucide-react'
 import { useClientOptions } from '@/modules/clientes/hooks/use-client-queries'
+import { QuickClientCreateModal } from '@/modules/clientes/components/quick-client-create-modal'
 import { createBookingSchema, type CreateBookingInput } from '../schemas/booking.schema'
 import { AppButton } from '@/shared/components/app/app-button'
 import { toast } from 'sonner'
@@ -27,6 +28,7 @@ function BookingQuickModal({ defaultDate, onClose, onSuccess }: BookingQuickModa
   const createBooking = useCreateBooking()
   const clients = useClientOptions()
   const resources = useResources()
+  const [showQuickClientModal, setShowQuickClientModal] = useState(false)
 
   const defaultStart = defaultDate.tz(TZ_APP).startOf('day').add(8, 'hour').format('YYYY-MM-DDTHH:mm')
   const defaultEnd = defaultDate.tz(TZ_APP).startOf('day').add(18, 'hour').format('YYYY-MM-DDTHH:mm')
@@ -39,14 +41,23 @@ function BookingQuickModal({ defaultDate, onClose, onSuccess }: BookingQuickModa
     },
   })
   const selectedResourceId = watch('resource_id')
+  const selectedPricingMode = watch('pricing_mode')
   const selectedResource = resources.data?.find((r) => r.id === selectedResourceId)
-  const equipmentPricingOptions = (selectedResource?.pricing ?? [])
+  const resourcePricingOptions = (selectedResource?.pricing ?? [])
     .filter((item) => item.deleted_at == null && item.is_active)
-    .filter((item) => ['hourly', 'daily', 'equipment_15d', 'equipment_30d'].includes(item.pricing_mode))
+    .filter((item) => {
+      if (selectedResource?.type === 'equipment') {
+        return ['hourly', 'daily', 'equipment_15d', 'equipment_30d'].includes(item.pricing_mode)
+      }
+      if (selectedResource?.type === 'truck') {
+        return ['fixed', 'km'].includes(item.pricing_mode)
+      }
+      return false
+    })
 
   const onSubmit = async (data: CreateBookingInput) => {
-    if (selectedResource?.type === 'equipment' && !data.pricing_mode) {
-      toast.error('Selecione a modalidade de cobrança do equipamento.')
+    if ((selectedResource?.type === 'equipment' || selectedResource?.type === 'truck') && !data.pricing_mode) {
+      toast.error('Selecione a modalidade de cobrança.')
       return
     }
 
@@ -56,7 +67,7 @@ function BookingQuickModal({ defaultDate, onClose, onSuccess }: BookingQuickModa
     await createBooking.mutateAsync({
       client_id: data.client_id,
       resource_id: data.resource_id,
-      pricing_mode: selectedResource?.type === 'equipment' ? data.pricing_mode ?? null : null,
+      pricing_mode: selectedResource?.type === 'equipment' || selectedResource?.type === 'truck' ? data.pricing_mode ?? null : null,
       start_date: startIso,
       end_date: endIso,
       notes: data.notes || null,
@@ -67,6 +78,16 @@ function BookingQuickModal({ defaultDate, onClose, onSuccess }: BookingQuickModa
   }
 
   const modal = (
+    <>
+      {showQuickClientModal && (
+        <QuickClientCreateModal
+          onClose={() => setShowQuickClientModal(false)}
+          onCreated={(id) => {
+            setValue('client_id', id, { shouldValidate: true, shouldDirty: true })
+            setShowQuickClientModal(false)
+          }}
+        />
+      )}
     <div
       className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 animate-in fade-in duration-150"
       role="dialog"
@@ -106,6 +127,14 @@ function BookingQuickModal({ defaultDate, onClose, onSuccess }: BookingQuickModa
                   ))}
                 </select>
                 {errors.client_id && <p className="field-error">{errors.client_id.message}</p>}
+                <button
+                  type="button"
+                  onClick={() => setShowQuickClientModal(true)}
+                  className="mt-2 flex items-center gap-2 text-sm font-medium text-primary hover:underline"
+                >
+                  <UserPlus className="h-4 w-4" />
+                  Não encontrou? Cadastrar cliente rapidamente
+                </button>
               </div>
 
               <div>
@@ -128,17 +157,25 @@ function BookingQuickModal({ defaultDate, onClose, onSuccess }: BookingQuickModa
                 {errors.resource_id && <p className="field-error">{errors.resource_id.message}</p>}
               </div>
 
-              {selectedResource?.type === 'equipment' && (
+              {(selectedResource?.type === 'equipment' || selectedResource?.type === 'truck') && (
                 <div className="sm:col-span-2">
-                  <label className="field-label">Modalidade de cobrança *</label>
+                  <label className="field-label">
+                    {selectedResource?.type === 'truck'
+                      ? 'Modalidade de cobrança do guincho *'
+                      : 'Modalidade de cobrança *'}
+                  </label>
                   <select {...register('pricing_mode')} className="field">
                     <option value="">Selecione...</option>
-                    {equipmentPricingOptions.map((item) => (
+                    {resourcePricingOptions.map((item) => (
                       <option key={item.pricing_mode} value={item.pricing_mode}>
                         {item.pricing_mode === 'hourly'
                           ? `Por hora (R$ ${Number(item.rate).toFixed(2)})`
                           : item.pricing_mode === 'daily'
                             ? `Diária (R$ ${Number(item.rate).toFixed(2)})`
+                            : item.pricing_mode === 'fixed'
+                              ? `Valor fixo (R$ ${Number(item.rate).toFixed(2)})`
+                              : item.pricing_mode === 'km'
+                                ? `Por km (R$ ${Number(item.rate).toFixed(2)})`
                             : item.pricing_mode === 'equipment_15d'
                               ? `Pacote 15 dias (R$ ${Number(item.rate).toFixed(2)})`
                               : `Pacote 30 dias (R$ ${Number(item.rate).toFixed(2)})`}
@@ -146,6 +183,13 @@ function BookingQuickModal({ defaultDate, onClose, onSuccess }: BookingQuickModa
                     ))}
                   </select>
                   {errors.pricing_mode && <p className="field-error">{errors.pricing_mode.message}</p>}
+                  {selectedResource?.type === 'truck' && selectedPricingMode && (
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {selectedPricingMode === 'fixed'
+                        ? 'Use valor fixo para socorro na cidade.'
+                        : 'Use por km para atendimento fora da cidade.'}
+                    </p>
+                  )}
                 </div>
               )}
 
@@ -186,6 +230,7 @@ function BookingQuickModal({ defaultDate, onClose, onSuccess }: BookingQuickModa
         </div>
       </div>
     </div>
+    </>
   )
 
   return typeof document !== 'undefined' ? createPortal(modal, document.body) : null
@@ -196,13 +241,15 @@ export function ReservasCalendarPage() {
   const [currentDate, setCurrentDate] = useState(dayjs().tz(TZ_APP))
   const [quickModalDate, setQuickModalDate] = useState<dayjs.Dayjs | null>(null)
 
-  // Fetch bookings for the current month view (padded by a few days to fill the grid)
-  const startOfMonth = currentDate.startOf('month').startOf('week')
-  const endOfMonth = currentDate.endOf('month').endOf('week')
+  // Fetch bookings for the current month view (padded by a few days to fill the grid).
+  // Importante: usar .clone() — startOf/endOf mutam o dayjs in-place e corrompiam o state,
+  // gerando queryKey instável e loading infinito.
+  const rangeStart = currentDate.clone().startOf('month').startOf('week')
+  const rangeEnd = currentDate.clone().endOf('month').endOf('week')
 
   const { data: bookings, isLoading, isError, error, refetch } = useBookings(
-    startOfMonth.toISOString(),
-    endOfMonth.toISOString()
+    rangeStart.toISOString(),
+    rangeEnd.toISOString()
   )
 
   const handleNewBooking = (date: dayjs.Dayjs) => {

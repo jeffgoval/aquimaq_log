@@ -46,12 +46,12 @@ const STATUS_LABEL: Record<string, string> = {
 // Agenda view for mobile — lists all bookings in the current month sorted by date
 function AgendaView({ bookings, currentDate, onNewBooking, onBookingClick }: Omit<BookingCalendarProps, 'onDateChange'>) {
   const todayStr = dayjs().tz(TZ_APP).format('YYYY-MM-DD')
-  const startOfMonth = currentDate.startOf('month')
-  const endOfMonth = currentDate.endOf('month')
 
   const daysWithBookings = useMemo(() => {
+    const startOfMonth = currentDate.clone().startOf('month')
+    const endOfMonth = currentDate.clone().endOf('month')
     const map = new Map<string, Booking[]>()
-    let d = startOfMonth
+    let d = startOfMonth.clone()
     while (d.isBefore(endOfMonth) || d.isSame(endOfMonth, 'day')) {
       const key = d.format('YYYY-MM-DD')
       const dayBookings = bookings.filter(b => {
@@ -65,7 +65,7 @@ function AgendaView({ bookings, currentDate, onNewBooking, onBookingClick }: Omi
       d = d.add(1, 'day')
     }
     return Array.from(map.entries()).map(([key, bks]) => ({ day: dayjs(key).tz(TZ_APP), bookings: bks }))
-  }, [bookings, startOfMonth, endOfMonth, todayStr])
+  }, [bookings, currentDate, todayStr])
 
   if (daysWithBookings.length === 0) {
     return (
@@ -147,20 +147,17 @@ function AgendaView({ bookings, currentDate, onNewBooking, onBookingClick }: Omi
 export function BookingCalendar({ bookings, currentDate, onDateChange, onNewBooking, onBookingClick }: BookingCalendarProps) {
   const [mobileView, setMobileView] = useState<'grid' | 'agenda'>('agenda')
 
-  const startOfMonth = currentDate.startOf('month')
-  const endOfMonth = currentDate.endOf('month')
-  const startDate = startOfMonth.startOf('week')
-  const endDate = endOfMonth.endOf('week')
-
   const days = useMemo(() => {
-    let date = startDate
-    const d = []
+    const startDate = currentDate.clone().startOf('month').startOf('week')
+    const endDate = currentDate.clone().endOf('month').endOf('week')
+    let date = startDate.clone()
+    const d: dayjs.Dayjs[] = []
     while (date.isBefore(endDate) || date.isSame(endDate, 'day')) {
-      d.push(date)
+      d.push(date.clone())
       date = date.add(1, 'day')
     }
     return d
-  }, [startDate, endDate])
+  }, [currentDate])
 
   const nextMonth = () => onDateChange(currentDate.add(1, 'month'))
   const prevMonth = () => onDateChange(currentDate.subtract(1, 'month'))
