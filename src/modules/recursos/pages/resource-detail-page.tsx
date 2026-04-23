@@ -126,6 +126,35 @@ export function ResourceDetailPage() {
               </div>
             </div>
           )}
+
+          {(data.type === 'tractor' || data.type === 'truck') && (() => {
+            const billingLabelMap: Record<string, string> = {
+              hourly: 'Por hora',
+              daily: 'Por dia',
+              fixed: 'Valor fixo',
+            }
+            const pricing = pricingRows[0]
+            const billingType = pricing?.pricing_mode ?? (data as { billing_type?: string }).billing_type ?? ''
+            const rate = pricing?.rate ?? (data as { rate?: number }).rate ?? 0
+            const label = billingLabelMap[billingType] ?? billingType
+            return (
+              <div className="mt-6 rounded-lg border border-border p-4">
+                <p className="mb-3 text-sm font-semibold">Tabela de preços</p>
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                  <div>
+                    <p className="text-xs text-muted-foreground">Tipo de cobrança</p>
+                    <p className="font-medium">{label || '—'}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Tarifa</p>
+                    <p className="font-medium">
+                      <AppMoney value={rate} />
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )
+          })()}
         </AppCard>
       )}
     </div>
