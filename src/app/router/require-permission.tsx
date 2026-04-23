@@ -8,9 +8,9 @@ interface RequirePermissionProps {
 }
 
 export function RequirePermission({ permission }: RequirePermissionProps) {
-  const { isLoading, hasPermission } = useAuth()
+  const { isLoading, permissionsLoading, hasPermission } = useAuth()
 
-  if (isLoading) return <AppLoadingState fullScreen />
+  if (isLoading || permissionsLoading) return <AppLoadingState fullScreen />
   if (!hasPermission(permission)) return <Navigate to={ROUTES.DASHBOARD} replace />
 
   return <Outlet />

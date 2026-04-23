@@ -129,6 +129,7 @@ export type Database = {
           id: string
           notes: string | null
           pricing_mode: string | null
+          reopened_from_no_show_at: string | null
           resource_id: string
           start_date: string
           status: string
@@ -143,6 +144,7 @@ export type Database = {
           id?: string
           notes?: string | null
           pricing_mode?: string | null
+          reopened_from_no_show_at?: string | null
           resource_id: string
           start_date: string
           status?: string
@@ -157,6 +159,7 @@ export type Database = {
           id?: string
           notes?: string | null
           pricing_mode?: string | null
+          reopened_from_no_show_at?: string | null
           resource_id?: string
           start_date?: string
           status?: string
@@ -1393,6 +1396,7 @@ export type Database = {
         Args: { p_booking_id: string; p_operator_id: string }
         Returns: string
       }
+      log_archive_expired_pending_bookings: { Args: never; Returns: number }
       mark_overdue_receivables: { Args: never; Returns: undefined }
     }
     Enums: {

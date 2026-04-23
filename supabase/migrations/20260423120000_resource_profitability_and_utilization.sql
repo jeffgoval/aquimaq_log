@@ -59,9 +59,7 @@ as $$
   where r.deleted_at is null
   order by coalesce(svc.revenue, 0) desc nulls last
 $$;
-
 comment on function public.fn_resource_profitability_range(date, date) is
   'Rentabilidade por equipamento (log_resources): receita dos log_services (closed/cancelled) e custos via machine_costs.resource_id.';
-
 grant execute on function public.fn_resource_profitability_range(date, date) to authenticated;
 grant execute on function public.fn_resource_profitability_range(date, date) to service_role;

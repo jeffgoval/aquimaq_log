@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -8,6 +9,8 @@ import { AppButton } from '@/shared/components/app/app-button'
 import { createBookingSchema, type CreateBookingInput } from '../schemas/booking.schema'
 import { useCreateBooking, useResources } from '../hooks/use-booking-queries'
 import { useClientOptions } from '@/modules/clientes/hooks/use-client-queries'
+import { QuickClientCreateModal } from '@/modules/clientes/components/quick-client-create-modal'
+import { QuickClientRegisterLink } from '@/modules/clientes/components/quick-client-register-link'
 import { Check, X } from 'lucide-react'
 import dayjs from '@/shared/lib/dayjs'
 import { TZ_APP } from '@/app/config/constants'
@@ -18,6 +21,7 @@ export function ReservasCreatePage() {
   const createBooking = useCreateBooking()
   const clients = useClientOptions()
   const resources = useResources()
+  const [showQuickClientModal, setShowQuickClientModal] = useState(false)
 
   const defaultStart = dayjs().tz(TZ_APP).startOf('day').add(8, 'hour').format('YYYY-MM-DDTHH:mm')
   const defaultEnd = dayjs().tz(TZ_APP).startOf('day').add(18, 'hour').format('YYYY-MM-DDTHH:mm')
@@ -25,10 +29,12 @@ export function ReservasCreatePage() {
   const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<CreateBookingInput>({
     resolver: zodResolver(createBookingSchema),
     defaultValues: {
+      client_id: '',
       start_date: defaultStart,
       end_date: defaultEnd,
     },
   })
+  const selectedClientId = watch('client_id') ?? ''
   const selectedResourceId = watch('resource_id')
   const selectedPricingMode = watch('pricing_mode')
   const selectedResource = resources.data?.find((r) => r.id === selectedResourceId)
@@ -74,6 +80,16 @@ export function ReservasCreatePage() {
 
   return (
     <div className="max-w-2xl mx-auto w-full">
+      {showQuickClientModal && (
+        <QuickClientCreateModal
+          onClose={() => setShowQuickClientModal(false)}
+          onCreated={(id) => {
+            setValue('client_id', id, { shouldValidate: true, shouldDirty: true, shouldTouch: true })
+            setShowQuickClientModal(false)
+          }}
+        />
+      )}
+
       <AppPageHeader
         backTo={ROUTES.BOOKINGS_CALENDAR}
         backLabel="Voltar ao Calendário"
@@ -86,13 +102,22 @@ export function ReservasCreatePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="field-label">Cliente *</label>
-              <select {...register('client_id')} className="field">
+              <select
+                className="field"
+                value={selectedClientId}
+                onChange={(e) =>
+                  setValue('client_id', e.target.value, { shouldValidate: true, shouldDirty: true })
+                }
+              >
                 <option value="">Selecione um cliente...</option>
-                {clients.data?.map(c => (
-                  <option key={c.id} value={c.id}>{c.name}</option>
+                {clients.data?.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name?.trim() ? c.name : '(sem nome)'}
+                  </option>
                 ))}
               </select>
               {errors.client_id && <p className="field-error">{errors.client_id.message}</p>}
+              <QuickClientRegisterLink onClick={() => setShowQuickClientModal(true)} className="mt-2" />
             </div>
 
             <div>

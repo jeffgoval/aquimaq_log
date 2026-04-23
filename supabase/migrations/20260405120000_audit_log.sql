@@ -9,13 +9,10 @@ create table if not exists public.audit_log (
   new_row     jsonb,
   created_at  timestamptz not null default now()
 );
-
 create index if not exists idx_audit_log_created_at on public.audit_log (created_at desc);
 create index if not exists idx_audit_log_user_id on public.audit_log (user_id);
 create index if not exists idx_audit_log_table_record on public.audit_log (table_name, record_id);
-
 comment on table public.audit_log is 'Auditoria: quem alterou o quê (via PostgREST com JWT).';
-
 -- SECURITY DEFINER: insere mesmo com RLS; auth.uid() continua a refletir o utilizador da sessão
 create or replace function public.audit_row_change()
 returns trigger
@@ -53,48 +50,37 @@ begin
   return coalesce(new, old);
 end;
 $$;
-
 alter table public.audit_log enable row level security;
-
 create policy "authenticated_select_audit_log"
   on public.audit_log
   for select
   to authenticated
   using (true);
-
 -- Um trigger por tabela (evita auditar a própria audit_log)
 create or replace trigger trg_audit_tractors
   after insert or update or delete on public.tractors
   for each row execute function public.audit_row_change();
-
 create or replace trigger trg_audit_operators
   after insert or update or delete on public.operators
   for each row execute function public.audit_row_change();
-
 create or replace trigger trg_audit_clients
   after insert or update or delete on public.clients
   for each row execute function public.audit_row_change();
-
 create or replace trigger trg_audit_services
   after insert or update or delete on public.services
   for each row execute function public.audit_row_change();
-
 create or replace trigger trg_audit_service_worklogs
   after insert or update or delete on public.service_worklogs
   for each row execute function public.audit_row_change();
-
 create or replace trigger trg_audit_receivables
   after insert or update or delete on public.receivables
   for each row execute function public.audit_row_change();
-
 create or replace trigger trg_audit_receivable_payments
   after insert or update or delete on public.receivable_payments
   for each row execute function public.audit_row_change();
-
 create or replace trigger trg_audit_machine_costs
   after insert or update or delete on public.machine_costs
   for each row execute function public.audit_row_change();
-
 create or replace trigger trg_audit_operator_ledger
   after insert or update or delete on public.operator_ledger
   for each row execute function public.audit_row_change();

@@ -46,7 +46,6 @@ BEGIN
     RETURN TRUE;
 END;
 $$ LANGUAGE plpgsql;
-
 -- Trigger para bloquear overbooking garantido pelo banco (Never trust the client)
 CREATE OR REPLACE FUNCTION log_prevent_overbooking()
 RETURNS TRIGGER AS $$
@@ -57,15 +56,12 @@ BEGIN
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
-
 DROP TRIGGER IF EXISTS trg_prevent_overbooking ON log_bookings;
 CREATE TRIGGER trg_prevent_overbooking
     BEFORE INSERT OR UPDATE ON log_bookings
     FOR EACH ROW
     WHEN (NEW.status IN ('pending', 'converted') AND NEW.deleted_at IS NULL)
     EXECUTE FUNCTION log_prevent_overbooking();
-
-
 -- ====================================================================================
 -- 2. TRANSAÇÃO ATÔMICA: CONVERSÃO DE RESERVA EM SERVIÇO (PRD Item 7.7)
 -- ====================================================================================
@@ -130,8 +126,6 @@ BEGIN
     RETURN v_service_id;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
-
-
 -- ====================================================================================
 -- 3. ENGINE DE CÁLCULO: FECHAMENTO OU CANCELAMENTO PRO RATA (PRD Item 9)
 -- ====================================================================================

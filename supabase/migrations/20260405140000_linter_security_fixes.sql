@@ -9,7 +9,6 @@ begin
   return new;
 end;
 $$;
-
 create or replace function public.update_receivable_on_payment()
 returns trigger
 language plpgsql
@@ -43,7 +42,6 @@ begin
   return new;
 end;
 $$;
-
 -- Splinter 0024: substituir FOR ALL + true por políticas separadas (escritas com auth.uid())
 do $$
 declare

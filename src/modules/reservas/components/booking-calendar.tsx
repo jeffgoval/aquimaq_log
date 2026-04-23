@@ -27,6 +27,7 @@ const STATUS_COLORS: Record<string, string> = {
   converted: 'bg-blue-500/10 text-blue-600 border-blue-500/20',
   completed: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20',
   cancelled: 'bg-red-500/10 text-red-600 border-red-500/20',
+  no_show: 'bg-slate-500/10 text-slate-600 border-slate-500/20 dark:text-slate-400',
 }
 
 const STATUS_DOT: Record<string, string> = {
@@ -34,6 +35,7 @@ const STATUS_DOT: Record<string, string> = {
   converted: 'bg-blue-500',
   completed: 'bg-emerald-500',
   cancelled: 'bg-red-500',
+  no_show: 'bg-slate-400',
 }
 
 const STATUS_LABEL: Record<string, string> = {
@@ -41,6 +43,7 @@ const STATUS_LABEL: Record<string, string> = {
   converted: 'Iniciado',
   completed: 'Concluído',
   cancelled: 'Cancelado',
+  no_show: 'No-show',
 }
 
 // Agenda view for mobile — lists all bookings in the current month sorted by date

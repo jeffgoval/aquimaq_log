@@ -170,9 +170,13 @@ export function useCloseService() {
 }
 
 export function usePendingBookings() {
+  const qc = useQueryClient()
   return useQuery({
     queryKey: [...queryKeys.bookings, 'pending'],
     queryFn: async () => {
+      const { error: archiveError } = await supabase.rpc('log_archive_expired_pending_bookings')
+      if (archiveError) throw archiveError
+
       const { data, error } = await supabase
         .from('log_bookings')
         .select(`
@@ -184,8 +188,74 @@ export function usePendingBookings() {
         .is('deleted_at', null)
         .order('start_date', { ascending: true })
       if (error) throw error
+      void qc.invalidateQueries({ queryKey: [...queryKeys.bookings, 'no_show'] })
       return data
     },
+  })
+}
+
+export function useNoShowBookingsCount() {
+  return useQuery({
+    queryKey: [...queryKeys.bookings, 'no_show', 'count'],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from('log_bookings')
+        .select('id', { count: 'exact', head: true })
+        .eq('status', 'no_show')
+        .is('deleted_at', null)
+      if (error) throw error
+      return count ?? 0
+    },
+  })
+}
+
+export function useNoShowBookings(enabled: boolean) {
+  return useQuery({
+    queryKey: [...queryKeys.bookings, 'no_show', 'list'],
+    enabled,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('log_bookings')
+        .select(`
+          *,
+          client:clients(name),
+          resource:log_resources(name, type)
+        `)
+        .eq('status', 'no_show')
+        .is('deleted_at', null)
+        .order('end_date', { ascending: false })
+        .limit(100)
+      if (error) throw error
+      return data
+    },
+  })
+}
+
+export function useRestoreBookingFromNoShow() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (bookingId: string) => {
+      const { data, error } = await supabase
+        .from('log_bookings')
+        .update({
+          status: 'pending',
+          reopened_from_no_show_at: new Date().toISOString(),
+        })
+        .eq('id', bookingId)
+        .eq('status', 'no_show')
+        .select('id')
+        .maybeSingle()
+      if (error) throw error
+      if (!data) {
+        throw new Error('Reserva não encontrada ou já não está como no-show.')
+      }
+      return data
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.bookings })
+      toast.success('Reserva reativada como pendente.')
+    },
+    onError: (e: Error) => toast.error(parseSupabaseError(e)),
   })
 }
 

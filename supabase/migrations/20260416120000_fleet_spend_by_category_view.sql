@@ -22,6 +22,5 @@ select
     join public.operators o on o.id = sw.operator_id
     where sw.operator_id is not null
   ), 0)::numeric(14, 2) as spend_operator;
-
 comment on view public.v_fleet_spend_by_category is
   'Soma única: diesel (fuel), manutenção/peças/óleo/outros (machine_costs), mão de obra (apontamentos).';

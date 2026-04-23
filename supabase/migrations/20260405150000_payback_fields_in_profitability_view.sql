@@ -9,7 +9,6 @@
 --   hours_to_payback  = remaining / spread_per_hour  (quando spread > 0)
 
 drop view if exists public.v_tractor_profitability;
-
 create view public.v_tractor_profitability with (security_invoker = on) as
 select
   t.id                                                    as tractor_id,

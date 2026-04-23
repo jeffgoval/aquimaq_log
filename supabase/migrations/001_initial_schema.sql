@@ -6,7 +6,6 @@
 
 -- Enable UUID extension
 create extension if not exists "uuid-ossp";
-
 -- Tractors (equipment assets)
 create table if not exists public.tractors (
   id              uuid primary key default uuid_generate_v4(),
@@ -27,7 +26,6 @@ create table if not exists public.tractors (
   created_at      timestamptz not null default now(),
   updated_at      timestamptz not null default now()
 );
-
 -- Operators
 create table if not exists public.operators (
   id                  uuid primary key default uuid_generate_v4(),
@@ -40,7 +38,6 @@ create table if not exists public.operators (
   created_at          timestamptz not null default now(),
   updated_at          timestamptz not null default now()
 );
-
 -- Clients
 create table if not exists public.clients (
   id          uuid primary key default uuid_generate_v4(),
@@ -53,7 +50,6 @@ create table if not exists public.clients (
   created_at  timestamptz not null default now(),
   updated_at  timestamptz not null default now()
 );
-
 -- Services
 create table if not exists public.services (
   id                      uuid primary key default uuid_generate_v4(),
@@ -69,7 +65,6 @@ create table if not exists public.services (
   created_at              timestamptz not null default now(),
   updated_at              timestamptz not null default now()
 );
-
 -- Service Worklogs (hourmeter entries)
 create table if not exists public.service_worklogs (
   id                uuid primary key default uuid_generate_v4(),
@@ -84,7 +79,6 @@ create table if not exists public.service_worklogs (
   created_at        timestamptz not null default now(),
   constraint service_worklogs_hourmeter_check check (end_hourmeter > start_hourmeter)
 );
-
 -- Receivables (installments)
 create table if not exists public.receivables (
   id                  uuid primary key default uuid_generate_v4(),
@@ -103,7 +97,6 @@ create table if not exists public.receivables (
   created_at          timestamptz not null default now(),
   updated_at          timestamptz not null default now()
 );
-
 -- Receivable payments
 create table if not exists public.receivable_payments (
   id              uuid primary key default uuid_generate_v4(),
@@ -114,7 +107,6 @@ create table if not exists public.receivable_payments (
   notes           text,
   created_at      timestamptz not null default now()
 );
-
 -- Machine costs
 create table if not exists public.machine_costs (
   id              uuid primary key default uuid_generate_v4(),
@@ -128,7 +120,6 @@ create table if not exists public.machine_costs (
   supplier_name   text,
   created_at      timestamptz not null default now()
 );
-
 -- Operator ledger (financial advances/payments to operators)
 create table if not exists public.operator_ledger (
   id              uuid primary key default uuid_generate_v4(),
@@ -140,7 +131,6 @@ create table if not exists public.operator_ledger (
   notes           text,
   created_at      timestamptz not null default now()
 );
-
 -- INDEXES
 create index if not exists idx_services_client_id    on public.services(client_id);
 create index if not exists idx_services_tractor_id   on public.services(tractor_id);
@@ -150,7 +140,6 @@ create index if not exists idx_receivables_status     on public.receivables(stat
 create index if not exists idx_receivables_due_date   on public.receivables(due_date);
 create index if not exists idx_worklogs_service_id    on public.service_worklogs(service_id);
 create index if not exists idx_machine_costs_tractor  on public.machine_costs(tractor_id);
-
 -- UPDATED_AT triggers (search_path fixa — Splinter 0011)
 create or replace function public.set_updated_at()
 returns trigger
@@ -162,13 +151,11 @@ begin
   return new;
 end;
 $$;
-
 create or replace trigger tractors_updated_at  before update on public.tractors  for each row execute function public.set_updated_at();
 create or replace trigger operators_updated_at before update on public.operators for each row execute function public.set_updated_at();
 create or replace trigger clients_updated_at   before update on public.clients   for each row execute function public.set_updated_at();
 create or replace trigger services_updated_at  before update on public.services  for each row execute function public.set_updated_at();
 create or replace trigger receivables_updated  before update on public.receivables for each row execute function public.set_updated_at();
-
 -- PAYMENT TRIGGER: auto-update receivable.paid_amount + status
 create or replace function public.update_receivable_on_payment()
 returns trigger
@@ -203,11 +190,9 @@ begin
   return new;
 end;
 $$;
-
 create or replace trigger trg_receivable_payment
 after insert or update on public.receivable_payments
 for each row execute function public.update_receivable_on_payment();
-
 -- VIEWS: Operator financial balance
 create or replace view public.v_operator_financial_balance with (security_invoker = on) as
 select
@@ -228,7 +213,6 @@ left join (
   from public.operator_ledger
   group by operator_id
 ) ledger on ledger.operator_id = o.id;
-
 -- VIEWS: Tractor profitability
 create or replace view public.v_tractor_profitability with (security_invoker = on) as
 select
@@ -258,7 +242,6 @@ left join (
   join public.services s on s.id = r.service_id
   group by s.tractor_id
 ) rev on rev.tractor_id = t.id;
-
 -- ROW LEVEL SECURITY
 alter table public.tractors        enable row level security;
 alter table public.operators       enable row level security;
@@ -269,53 +252,43 @@ alter table public.receivables     enable row level security;
 alter table public.receivable_payments enable row level security;
 alter table public.machine_costs   enable row level security;
 alter table public.operator_ledger enable row level security;
-
 -- Single-tenant: leitura aberta a authenticated; escritas exigem sessão JWT (Splinter 0024)
 create policy "authenticated_select" on public.tractors for select to authenticated using (true);
 create policy "authenticated_insert" on public.tractors for insert to authenticated with check ((select auth.uid()) is not null);
 create policy "authenticated_update" on public.tractors for update to authenticated using ((select auth.uid()) is not null) with check ((select auth.uid()) is not null);
 create policy "authenticated_delete" on public.tractors for delete to authenticated using ((select auth.uid()) is not null);
-
 create policy "authenticated_select" on public.operators for select to authenticated using (true);
 create policy "authenticated_insert" on public.operators for insert to authenticated with check ((select auth.uid()) is not null);
 create policy "authenticated_update" on public.operators for update to authenticated using ((select auth.uid()) is not null) with check ((select auth.uid()) is not null);
 create policy "authenticated_delete" on public.operators for delete to authenticated using ((select auth.uid()) is not null);
-
 create policy "authenticated_select" on public.clients for select to authenticated using (true);
 create policy "authenticated_insert" on public.clients for insert to authenticated with check ((select auth.uid()) is not null);
 create policy "authenticated_update" on public.clients for update to authenticated using ((select auth.uid()) is not null) with check ((select auth.uid()) is not null);
 create policy "authenticated_delete" on public.clients for delete to authenticated using ((select auth.uid()) is not null);
-
 create policy "authenticated_select" on public.services for select to authenticated using (true);
 create policy "authenticated_insert" on public.services for insert to authenticated with check ((select auth.uid()) is not null);
 create policy "authenticated_update" on public.services for update to authenticated using ((select auth.uid()) is not null) with check ((select auth.uid()) is not null);
 create policy "authenticated_delete" on public.services for delete to authenticated using ((select auth.uid()) is not null);
-
 create policy "authenticated_select" on public.service_worklogs for select to authenticated using (true);
 create policy "authenticated_insert" on public.service_worklogs for insert to authenticated with check ((select auth.uid()) is not null);
 create policy "authenticated_update" on public.service_worklogs for update to authenticated using ((select auth.uid()) is not null) with check ((select auth.uid()) is not null);
 create policy "authenticated_delete" on public.service_worklogs for delete to authenticated using ((select auth.uid()) is not null);
-
 create policy "authenticated_select" on public.receivables for select to authenticated using (true);
 create policy "authenticated_insert" on public.receivables for insert to authenticated with check ((select auth.uid()) is not null);
 create policy "authenticated_update" on public.receivables for update to authenticated using ((select auth.uid()) is not null) with check ((select auth.uid()) is not null);
 create policy "authenticated_delete" on public.receivables for delete to authenticated using ((select auth.uid()) is not null);
-
 create policy "authenticated_select" on public.receivable_payments for select to authenticated using (true);
 create policy "authenticated_insert" on public.receivable_payments for insert to authenticated with check ((select auth.uid()) is not null);
 create policy "authenticated_update" on public.receivable_payments for update to authenticated using ((select auth.uid()) is not null) with check ((select auth.uid()) is not null);
 create policy "authenticated_delete" on public.receivable_payments for delete to authenticated using ((select auth.uid()) is not null);
-
 create policy "authenticated_select" on public.machine_costs for select to authenticated using (true);
 create policy "authenticated_insert" on public.machine_costs for insert to authenticated with check ((select auth.uid()) is not null);
 create policy "authenticated_update" on public.machine_costs for update to authenticated using ((select auth.uid()) is not null) with check ((select auth.uid()) is not null);
 create policy "authenticated_delete" on public.machine_costs for delete to authenticated using ((select auth.uid()) is not null);
-
 create policy "authenticated_select" on public.operator_ledger for select to authenticated using (true);
 create policy "authenticated_insert" on public.operator_ledger for insert to authenticated with check ((select auth.uid()) is not null);
 create policy "authenticated_update" on public.operator_ledger for update to authenticated using ((select auth.uid()) is not null) with check ((select auth.uid()) is not null);
 create policy "authenticated_delete" on public.operator_ledger for delete to authenticated using ((select auth.uid()) is not null);
-
 -- After running this migration:
 -- Regenerate types with:
--- npx supabase gen types typescript --project-id hziovsgaqmrwthnlqobd > src/integrations/supabase/server-types.ts
+-- npx supabase gen types typescript --project-id hziovsgaqmrwthnlqobd > src/integrations/supabase/server-types.ts;

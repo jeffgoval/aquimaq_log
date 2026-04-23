@@ -101,10 +101,8 @@ as $$
     group by s.tractor_id
   ) rev on rev.tractor_id = t.id;
 $$;
-
 comment on function public.fn_tractor_profitability_range(date, date) is
   'Rentabilidade por trator; período por data do serviço (receita/apont.) e data do custo (machine_costs).';
-
 -- ── Guinchos ───────────────────────────────────────────────────────────────
 
 create or replace function public.fn_truck_profitability_range(
@@ -216,10 +214,8 @@ as $$
     group by s.truck_id
   ) rev on rev.truck_id = t.id;
 $$;
-
 comment on function public.fn_truck_profitability_range(date, date) is
   'Rentabilidade por guincho: depreciação = km × (compra−residual)/vida útil km; custos via machine_costs.';
-
 -- ── Gastos agregados frota ─────────────────────────────────────────────────
 
 create or replace function public.fn_fleet_spend_by_category_range(
@@ -261,7 +257,6 @@ as $$
         and (p_end is null or s.service_date <= p_end)
     ), 0)::numeric(14, 2);
 $$;
-
 -- ── Receita por cliente (parcelas dos serviços no período) ─────────────────
 
 create or replace function public.fn_client_revenue_range(
@@ -311,10 +306,8 @@ as $$
   left join public.receivables r on r.service_id = s.id
   group by c.id, c.name;
 $$;
-
 comment on function public.fn_client_revenue_range(date, date) is
   'Faturamento/recebimentos por cliente apenas para serviços cuja data está no período.';
-
 grant execute on function public.fn_tractor_profitability_range(date, date) to authenticated;
 grant execute on function public.fn_truck_profitability_range(date, date) to authenticated;
 grant execute on function public.fn_fleet_spend_by_category_range(date, date) to authenticated;

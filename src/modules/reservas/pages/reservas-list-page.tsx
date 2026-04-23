@@ -4,6 +4,9 @@ import { AppButton } from '@/shared/components/app/app-button'
 import { AppTable, AppTableCell, AppTableRow } from '@/shared/components/app/app-table'
 import {
   usePendingBookings,
+  useNoShowBookings,
+  useNoShowBookingsCount,
+  useRestoreBookingFromNoShow,
   useServices,
   useRecentFinishedServices,
   useConvertBooking,
@@ -11,12 +14,13 @@ import {
   useCloseService,
   useProfiles
 } from '../hooks/use-booking-queries'
-import { Play, CheckCircle, XCircle, ArrowRight, Clock } from 'lucide-react'
+import { Play, CheckCircle, XCircle, ArrowRight, Clock, Eye, EyeOff, UserX } from 'lucide-react'
 import dayjs from '@/shared/lib/dayjs'
 import { TZ_APP } from '@/app/config/constants'
 import { toast } from 'sonner'
 import { getActionsByResourceType } from '../constants/resource-actions'
 import { cn } from '@/shared/lib/cn'
+import { isBookingPickupWindowExpired } from '../lib/booking-pickup-rules'
 
 function billingLabel(type: string | null | undefined) {
   if (type === 'hourly') return 'Por hora'
@@ -28,6 +32,11 @@ function billingLabel(type: string | null | undefined) {
 
 export function ReservasListPage() {
   const pendingBookings = usePendingBookings()
+  const noShowCount = useNoShowBookingsCount()
+  const [showNoShows, setShowNoShows] = useState(false)
+  const noShowBookings = useNoShowBookings(showNoShows)
+  const restoreNoShow = useRestoreBookingFromNoShow()
+
   const activeServices = useServices()
   const recentFinishedServices = useRecentFinishedServices()
   const profiles = useProfiles()
@@ -38,7 +47,12 @@ export function ReservasListPage() {
 
   const [selectedOperators, setSelectedOperators] = useState<Record<string, string>>({})
 
-  const handleConvert = async (bookingId: string, resourceType?: string) => {
+  const handleConvert = async (bookingId: string, resourceType: string | undefined, endDateIso: string) => {
+    if (isBookingPickupWindowExpired(endDateIso)) {
+      toast.error('O período desta reserva já terminou. Atualize a página: o registo passará para no-show e o equipamento fica livre para nova reserva.')
+      return
+    }
+
     const actions = getActionsByResourceType(resourceType)
     const needsOperator = actions.requiresOperatorOnPickup
     const operatorId = selectedOperators[bookingId]
@@ -90,6 +104,7 @@ export function ReservasListPage() {
                 >
                   {pendingBookings.data?.map(booking => {
                     const bookingActions = getActionsByResourceType(booking.resource?.type)
+                    const pickupExpired = isBookingPickupWindowExpired(booking.end_date)
                     return (
                       <AppTableRow key={booking.id}>
                         <AppTableCell className="font-medium">{booking.client?.name}</AppTableCell>
@@ -117,12 +132,17 @@ export function ReservasListPage() {
                           <AppButton
                             variant="primary"
                             size="sm"
-                            onClick={() => handleConvert(booking.id, booking.resource?.type)}
+                            title={pickupExpired ? 'O fim do período da reserva já passou; não é possível iniciar retirada aqui.' : undefined}
+                            onClick={() => { void handleConvert(booking.id, booking.resource?.type, booking.end_date) }}
                             loading={convertBooking.isPending && convertBooking.variables?.bookingId === booking.id}
-                            disabled={convertBooking.isPending || (bookingActions.requiresOperatorOnPickup && !selectedOperators[booking.id])}
+                            disabled={
+                              convertBooking.isPending
+                              || pickupExpired
+                              || (bookingActions.requiresOperatorOnPickup && !selectedOperators[booking.id])
+                            }
                           >
                             <ArrowRight className="w-4 h-4 mr-2" />
-                            Iniciar Retirada
+                            {pickupExpired ? 'Período encerrado' : 'Iniciar Retirada'}
                           </AppButton>
                         </AppTableCell>
                       </AppTableRow>
@@ -135,6 +155,7 @@ export function ReservasListPage() {
               <div className="flex flex-col gap-3 sm:hidden">
                 {pendingBookings.data?.map(booking => {
                   const bookingActions = getActionsByResourceType(booking.resource?.type)
+                  const pickupExpired = isBookingPickupWindowExpired(booking.end_date)
                   return (
                     <div key={booking.id} className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-4 space-y-3">
                       <div className="flex items-start justify-between gap-2">
@@ -165,22 +186,145 @@ export function ReservasListPage() {
                           </select>
                         </div>
                       )}
+                      {pickupExpired && (
+                        <p className="text-xs text-amber-800 dark:text-amber-200/90">
+                          O fim deste período já passou. Atualize a lista: a reserva será tratada como no-show e o recurso liberta agenda para novas reservas.
+                        </p>
+                      )}
                       <AppButton
                         variant="primary"
                         size="sm"
                         className="w-full justify-center"
-                        onClick={() => handleConvert(booking.id, booking.resource?.type)}
+                        title={pickupExpired ? 'O fim do período da reserva já passou; não é possível iniciar retirada aqui.' : undefined}
+                        onClick={() => { void handleConvert(booking.id, booking.resource?.type, booking.end_date) }}
                         loading={convertBooking.isPending && convertBooking.variables?.bookingId === booking.id}
-                        disabled={convertBooking.isPending || (bookingActions.requiresOperatorOnPickup && !selectedOperators[booking.id])}
+                        disabled={
+                          convertBooking.isPending
+                          || pickupExpired
+                          || (bookingActions.requiresOperatorOnPickup && !selectedOperators[booking.id])
+                        }
                       >
                         <ArrowRight className="w-4 h-4 mr-2" />
-                        Iniciar Retirada
+                        {pickupExpired ? 'Período encerrado' : 'Iniciar Retirada'}
                       </AppButton>
                     </div>
                   )
                 })}
               </div>
             </>
+          )}
+
+          {(noShowCount.data ?? 0) > 0 && (
+            <div className="rounded-lg border border-dashed border-muted-foreground/30 bg-muted/30 px-3 py-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-start gap-2 min-w-0">
+                <UserX className="w-5 h-5 text-slate-500 shrink-0 mt-0.5" />
+                <p className="text-sm text-muted-foreground leading-snug">
+                  <span className="font-semibold text-foreground tabular-nums">{noShowCount.data}</span>
+                  {' '}reserva(s) com período já encerrado sem retirada (no-show). Registo mantido para auditoria; o recurso não fica bloqueado — novas reservas só consideram estados pendente ou em retirada (convertido).
+                </p>
+              </div>
+              <AppButton
+                type="button"
+                variant="secondary"
+                size="sm"
+                className="shrink-0 self-start sm:self-center"
+                onClick={() => setShowNoShows(v => !v)}
+              >
+                {showNoShows ? (
+                  <>
+                    <EyeOff className="w-4 h-4 mr-2" />
+                    Ocultar no-shows
+                  </>
+                ) : (
+                  <>
+                    <Eye className="w-4 h-4 mr-2" />
+                    Ver no-shows
+                  </>
+                )}
+              </AppButton>
+            </div>
+          )}
+
+          {showNoShows && (
+            <div className="space-y-2 pl-1 border-l-2 border-slate-300 dark:border-slate-600 ml-1">
+              {noShowBookings.isLoading && <p className="text-muted-foreground text-sm">Carregando no-shows...</p>}
+              {noShowBookings.isError && (
+                <p className="text-sm text-red-600">Não foi possível carregar os no-shows.</p>
+              )}
+              {!noShowBookings.isLoading && !noShowBookings.isError && (noShowBookings.data?.length ?? 0) === 0 && (
+                <p className="text-muted-foreground text-sm">Nenhum registo no-show.</p>
+              )}
+              {!!noShowBookings.data?.length && (
+                <>
+                  <div className="hidden sm:block">
+                    <AppTable
+                      columns={[
+                        { header: 'Cliente' },
+                        { header: 'Recurso' },
+                        { header: 'Período' },
+                        { header: 'Estado' },
+                        { header: 'Ação', align: 'right' },
+                      ]}
+                    >
+                      {noShowBookings.data.map(booking => (
+                        <AppTableRow key={booking.id}>
+                          <AppTableCell className="font-medium">{booking.client?.name}</AppTableCell>
+                          <AppTableCell>{booking.resource?.name} ({booking.resource?.type})</AppTableCell>
+                          <AppTableCell className="text-muted-foreground">
+                            {dayjs(booking.start_date).tz(TZ_APP).format('DD/MM HH:mm')} – {dayjs(booking.end_date).tz(TZ_APP).format('DD/MM HH:mm')}
+                          </AppTableCell>
+                          <AppTableCell>
+                            <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                              No-show
+                            </span>
+                          </AppTableCell>
+                          <AppTableCell align="right">
+                            <AppButton
+                              variant="secondary"
+                              size="sm"
+                              onClick={() => { void restoreNoShow.mutateAsync(booking.id).catch(() => {}) }}
+                              loading={restoreNoShow.isPending && restoreNoShow.variables === booking.id}
+                              disabled={restoreNoShow.isPending}
+                            >
+                              Voltar a pendente
+                            </AppButton>
+                          </AppTableCell>
+                        </AppTableRow>
+                      ))}
+                    </AppTable>
+                  </div>
+                  <div className="flex flex-col gap-3 sm:hidden">
+                    {noShowBookings.data.map(booking => (
+                      <div key={booking.id} className="rounded-xl border border-slate-500/20 bg-slate-500/5 p-4 space-y-3">
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <p className="font-semibold text-sm">{booking.client?.name}</p>
+                            <p className="text-xs text-muted-foreground">{booking.resource?.name} · {booking.resource?.type}</p>
+                          </div>
+                          <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 whitespace-nowrap">
+                            No-show
+                          </span>
+                        </div>
+                        <p className="text-xs text-muted-foreground flex items-center gap-1">
+                          <Clock className="w-3.5 h-3.5" />
+                          {dayjs(booking.start_date).tz(TZ_APP).format('DD/MM HH:mm')} – {dayjs(booking.end_date).tz(TZ_APP).format('DD/MM HH:mm')}
+                        </p>
+                        <AppButton
+                          variant="secondary"
+                          size="sm"
+                          className="w-full justify-center"
+                          onClick={() => { void restoreNoShow.mutateAsync(booking.id).catch(() => {}) }}
+                          loading={restoreNoShow.isPending && restoreNoShow.variables === booking.id}
+                          disabled={restoreNoShow.isPending}
+                        >
+                          Voltar a pendente
+                        </AppButton>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
           )}
         </section>
 

@@ -3,17 +3,13 @@
 alter table public.services
   add column if not exists operator_payment_status text not null default 'pending'
     check (operator_payment_status in ('pending', 'paid'));
-
 alter table public.services
   add column if not exists operator_payment_date date null;
-
 comment on column public.services.operator_payment_status is 'Se o dono já pagou o operador por este serviço.';
 comment on column public.services.operator_payment_date is 'Data em que pagou (status pago) ou data prevista/lembrete (pendente).';
-
 -- Saldo operador: ganho (horas × taxa padrão) − adiantamentos (vale) − pagamentos registados no ledger
 -- DROP necessário: CREATE OR REPLACE não permite inserir coluna a meio da lista de colunas da vista.
 drop view if exists public.v_operator_financial_balance;
-
 create view public.v_operator_financial_balance with (security_invoker = on) as
 select
   o.id as operator_id,

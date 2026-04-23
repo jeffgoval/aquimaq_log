@@ -11,9 +11,10 @@ import { useBookings, useCreateBooking, useResources } from '../hooks/use-bookin
 import { AppLoadingState } from '@/shared/components/app/app-loading-state'
 import { AppErrorState } from '@/shared/components/app/app-error-state'
 import { Link, useNavigate } from 'react-router-dom'
-import { Check, Plus, UserPlus, X } from 'lucide-react'
+import { Check, Plus, X } from 'lucide-react'
 import { useClientOptions } from '@/modules/clientes/hooks/use-client-queries'
 import { QuickClientCreateModal } from '@/modules/clientes/components/quick-client-create-modal'
+import { QuickClientRegisterLink } from '@/modules/clientes/components/quick-client-register-link'
 import { createBookingSchema, type CreateBookingInput } from '../schemas/booking.schema'
 import { AppButton } from '@/shared/components/app/app-button'
 import { toast } from 'sonner'
@@ -36,10 +37,12 @@ function BookingQuickModal({ defaultDate, onClose, onSuccess }: BookingQuickModa
   const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<CreateBookingInput>({
     resolver: zodResolver(createBookingSchema),
     defaultValues: {
+      client_id: '',
       start_date: defaultStart,
       end_date: defaultEnd,
     },
   })
+  const selectedClientId = watch('client_id') ?? ''
   const selectedResourceId = watch('resource_id')
   const selectedPricingMode = watch('pricing_mode')
   const selectedResource = resources.data?.find((r) => r.id === selectedResourceId)
@@ -83,7 +86,7 @@ function BookingQuickModal({ defaultDate, onClose, onSuccess }: BookingQuickModa
         <QuickClientCreateModal
           onClose={() => setShowQuickClientModal(false)}
           onCreated={(id) => {
-            setValue('client_id', id, { shouldValidate: true, shouldDirty: true })
+            setValue('client_id', id, { shouldValidate: true, shouldDirty: true, shouldTouch: true })
             setShowQuickClientModal(false)
           }}
         />
@@ -120,21 +123,20 @@ function BookingQuickModal({ defaultDate, onClose, onSuccess }: BookingQuickModa
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
                 <label className="field-label">Cliente *</label>
-                <select {...register('client_id')} className="field">
+                <select
+                  className="field"
+                  value={selectedClientId}
+                  onChange={(e) =>
+                    setValue('client_id', e.target.value, { shouldValidate: true, shouldDirty: true })
+                  }
+                >
                   <option value="">Selecione um cliente...</option>
                   {clients.data?.map(c => (
                     <option key={c.id} value={c.id}>{c.name}</option>
                   ))}
                 </select>
                 {errors.client_id && <p className="field-error">{errors.client_id.message}</p>}
-                <button
-                  type="button"
-                  onClick={() => setShowQuickClientModal(true)}
-                  className="mt-2 flex items-center gap-2 text-sm font-medium text-primary hover:underline"
-                >
-                  <UserPlus className="h-4 w-4" />
-                  Não encontrou? Cadastrar cliente rapidamente
-                </button>
+                <QuickClientRegisterLink onClick={() => setShowQuickClientModal(true)} className="mt-2" />
               </div>
 
               <div>

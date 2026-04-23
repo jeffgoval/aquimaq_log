@@ -21,13 +21,24 @@ export const useClient = (id: string) => {
   })
 }
 
+const normalizeClientInsert = (p: ClientInsert): ClientInsert => ({
+  name: String(p.name ?? '').trim(),
+  is_active: p.is_active ?? true,
+  document: p.document == null || String(p.document).trim() === '' ? null : String(p.document).trim(),
+  phone: p.phone == null || String(p.phone).trim() === '' ? null : String(p.phone).trim(),
+  email: p.email == null || String(p.email).trim() === '' ? null : String(p.email).trim(),
+  notes: p.notes == null || String(p.notes).trim() === '' ? null : String(p.notes).trim(),
+})
+
 export function useCreateClient() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (p: ClientInsert) => clientRepository.create(p),
-    onSuccess: (created) => {
+    mutationFn: (p: ClientInsert) => clientRepository.create(normalizeClientInsert(p)),
+    onSuccess: async (created, variables) => {
       const id = String(created.id)
-      const name = String(created.name ?? '').trim()
+      const nameFromRow = String(created.name ?? '').trim()
+      const nameFromInput = String((variables as ClientInsert | undefined)?.name ?? '').trim()
+      const name = nameFromRow || nameFromInput
       const isActive = Boolean((created as Tables<'clients'>).is_active ?? true)
 
       if (id && name && isActive) {
@@ -39,7 +50,7 @@ export function useCreateClient() {
       }
 
       qc.invalidateQueries({ queryKey: queryKeys.clients })
-      qc.invalidateQueries({ queryKey: queryKeys.clientOptions })
+      await qc.refetchQueries({ queryKey: queryKeys.clientOptions })
       toast.success('Cliente cadastrado!')
     },
     onError: (e: Error) => toast.error(parseSupabaseError(e)),

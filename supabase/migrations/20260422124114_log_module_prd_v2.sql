@@ -6,7 +6,6 @@ BEGIN
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
-
 -- 7.4 Controle de Acesso (Adaptado para Supabase Auth)
 CREATE TABLE IF NOT EXISTS profiles (
     id              UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -21,7 +20,6 @@ DROP TRIGGER IF EXISTS trg_profiles_updated_at ON profiles;
 CREATE TRIGGER trg_profiles_updated_at
     BEFORE UPDATE ON profiles
     FOR EACH ROW EXECUTE FUNCTION set_updated_at();
-
 CREATE TABLE IF NOT EXISTS roles (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name            TEXT NOT NULL UNIQUE,
@@ -34,7 +32,6 @@ DROP TRIGGER IF EXISTS trg_roles_updated_at ON roles;
 CREATE TRIGGER trg_roles_updated_at
     BEFORE UPDATE ON roles
     FOR EACH ROW EXECUTE FUNCTION set_updated_at();
-
 CREATE TABLE IF NOT EXISTS permissions (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     code            TEXT NOT NULL UNIQUE,
@@ -43,19 +40,16 @@ CREATE TABLE IF NOT EXISTS permissions (
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
-
 CREATE TABLE IF NOT EXISTS role_permissions (
     role_id         UUID NOT NULL REFERENCES roles(id) ON DELETE CASCADE,
     permission_id   UUID NOT NULL REFERENCES permissions(id) ON DELETE CASCADE,
     PRIMARY KEY (role_id, permission_id)
 );
-
 CREATE TABLE IF NOT EXISTS user_roles (
     user_id         UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
     role_id         UUID NOT NULL REFERENCES roles(id) ON DELETE CASCADE,
     PRIMARY KEY (user_id, role_id)
 );
-
 -- 7.1 Resources -> log_resources
 CREATE TABLE IF NOT EXISTS log_resources (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -76,7 +70,6 @@ DROP TRIGGER IF EXISTS trg_log_resources_updated_at ON log_resources;
 CREATE TRIGGER trg_log_resources_updated_at
     BEFORE UPDATE ON log_resources
     FOR EACH ROW EXECUTE FUNCTION set_updated_at();
-
 -- 7.2 Bookings -> log_bookings
 CREATE TABLE IF NOT EXISTS log_bookings (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -97,7 +90,6 @@ DROP TRIGGER IF EXISTS trg_log_bookings_updated_at ON log_bookings;
 CREATE TRIGGER trg_log_bookings_updated_at
     BEFORE UPDATE ON log_bookings
     FOR EACH ROW EXECUTE FUNCTION set_updated_at();
-
 -- 7.3 Services -> log_services
 CREATE TABLE IF NOT EXISTS log_services (
     id                      UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -125,22 +117,18 @@ DROP TRIGGER IF EXISTS trg_log_services_updated_at ON log_services;
 CREATE TRIGGER trg_log_services_updated_at
     BEFORE UPDATE ON log_services
     FOR EACH ROW EXECUTE FUNCTION set_updated_at();
-
 -- 7.5 Índices Críticos
 CREATE INDEX IF NOT EXISTS idx_log_bookings_resource_dates
     ON log_bookings(resource_id, start_date, end_date)
     WHERE deleted_at IS NULL AND status NOT IN ('cancelled');
-
 CREATE INDEX IF NOT EXISTS idx_log_services_resource_dates
     ON log_services(resource_id, started_at, ended_at)
     WHERE deleted_at IS NULL AND status NOT IN ('cancelled','closed');
-
 CREATE INDEX IF NOT EXISTS idx_log_services_operator ON log_services(operator_id);
 CREATE INDEX IF NOT EXISTS idx_log_resources_active    ON log_resources(id) WHERE deleted_at IS NULL;
 CREATE INDEX IF NOT EXISTS idx_log_bookings_active     ON log_bookings(id)  WHERE deleted_at IS NULL;
 CREATE INDEX IF NOT EXISTS idx_log_services_active     ON log_services(id)  WHERE deleted_at IS NULL;
 CREATE INDEX IF NOT EXISTS idx_profiles_active         ON profiles(id)      WHERE deleted_at IS NULL;
-
 -- 12. Seed de Permissões
 INSERT INTO permissions (code, module, description) VALUES
   ('calendar.view',               'calendar', 'Visualizar calendário'),
@@ -156,9 +144,7 @@ INSERT INTO permissions (code, module, description) VALUES
   ('settings.manage',             'settings', 'Gerenciar configurações'),
   ('financial.view',              'financial','Visualizar financeiro')
 ON CONFLICT (code) DO NOTHING;
-
 INSERT INTO roles (name, description) VALUES ('scheduler', 'Scheduler Role') ON CONFLICT (name) DO NOTHING;
-
 INSERT INTO role_permissions (role_id, permission_id)
 SELECT r.id, p.id FROM roles r, permissions p
 WHERE r.name = 'scheduler'

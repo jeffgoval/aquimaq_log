@@ -2,19 +2,18 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useForm, Controller, type Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { createPortal } from 'react-dom'
-import { X, ChevronRight, ChevronLeft, Check, UserPlus } from 'lucide-react'
+import { X, ChevronRight, ChevronLeft, Check } from 'lucide-react'
 import { AppCurrencyInput } from '@/shared/components/app/app-numeric-input'
 import { AppPageHeader } from '@/shared/components/app/app-page-header'
 import { AppButton } from '@/shared/components/app/app-button'
 import { ROUTES } from '@/shared/constants/routes'
 import { createServiceSchema, type CreateServiceInput } from '../schemas/service.schema'
 import { useCreateService } from '../hooks/use-service-queries'
-import { useClientOptions, useCreateClient } from '@/modules/clientes/hooks/use-client-queries'
+import { useClientOptions } from '@/modules/clientes/hooks/use-client-queries'
+import { QuickClientCreateModal } from '@/modules/clientes/components/quick-client-create-modal'
+import { QuickClientRegisterLink } from '@/modules/clientes/components/quick-client-register-link'
 import { useTractorOptions } from '@/modules/tratores/hooks/use-tractor-queries'
 import { useTrucks } from '@/modules/caminhoes/hooks/use-truck-queries'
-import { clientSchema, type ClientInput } from '@/modules/clientes/schemas/client.schema'
-import { AppPhoneInput } from '@/shared/components/app/app-numeric-input'
 import { cn } from '@/shared/lib/cn'
 import dayjs from '@/shared/lib/dayjs'
 import { AppCard } from '@/shared/components/app/app-card'
@@ -66,72 +65,6 @@ function StepBar({ current }: { current: number }) {
   )
 }
 
-// Modal rápido para cadastrar cliente sem sair do wizard
-function NewClientModal({ onClose, onCreated }: { onClose: () => void; onCreated: (id: string, name: string) => void }) {
-  const create = useCreateClient()
-  const form = useForm<ClientInput>({
-    resolver: zodResolver(clientSchema) as Resolver<ClientInput>,
-    defaultValues: { name: '', is_active: true },
-  })
-  const { register, control, formState: { errors } } = form
-
-  const onSubmit = form.handleSubmit(async (v) => {
-    const created = await create.mutateAsync(v)
-    onCreated(created.id, created.name)
-  })
-
-  const modal = (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 animate-in fade-in duration-150"
-      role="dialog"
-      aria-modal="true"
-      onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
-    >
-      <div className="w-full max-w-md rounded-xl border border-border bg-card p-4 sm:p-5 shadow-2xl" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <p className="font-semibold text-foreground">Cadastrar novo cliente</p>
-            <p className="text-xs text-muted-foreground mt-0.5">Preencha o nome para continuar. Os demais dados pode completar depois.</p>
-          </div>
-          <AppButton type="button" variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={onClose} aria-label="Fechar">
-            <X className="h-4 w-4" />
-          </AppButton>
-        </div>
-        <form onSubmit={onSubmit} className="space-y-3">
-          <div>
-            <label className="field-label">Nome *</label>
-            <input {...register('name')} className="field" placeholder="Nome completo ou razão social" autoFocus />
-            {errors.name && <span className="field-error">{errors.name.message}</span>}
-          </div>
-          <div>
-            <label className="field-label">Telefone</label>
-            <Controller
-              name="phone"
-              control={control}
-              render={({ field: { onChange, onBlur, value, ref } }) => (
-                <AppPhoneInput
-                  ref={ref}
-                  value={value ?? ''}
-                  onBlur={onBlur}
-                  onValueChange={(vals) => onChange(vals.formattedValue)}
-                />
-              )}
-            />
-          </div>
-          <div className="flex gap-2 pt-2">
-            <AppButton type="submit" loading={create.isPending} loadingText="Salvando..." className="flex-1">
-              Cadastrar e continuar
-            </AppButton>
-            <AppButton type="button" variant="ghost" onClick={onClose}>Cancelar</AppButton>
-          </div>
-        </form>
-      </div>
-    </div>
-  )
-
-  return typeof document !== 'undefined' ? createPortal(modal, document.body) : null
-}
-
 export function ServiceCreatePage() {
   const navigate = useNavigate()
   const createService = useCreateService()
@@ -147,6 +80,7 @@ export function ServiceCreatePage() {
   const form = useForm<CreateServiceInput>({
     resolver: zodResolver(createServiceSchema) as Resolver<CreateServiceInput>,
     defaultValues: {
+      client_id: '',
       service_date: dayjs().format('YYYY-MM-DD'),
       vehicle_type: 'tractor',
       charge_type: 'valor_fixo',
@@ -239,10 +173,10 @@ export function ServiceCreatePage() {
   return (
     <div className="max-w-2xl mx-auto w-full">
       {showNewClientModal && (
-        <NewClientModal
+        <QuickClientCreateModal
           onClose={() => setShowNewClientModal(false)}
           onCreated={(id, name) => {
-            setValue('client_id', id, { shouldValidate: true })
+            setValue('client_id', id, { shouldValidate: true, shouldDirty: true, shouldTouch: true })
             setNewClientName(name)
             setShowNewClientModal(false)
           }}
@@ -277,7 +211,7 @@ export function ServiceCreatePage() {
                 <button
                   type="button"
                   onClick={() => {
-                    setValue('client_id', undefined as any)
+                    setValue('client_id', '', { shouldValidate: true, shouldDirty: true })
                     setNewClientName(null)
                   }}
                   className="text-xs text-muted-foreground hover:text-foreground underline shrink-0"
@@ -288,7 +222,13 @@ export function ServiceCreatePage() {
             ) : (
               <div>
                 <label className="field-label">Cliente *</label>
-                <select {...register('client_id')} className="field">
+                <select
+                  className="field"
+                  value={clientId ?? ''}
+                  onChange={(e) =>
+                    setValue('client_id', e.target.value, { shouldValidate: true, shouldDirty: true })
+                  }
+                >
                   <option value="">Selecione um cliente...</option>
                   {clientList.map((c) => (
                     <option key={c.id} value={c.id}>{c.name}</option>
@@ -298,14 +238,7 @@ export function ServiceCreatePage() {
               </div>
             )}
 
-            <button
-              type="button"
-              onClick={() => setShowNewClientModal(true)}
-              className="flex items-center gap-2 text-sm text-primary font-medium hover:underline"
-            >
-              <UserPlus className="h-4 w-4" />
-              Cadastrar novo cliente
-            </button>
+            <QuickClientRegisterLink onClick={() => setShowNewClientModal(true)} className="mt-1" />
           </div>
         )}
 

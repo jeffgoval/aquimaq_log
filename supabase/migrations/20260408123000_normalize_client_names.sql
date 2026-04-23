@@ -4,4 +4,3 @@ update clients c
 set name = initcap(lower(regexp_replace(trim(c.name), '\s+', ' ', 'g')))
 where c.name is not null
   and c.name <> initcap(lower(regexp_replace(trim(c.name), '\s+', ' ', 'g')));
-
