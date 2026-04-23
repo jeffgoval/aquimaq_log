@@ -1,5 +1,5 @@
 import type { TractorProfitabilityRow } from '../services/profitability.repository'
-import type { ClientRevenueRow, TruckProfitabilityRow } from '@/integrations/supabase/db-types'
+import type { ClientRevenueRow, TruckProfitabilityRow, ResourceProfitabilityRow } from '@/integrations/supabase/db-types'
 
 function escapeCell(v: string | number): string {
   const s = String(v)
@@ -74,6 +74,32 @@ export function trucksToCsv(rows: TruckProfitabilityRow[]): string {
     Number(t.purchase_value).toFixed(2),
     Number(t.residual_value).toFixed(2),
     Number(t.useful_life_km).toFixed(0),
+  ])
+  return rowsToCsv(headers, data)
+}
+
+export function resourcesToCsv(rows: ResourceProfitabilityRow[]): string {
+  const headers = [
+    'resource_id',
+    'resource_name',
+    'resource_type',
+    'billing_type',
+    'services_count',
+    'total_usage',
+    'total_revenue',
+    'machine_cost',
+    'net_margin',
+  ]
+  const data = rows.map((r) => [
+    r.resource_id,
+    r.resource_name ?? '',
+    r.resource_type ?? '',
+    r.billing_type ?? '',
+    String(r.services_count ?? 0),
+    Number(r.total_usage ?? 0).toFixed(2),
+    Number(r.total_revenue ?? 0).toFixed(2),
+    Number(r.machine_cost ?? 0).toFixed(2),
+    Number(r.net_margin ?? 0).toFixed(2),
   ])
   return rowsToCsv(headers, data)
 }

@@ -67,11 +67,15 @@ export const OperatorLedgerSection = ({ operatorId }: OperatorLedgerSectionProps
   const addForm = useForm<OperatorLedgerMovementInput>({
     resolver: zodResolver(operatorLedgerMovementSchema) as Resolver<OperatorLedgerMovementInput>,
     defaultValues: makeDefaults('advance'),
+    mode: 'onSubmit',
+    reValidateMode: 'onBlur',
   })
 
   const editForm = useForm<OperatorLedgerMovementInput>({
     resolver: zodResolver(operatorLedgerMovementSchema) as Resolver<OperatorLedgerMovementInput>,
     defaultValues: makeDefaults('advance'),
+    mode: 'onSubmit',
+    reValidateMode: 'onBlur',
   })
 
   // Sync selected type into form
@@ -104,6 +108,7 @@ export const OperatorLedgerSection = ({ operatorId }: OperatorLedgerSectionProps
       commission_percent: selectedType === 'commission' ? (v.commission_percent ?? null) : null,
     })
     addForm.reset(makeDefaults(selectedType))
+    addForm.clearErrors()
   })
 
   const serviceSelect = (form: typeof addForm) => (
@@ -127,6 +132,7 @@ export const OperatorLedgerSection = ({ operatorId }: OperatorLedgerSectionProps
   const closeEdit = () => {
     setEditingId(null)
     editForm.reset(makeDefaults('advance'))
+    editForm.clearErrors()
   }
 
   const closeView = () => setViewingId(null)
@@ -196,7 +202,7 @@ export const OperatorLedgerSection = ({ operatorId }: OperatorLedgerSectionProps
                 control={editForm.control}
                 render={({ field: { onChange, value } }) => (
                   <AppCurrencyInput
-                    value={value || ''}
+                    value={typeof value === 'number' && !Number.isNaN(value) ? value : ''}
                     onValueChange={(vv) => onChange(vv.floatValue ?? 0)}
                     placeholder="R$ 0,00"
                   />
@@ -376,7 +382,7 @@ export const OperatorLedgerSection = ({ operatorId }: OperatorLedgerSectionProps
                 control={addForm.control}
                 render={({ field: { onChange, value } }) => (
                   <AppCurrencyInput
-                    value={value || ''}
+                    value={typeof value === 'number' && !Number.isNaN(value) ? value : ''}
                     onValueChange={(v) => onChange(v.floatValue ?? 0)}
                     placeholder="R$ 0,00"
                   />

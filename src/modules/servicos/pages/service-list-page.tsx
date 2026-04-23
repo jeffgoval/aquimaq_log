@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ROUTES } from '@/shared/constants/routes'
 import { useServiceList } from '../hooks/use-service-queries'
@@ -15,15 +15,25 @@ import {
   getServicePaymentBadgeProps,
 } from '../lib/service-payment-badge'
 import dayjs from '@/shared/lib/dayjs'
-import { Plus, Edit } from 'lucide-react'
+import { Plus, Edit, ArrowDownUp } from 'lucide-react'
 
 const FILTER_LABELS = { all: 'Todos', draft: SERVICE_STATUS_LABELS.draft, completed: SERVICE_STATUS_LABELS.completed, cancelled: SERVICE_STATUS_LABELS.cancelled }
+
+type ServiceSortOption = 'date_desc' | 'date_asc' | 'client_asc' | 'client_desc'
+
+const SORT_OPTIONS: { value: ServiceSortOption; label: string }[] = [
+  { value: 'client_asc', label: 'Cliente (A–Z)' },
+  { value: 'client_desc', label: 'Cliente (Z–A)' },
+  { value: 'date_desc', label: 'Data (recentes primeiro)' },
+  { value: 'date_asc', label: 'Data (antigos primeiro)' },
+]
 
 export function ServiceListPage() {
   const navigate = useNavigate()
   const { data, isLoading, isError, error, refetch } = useServiceList()
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
+  const [sort, setSort] = useState<ServiceSortOption>('client_asc')
 
   const filtered = data?.filter(s => {
     const matchesSearch = [s.clients?.name, s.tractors?.name, s.trucks?.name]
@@ -31,6 +41,29 @@ export function ServiceListPage() {
     const matchesStatus = statusFilter === 'all' || s.status === statusFilter
     return matchesSearch && matchesStatus
   }) ?? []
+
+  const sorted = useMemo(() => {
+    const arr = [...filtered]
+    const clientKey = (s: (typeof arr)[number]) => (s.clients?.name ?? '').trim().toLocaleLowerCase('pt-BR')
+    const dateMs = (s: (typeof arr)[number]) => dayjs(s.service_date).valueOf()
+    switch (sort) {
+      case 'date_desc':
+        arr.sort((a, b) => dateMs(b) - dateMs(a))
+        break
+      case 'date_asc':
+        arr.sort((a, b) => dateMs(a) - dateMs(b))
+        break
+      case 'client_asc':
+        arr.sort((a, b) => clientKey(a).localeCompare(clientKey(b), 'pt-BR', { sensitivity: 'base' }))
+        break
+      case 'client_desc':
+        arr.sort((a, b) => clientKey(b).localeCompare(clientKey(a), 'pt-BR', { sensitivity: 'base' }))
+        break
+      default:
+        break
+    }
+    return arr
+  }, [filtered, sort])
 
   return (
     <div>
@@ -46,13 +79,27 @@ export function ServiceListPage() {
         }
       />
 
-      <div className="flex gap-3 mb-4 flex-wrap">
+      <div className="flex gap-3 mb-4 flex-wrap items-end">
         <AppSearchInput
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="Buscar..."
           containerClassName="max-w-xs"
         />
+        <div className="flex items-center gap-2 min-w-0">
+          <ArrowDownUp className="h-4 w-4 text-muted-foreground shrink-0 hidden sm:block" aria-hidden />
+          <label htmlFor="service-list-sort" className="sr-only">Ordenar lista</label>
+          <select
+            id="service-list-sort"
+            className="field py-2 text-sm min-w-[200px] max-w-full"
+            value={sort}
+            onChange={e => setSort(e.target.value as ServiceSortOption)}
+          >
+            {SORT_OPTIONS.map(opt => (
+              <option key={opt.value} value={opt.value}>{opt.label}</option>
+            ))}
+          </select>
+        </div>
         {(Object.entries(FILTER_LABELS) as [string, string][]).map(([k, v]) => (
           <button key={k} onClick={() => setStatusFilter(k)}
             className={cn('px-3 py-1.5 rounded-lg text-xs font-medium transition-colors', statusFilter === k ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground hover:text-foreground')}>
@@ -64,7 +111,7 @@ export function ServiceListPage() {
       {isLoading && <AppLoadingState />}
       {isError && <AppErrorState message={error.message} onRetry={refetch} />}
       {!isLoading && !isError && (
-        filtered.length === 0
+        sorted.length === 0
           ? <AppEmptyState title="Nenhum serviço" action={<Link to={ROUTES.SERVICE_NEW} className="text-primary text-sm hover:underline">Criar serviço</Link>} />
           : (
             <div className="overflow-x-auto rounded-xl border border-border bg-card">
@@ -80,7 +127,7 @@ export function ServiceListPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filtered.map((service) => {
+                  {sorted.map((service) => {
                     const payKind = getServicePaymentBadgeKind(service)
                     const pay = getServicePaymentBadgeProps(payKind)
                     const vehicle = service.tractors?.name || service.trucks?.name || '—'

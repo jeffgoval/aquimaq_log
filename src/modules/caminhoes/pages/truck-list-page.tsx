@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { Plus, Search } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import { useState } from 'react'
 import { useTrucks } from '../hooks/use-truck-queries'
 import { ROUTES } from '@/shared/constants/routes'
@@ -9,6 +9,7 @@ import { AppErrorState } from '@/shared/components/app/app-error-state'
 import { AppEmptyState } from '@/shared/components/app/app-empty-state'
 import { AppButton } from '@/shared/components/app/app-button'
 import { AppBadge } from '@/shared/components/app/app-badge'
+import { AppSearchInput } from '@/shared/components/app/app-search-input'
 
 export function TruckListPage() {
   const { data: trucks, isLoading, isError, error } = useTrucks()
@@ -38,18 +39,12 @@ export function TruckListPage() {
         }
       />
 
-      <div className="flex items-center gap-2 max-w-sm">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <input
-            type="search"
-            placeholder="Buscar por placa ou nome..."
-            className="field pl-9 w-full"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
-      </div>
+      <AppSearchInput
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        placeholder="Buscar por placa ou nome..."
+        containerClassName="max-w-sm"
+      />
 
       {!filtered?.length ? (
         <AppEmptyState

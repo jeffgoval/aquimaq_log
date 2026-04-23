@@ -113,9 +113,10 @@ export function useConvertBooking() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: async ({ bookingId, operatorId }: { bookingId: string, operatorId?: string | null }) => {
+      const operatorUuid = operatorId && operatorId.length > 0 ? operatorId : null
       const { data, error } = await supabase.rpc('log_convert_booking_to_service', {
         p_booking_id: bookingId,
-        p_operator_id: (operatorId ?? '') as string
+        p_operator_id: operatorUuid,
       })
       if (error) throw error
       return data
@@ -286,9 +287,10 @@ export function useRecentFinishedServices() {
   })
 }
 
-export function useProfiles() {
+export function useProfiles(enabled = true) {
   return useQuery({
     queryKey: queryKeys.profiles,
+    enabled,
     queryFn: async () => {
       const { data, error } = await supabase
         .from('profiles')

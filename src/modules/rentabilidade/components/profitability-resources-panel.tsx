@@ -7,15 +7,26 @@ import {
   TrendingUp,
   TrendingDown,
   Package,
-  CalendarDays,
   Gauge,
   Activity,
   AlertTriangle,
+  BarChart3,
+  Download,
 } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
 import type { ResourceProfitabilityRow } from '@/integrations/supabase/db-types'
 import type { ProfitabilityDateRange } from '../services/profitability.repository'
-import { calcAvailableDays, utilizationBarColor, utilizationBgClass, utilizationLabel, utilizationTextColor, calcUtilization } from '../lib/profitability-calc'
+import {
+  calcAvailableDays,
+  calcDRE,
+  utilizationBarColor,
+  utilizationBgClass,
+  utilizationLabel,
+  utilizationTextColor,
+  calcUtilization,
+} from '../lib/profitability-calc'
+import { AppButton } from '@/shared/components/app/app-button'
+import { downloadUtf8Csv, resourcesToCsv } from '../lib/profitability-export-csv'
 
 const BILLING_LABELS: Record<string, string> = {
   daily:         'Diária',
@@ -36,9 +47,10 @@ interface Props {
   isLoading: boolean
   isError: boolean
   range: ProfitabilityDateRange
+  exportSlug: string
 }
 
-export const ProfitabilityResourcesPanel = ({ resources, isLoading, isError, range }: Props) => {
+export const ProfitabilityResourcesPanel = ({ resources, isLoading, isError, range, exportSlug }: Props) => {
   if (isLoading) return <AppLoadingState />
   if (isError) {
     return (
@@ -57,6 +69,9 @@ export const ProfitabilityResourcesPanel = ({ resources, isLoading, isError, ran
   const totalMargin   = resources.reduce((s, r) => s + Number(r.net_margin), 0)
   const totalServices = resources.reduce((s, r) => s + Number(r.services_count), 0)
 
+  /** Mesmo modelo DRE que tratores/guinchos: custos de máquina como variáveis; sem operador nem depr. neste RPC. */
+  const fleetDRE = calcDRE(totalRevenue, totalCost, 0, 0)
+
   /* Sort: revenue desc, inactive last */
   const sorted = [...resources].sort((a, b) => Number(b.total_revenue) - Number(a.total_revenue))
 
@@ -70,15 +85,17 @@ export const ProfitabilityResourcesPanel = ({ resources, isLoading, isError, ran
       {/* Legenda */}
       <details className="rounded-xl border border-border bg-card p-4 group">
         <summary className="cursor-pointer text-sm font-semibold text-foreground list-none flex items-center justify-between">
-          Como ler estes números — equipamentos (log)
+          Como ler estes números — equipamentos (locação log)
           <span className="text-muted-foreground text-xs font-normal group-open:hidden">Abrir</span>
           <span className="text-muted-foreground text-xs font-normal hidden group-open:inline">Fechar</span>
         </summary>
         <ul className="mt-3 space-y-2 text-sm text-muted-foreground list-disc pl-5">
-          <li><strong className="text-foreground">Receita:</strong> soma dos serviços encerrados (status closed ou cancelled com pró-rata) com data de início no período.</li>
-          <li><strong className="text-foreground">Custos:</strong> lançamentos em <em>Custos de Máquina</em> vinculados ao equipamento no período.</li>
-          <li><strong className="text-foreground">Uso (dias/horas):</strong> soma de <code>usage_quantity</code> dos serviços — unidade depende da modalidade de cobrança.</li>
-          <li><strong className="text-foreground">Utilização:</strong> dias usados ÷ dias disponíveis no período (apenas quando período tem data início e fim).</li>
+          <li><strong className="text-foreground">Receita bruta:</strong> soma dos serviços encerrados (closed ou cancelled com pró-rata) com início no período — mesmo conceito das outras abas.</li>
+          <li><strong className="text-foreground">Custos variáveis (na DRE):</strong> custos de máquina vinculados ao recurso no período (módulo Custos). Não há separação automática de mão de obra nem depreciação gerencial nesta visão.</li>
+          <li><strong className="text-foreground">Margem de contribuição:</strong> receita bruta menos custos variáveis.</li>
+          <li><strong className="text-foreground">Depreciação gerencial:</strong> neste relatório fica em zero (não há rateio de ativo como nos tratores/guinchos).</li>
+          <li><strong className="text-foreground">Resultado operacional:</strong> igual à margem de contribuição nesta aba; alinha com a coluna «Margem» da tabela.</li>
+          <li><strong className="text-foreground">Uso / utilização:</strong> conforme modalidade (dias ou horas) e dias disponíveis no período, quando aplicável.</li>
         </ul>
       </details>
 
@@ -93,6 +110,47 @@ export const ProfitabilityResourcesPanel = ({ resources, isLoading, isError, ran
             <AppStatCard title="Serviços no período" value={String(totalServices)}            icon={Activity} />
           </div>
         </div>
+      )}
+
+      {/* DRE — mesma leitura gerencial que tratores / guinchos */}
+      {(totalRevenue > 0 || totalCost > 0) && (
+        <section>
+          <div className="flex items-center gap-2 mb-3">
+            <BarChart3 className="h-4 w-4 text-primary" />
+            <h2 className="typo-section-label">DRE — frota equipamentos (locação)</h2>
+          </div>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="rounded-xl border border-border bg-card p-4 space-y-1">
+              <p className="text-xs text-muted-foreground uppercase tracking-wide font-semibold">Receita bruta</p>
+              <p className="text-xl font-bold tabular-nums"><AppMoney value={fleetDRE.grossRevenue} /></p>
+            </div>
+            <div className="rounded-xl border border-border bg-card p-4 space-y-1">
+              <p className="text-xs text-muted-foreground uppercase tracking-wide font-semibold">Margem de contribuição</p>
+              <p className="text-xl font-bold tabular-nums">
+                <span className={fleetDRE.contributionMargin >= 0 ? 'text-green-700 dark:text-green-400' : 'text-destructive'}>
+                  <AppMoney value={fleetDRE.contributionMargin} />
+                </span>
+              </p>
+              <p className="text-xs text-muted-foreground">{fleetDRE.contributionMarginPct.toFixed(1)}% da receita</p>
+            </div>
+            <div className="rounded-xl border border-border bg-card p-4 space-y-1">
+              <p className="text-xs text-muted-foreground uppercase tracking-wide font-semibold">Depr. gerencial</p>
+              <p className="text-xl font-bold tabular-nums text-muted-foreground">
+                <AppMoney value={fleetDRE.capitalCost} />
+              </p>
+              <p className="text-xs text-muted-foreground">Sem rateio neste relatório (apenas log de reservas)</p>
+            </div>
+            <div className="rounded-xl border border-primary/30 bg-primary/5 p-4 space-y-1">
+              <p className="text-xs text-primary uppercase tracking-wide font-semibold">Resultado operacional</p>
+              <p className="text-xl font-bold tabular-nums">
+                <span className={fleetDRE.operatingResult >= 0 ? 'text-green-700 dark:text-green-400' : 'text-destructive'}>
+                  <AppMoney value={fleetDRE.operatingResult} />
+                </span>
+              </p>
+              <p className="text-xs text-muted-foreground">{fleetDRE.operatingResultPct.toFixed(1)}% da receita</p>
+            </div>
+          </div>
+        </section>
       )}
 
       {/* Destaques */}
@@ -131,7 +189,21 @@ export const ProfitabilityResourcesPanel = ({ resources, isLoading, isError, ran
 
       {/* Grid de equipamentos */}
       <section>
-        <h2 className="typo-section-label mb-3">Análise por equipamento</h2>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-3">
+          <h2 className="typo-section-label">Análise por equipamento</h2>
+          {resources.length > 0 && (
+            <AppButton
+              type="button"
+              variant="secondary"
+              size="sm"
+              className="shrink-0 self-start sm:self-center"
+              onClick={() => downloadUtf8Csv(`rentabilidade-equipamentos-${exportSlug}.csv`, resourcesToCsv(resources))}
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Exportar CSV
+            </AppButton>
+          )}
+        </div>
         {!resources.length ? (
           <AppEmptyState
             title="Sem equipamentos"

@@ -127,6 +127,7 @@ export function ProfitabilityPage() {
               isLoading={resourceQ.isLoading}
               isError={resourceQ.isError}
               range={range}
+              exportSlug={exportSlug}
             />
           )}
         </>

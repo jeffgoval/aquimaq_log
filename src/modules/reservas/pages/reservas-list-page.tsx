@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { AppPageHeader } from '@/shared/components/app/app-page-header'
 import { AppButton } from '@/shared/components/app/app-button'
 import { AppTable, AppTableCell, AppTableRow } from '@/shared/components/app/app-table'
@@ -42,12 +42,19 @@ export function ReservasListPage() {
   }, [])
 
   const pendingBookings = usePendingBookings()
+  const pendingNeedsOperatorColumn = useMemo(
+    () =>
+      (pendingBookings.data ?? []).some(
+        b => getActionsByResourceType(b.resource?.type).requiresOperatorOnPickup,
+      ),
+    [pendingBookings.data],
+  )
   const noShowCount = useNoShowBookingsCount()
   const [showNoShows, setShowNoShows] = useState(false)
   const noShowBookings = useNoShowBookings(showNoShows)
   const activeServices = useServices()
   const recentFinishedServices = useRecentFinishedServices()
-  const profiles = useProfiles()
+  const profiles = useProfiles(pendingNeedsOperatorColumn)
 
   const convertBooking = useConvertBooking()
   const startOperation = useStartOperation()
@@ -121,7 +128,7 @@ export function ReservasListPage() {
                     { header: 'Cliente' },
                     { header: 'Recurso' },
                     { header: 'Período' },
-                    { header: 'Operador' },
+                    ...(pendingNeedsOperatorColumn ? [{ header: 'Operador' }] : []),
                     { header: 'Ação', align: 'right' },
                   ]}
                 >
@@ -152,22 +159,24 @@ export function ReservasListPage() {
                         <AppTableCell className="text-muted-foreground">
                           {dayjs(booking.start_date).tz(TZ_APP).format('DD/MM HH:mm')} – {dayjs(booking.end_date).tz(TZ_APP).format('DD/MM HH:mm')}
                         </AppTableCell>
-                        <AppTableCell>
-                          {bookingActions.requiresOperatorOnPickup ? (
-                            <select
-                              className="field py-1.5 text-sm min-w-[160px]"
-                              value={selectedOperators[booking.id] || ''}
-                              onChange={e => setSelectedOperators(prev => ({ ...prev, [booking.id]: e.target.value }))}
-                            >
-                              <option value="">Selecionar...</option>
-                              {profiles.data?.map(p => (
-                                <option key={p.id} value={p.id}>{p.name}</option>
-                              ))}
-                            </select>
-                          ) : (
-                            <span className="text-xs text-muted-foreground">N/A</span>
-                          )}
-                        </AppTableCell>
+                        {pendingNeedsOperatorColumn && (
+                          <AppTableCell>
+                            {bookingActions.requiresOperatorOnPickup ? (
+                              <select
+                                className="field py-1.5 text-sm min-w-[160px]"
+                                value={selectedOperators[booking.id] || ''}
+                                onChange={e => setSelectedOperators(prev => ({ ...prev, [booking.id]: e.target.value }))}
+                              >
+                                <option value="">Selecionar...</option>
+                                {profiles.data?.map(p => (
+                                  <option key={p.id} value={p.id}>{p.name}</option>
+                                ))}
+                              </select>
+                            ) : (
+                              <span className="text-xs text-muted-foreground">—</span>
+                            )}
+                          </AppTableCell>
+                        )}
                         <AppTableCell align="right">
                           <AppButton
                             variant={pickupBlocked ? 'secondary' : 'primary'}

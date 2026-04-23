@@ -12,6 +12,7 @@ import { useCreateService } from '../hooks/use-service-queries'
 import { useClientOptions } from '@/modules/clientes/hooks/use-client-queries'
 import { QuickClientCreateModal } from '@/modules/clientes/components/quick-client-create-modal'
 import { QuickClientRegisterLink } from '@/modules/clientes/components/quick-client-register-link'
+import { ClientComboboxField } from '@/modules/clientes/components/client-combobox-field'
 import { useTractorOptions } from '@/modules/tratores/hooks/use-tractor-queries'
 import { useTrucks } from '@/modules/caminhoes/hooks/use-truck-queries'
 import { cn } from '@/shared/lib/cn'
@@ -220,22 +221,15 @@ export function ServiceCreatePage() {
                 </button>
               </div>
             ) : (
-              <div>
-                <label className="field-label">Cliente *</label>
-                <select
-                  className="field"
-                  value={clientId ?? ''}
-                  onChange={(e) =>
-                    setValue('client_id', e.target.value, { shouldValidate: true, shouldDirty: true })
-                  }
-                >
-                  <option value="">Selecione um cliente...</option>
-                  {clientList.map((c) => (
-                    <option key={c.id} value={c.id}>{c.name}</option>
-                  ))}
-                </select>
-                {errors.client_id && <p className="field-error">{errors.client_id.message}</p>}
-              </div>
+              <ClientComboboxField
+                clients={clientList}
+                isLoading={clients.isLoading}
+                value={clientId ?? ''}
+                onSelect={(id) =>
+                  setValue('client_id', id, { shouldValidate: true, shouldDirty: true, shouldTouch: true })
+                }
+                errorMessage={errors.client_id?.message}
+              />
             )}
 
             <QuickClientRegisterLink onClick={() => setShowNewClientModal(true)} className="mt-1" />
