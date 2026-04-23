@@ -20,6 +20,7 @@ const typeOptions: Array<{ value: ResourceInput['type']; label: string }> = [
 const billingOptions: Array<{ value: ResourceInput['billing_type']; label: string }> = [
   { value: 'hourly', label: 'Por hora' },
   { value: 'daily', label: 'Por dia' },
+  { value: 'km', label: 'Por km' },
   { value: 'fixed', label: 'Valor fixo' },
   { value: 'equipment_15d', label: 'Pacote 15 dias' },
   { value: 'equipment_30d', label: 'Pacote 30 dias' },

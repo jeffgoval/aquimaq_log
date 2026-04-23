@@ -3,7 +3,7 @@ import { z } from 'zod'
 export const resourceSchema = z.object({
   name: z.string().min(2, 'Informe o nome do recurso'),
   type: z.enum(['tractor', 'truck', 'equipment']),
-  billing_type: z.enum(['daily', 'hourly', 'fixed', 'equipment_15d', 'equipment_30d']),
+  billing_type: z.enum(['daily', 'hourly', 'fixed', 'km', 'equipment_15d', 'equipment_30d']),
   rate: z.coerce.number().min(0, 'A tarifa deve ser maior ou igual a zero'),
   brand: z.string().optional(),
   model: z.string().optional(),

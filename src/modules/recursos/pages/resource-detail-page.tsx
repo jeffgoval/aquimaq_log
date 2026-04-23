@@ -131,6 +131,7 @@ export function ResourceDetailPage() {
             const billingLabelMap: Record<string, string> = {
               hourly: 'Por hora',
               daily: 'Por dia',
+              km: 'Por km',
               fixed: 'Valor fixo',
             }
             const pricing = pricingRows[0]
