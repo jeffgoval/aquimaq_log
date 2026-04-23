@@ -30,15 +30,24 @@ export function ReservasCreatePage() {
     },
   })
   const selectedResourceId = watch('resource_id')
+  const selectedPricingMode = watch('pricing_mode')
   const selectedResource = resources.data?.find((r) => r.id === selectedResourceId)
-  const equipmentPricingOptions = (selectedResource?.pricing ?? [])
+  const resourcePricingOptions = (selectedResource?.pricing ?? [])
     .filter((item) => item.deleted_at == null && item.is_active)
-    .filter((item) => ['hourly', 'daily', 'equipment_15d', 'equipment_30d'].includes(item.pricing_mode))
+    .filter((item) => {
+      if (selectedResource?.type === 'equipment') {
+        return ['hourly', 'daily', 'equipment_15d', 'equipment_30d'].includes(item.pricing_mode)
+      }
+      if (selectedResource?.type === 'truck') {
+        return ['fixed', 'km'].includes(item.pricing_mode)
+      }
+      return false
+    })
 
   const onSubmit = async (data: CreateBookingInput) => {
     try {
-      if (selectedResource?.type === 'equipment' && !data.pricing_mode) {
-        toast.error('Selecione a modalidade de cobrança do equipamento.')
+      if ((selectedResource?.type === 'equipment' || selectedResource?.type === 'truck') && !data.pricing_mode) {
+        toast.error('Selecione a modalidade de cobrança.')
         return
       }
 
@@ -51,7 +60,7 @@ export function ReservasCreatePage() {
       await createBooking.mutateAsync({
         client_id: data.client_id,
         resource_id: data.resource_id,
-        pricing_mode: selectedResource?.type === 'equipment' ? data.pricing_mode ?? null : null,
+        pricing_mode: selectedResource?.type === 'equipment' || selectedResource?.type === 'truck' ? data.pricing_mode ?? null : null,
         start_date: startIso,
         end_date: endIso,
         notes: data.notes || null,
@@ -106,17 +115,25 @@ export function ReservasCreatePage() {
               {errors.resource_id && <p className="field-error">{errors.resource_id.message}</p>}
             </div>
 
-            {selectedResource?.type === 'equipment' && (
+            {(selectedResource?.type === 'equipment' || selectedResource?.type === 'truck') && (
               <div>
-                <label className="field-label">Modalidade de cobrança do equipamento *</label>
+                <label className="field-label">
+                  {selectedResource?.type === 'truck'
+                    ? 'Modalidade de cobrança do guincho *'
+                    : 'Modalidade de cobrança do equipamento *'}
+                </label>
                 <select {...register('pricing_mode')} className="field">
                   <option value="">Selecione a modalidade...</option>
-                  {equipmentPricingOptions.map((item) => (
+                  {resourcePricingOptions.map((item) => (
                     <option key={item.pricing_mode} value={item.pricing_mode}>
                       {item.pricing_mode === 'hourly'
                         ? `Por hora (R$ ${Number(item.rate).toFixed(2)})`
                         : item.pricing_mode === 'daily'
                           ? `Diária (R$ ${Number(item.rate).toFixed(2)})`
+                          : item.pricing_mode === 'fixed'
+                            ? `Valor fixo (R$ ${Number(item.rate).toFixed(2)})`
+                            : item.pricing_mode === 'km'
+                              ? `Por km (R$ ${Number(item.rate).toFixed(2)})`
                           : item.pricing_mode === 'equipment_15d'
                             ? `Pacote 15 dias (R$ ${Number(item.rate).toFixed(2)})`
                             : `Pacote 30 dias (R$ ${Number(item.rate).toFixed(2)})`}
@@ -124,6 +141,13 @@ export function ReservasCreatePage() {
                   ))}
                 </select>
                 {errors.pricing_mode && <p className="field-error">{errors.pricing_mode.message}</p>}
+                {selectedResource?.type === 'truck' && selectedPricingMode && (
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {selectedPricingMode === 'fixed'
+                      ? 'Use valor fixo para socorro na cidade.'
+                      : 'Use por km para atendimento fora da cidade.'}
+                  </p>
+                )}
               </div>
             )}
 

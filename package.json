@@ -13,6 +13,7 @@
     "test": "vitest",
     "test:run": "vitest run",
     "db:push": "node scripts/db-guard.js && npx supabase db push",
+    "db:sql:linked": "node scripts/db-guard.js && npx supabase db query --linked --yes -f",
     "db:status": "node scripts/db-guard.js && npx supabase migration list",
     "db:types": "node scripts/db-guard.js && npx supabase gen types typescript --project-id hziovsgaqmrwthnlqobd > src/integrations/supabase/server-types.ts",
     "script:close-service": "node scripts/close-log-service.mjs"

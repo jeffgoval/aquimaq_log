@@ -42,6 +42,10 @@ export function ResourceEditPage() {
       type: data.type as ResourceInput['type'],
       billing_type: data.billing_type as ResourceInput['billing_type'],
       rate: data.rate,
+      truck_pricing: {
+        fixed: getRate('fixed'),
+        km: getRate('km'),
+      },
       brand: data.brand ?? '',
       model: data.model ?? '',
       status: data.status as ResourceInput['status'],
@@ -62,13 +66,14 @@ export function ResourceEditPage() {
         payload: {
           name: values.name,
           type: values.type,
-          billing_type: values.type === 'equipment' ? 'daily' : values.billing_type,
-          rate: values.type === 'equipment' ? values.equipment_pricing?.daily ?? 0 : values.rate,
+          billing_type: values.type === 'equipment' ? 'daily' : values.type === 'truck' ? 'fixed' : values.billing_type,
+          rate: values.type === 'equipment' ? values.equipment_pricing?.daily ?? 0 : values.type === 'truck' ? values.truck_pricing?.fixed ?? 0 : values.rate,
           brand: values.brand || null,
           model: values.model || null,
           status: values.status,
         },
         equipmentPricing: values.type === 'equipment' ? values.equipment_pricing : undefined,
+        truckPricing: values.type === 'truck' ? values.truck_pricing : undefined,
       })
       navigate(ROUTES.RESOURCE_DETAIL(id))
     } catch {

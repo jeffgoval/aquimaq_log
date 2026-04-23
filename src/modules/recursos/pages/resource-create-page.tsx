@@ -19,6 +19,10 @@ export function ResourceCreatePage() {
       type: 'tractor',
       billing_type: 'hourly',
       rate: 0,
+      truck_pricing: {
+        fixed: 0,
+        km: 0,
+      },
       brand: '',
       model: '',
       status: 'available',
@@ -37,13 +41,14 @@ export function ResourceCreatePage() {
         payload: {
           name: values.name,
           type: values.type,
-          billing_type: values.type === 'equipment' ? 'daily' : values.billing_type,
-          rate: values.type === 'equipment' ? values.equipment_pricing?.daily ?? 0 : values.rate,
+          billing_type: values.type === 'equipment' ? 'daily' : values.type === 'truck' ? 'fixed' : values.billing_type,
+          rate: values.type === 'equipment' ? values.equipment_pricing?.daily ?? 0 : values.type === 'truck' ? values.truck_pricing?.fixed ?? 0 : values.rate,
           brand: values.brand || null,
           model: values.model || null,
           status: values.status,
         },
         equipmentPricing: values.type === 'equipment' ? values.equipment_pricing : undefined,
+        truckPricing: values.type === 'truck' ? values.truck_pricing : undefined,
       })
       navigate(ROUTES.RESOURCE_DETAIL(created.id))
     } catch {

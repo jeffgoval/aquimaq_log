@@ -5,6 +5,12 @@ export const resourceSchema = z.object({
   type: z.enum(['tractor', 'truck', 'equipment']),
   billing_type: z.enum(['daily', 'hourly', 'fixed', 'km', 'equipment_15d', 'equipment_30d']),
   rate: z.coerce.number().min(0, 'A tarifa deve ser maior ou igual a zero'),
+  truck_pricing: z
+    .object({
+      fixed: z.coerce.number().min(0, 'Valor fixo deve ser >= 0'),
+      km: z.coerce.number().min(0, 'Valor por km deve ser >= 0'),
+    })
+    .optional(),
   brand: z.string().optional(),
   model: z.string().optional(),
   status: z.enum(['available', 'maintenance', 'inactive']),

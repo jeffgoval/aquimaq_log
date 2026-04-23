@@ -149,7 +149,7 @@ export function ServiceCreatePage() {
     defaultValues: {
       service_date: dayjs().format('YYYY-MM-DD'),
       vehicle_type: 'tractor',
-      charge_type: 'por_hora',
+      charge_type: 'valor_fixo',
       contracted_hour_rate: 0,
     },
   })
@@ -200,6 +200,12 @@ export function ServiceCreatePage() {
       setValue('contracted_hour_rate', suggested, { shouldDirty: false, shouldTouch: false, shouldValidate: true })
     }
   }, [contractedRate, form.formState.dirtyFields.contracted_hour_rate, setValue, tractorId, tractorList, vehicleType])
+
+  useEffect(() => {
+    if (vehicleType === 'truck' && chargeType === 'por_hora') {
+      setValue('charge_type', 'valor_fixo', { shouldValidate: true })
+    }
+  }, [vehicleType, chargeType, setValue])
 
   const goNext = () => {
     if (step === 1 && !step1Valid) return
@@ -371,9 +377,8 @@ export function ServiceCreatePage() {
                   <div>
                     <label className="field-label">Forma de cobrança</label>
                     <select {...register('charge_type')} className="field">
-                      <option value="por_hora">Por hora</option>
-                      <option value="por_km">Por KM rodado</option>
                       <option value="valor_fixo">Valor fixo</option>
+                      <option value="por_km">Por KM rodado</option>
                     </select>
                   </div>
                   <div>

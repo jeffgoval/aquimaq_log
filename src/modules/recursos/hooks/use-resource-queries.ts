@@ -24,6 +24,11 @@ export interface EquipmentPricingInput {
   equipment_30d: number
 }
 
+export interface TruckPricingInput {
+  fixed: number
+  km: number
+}
+
 const resourceKeys = {
   all: ['log_resources'] as const,
   detail: (id: string) => ['log_resources', id] as const,
@@ -142,9 +147,11 @@ export function useCreateResource() {
     mutationFn: async ({
       payload,
       equipmentPricing,
+      truckPricing,
     }: {
       payload: ResourceInsert
       equipmentPricing?: EquipmentPricingInput
+      truckPricing?: TruckPricingInput
     }) => {
       const { data, error } = await supabase
         .from('log_resources')
@@ -161,6 +168,14 @@ export function useCreateResource() {
             { pricing_mode: 'daily', rate: equipmentPricing.daily },
             { pricing_mode: 'equipment_15d', rate: equipmentPricing.equipment_15d },
             { pricing_mode: 'equipment_30d', rate: equipmentPricing.equipment_30d },
+          ],
+        })
+      } else if (payload.type === 'truck' && truckPricing) {
+        await upsertResourcePricing({
+          resourceId: data.id,
+          pricing: [
+            { pricing_mode: 'fixed', rate: truckPricing.fixed },
+            { pricing_mode: 'km', rate: truckPricing.km },
           ],
         })
       } else {
@@ -190,10 +205,12 @@ export function useUpdateResource() {
       id,
       payload,
       equipmentPricing,
+      truckPricing,
     }: {
       id: string
       payload: ResourceUpdate
       equipmentPricing?: EquipmentPricingInput
+      truckPricing?: TruckPricingInput
     }) => {
       const { data, error } = await supabase
         .from('log_resources')
@@ -213,6 +230,14 @@ export function useUpdateResource() {
             { pricing_mode: 'daily', rate: equipmentPricing.daily },
             { pricing_mode: 'equipment_15d', rate: equipmentPricing.equipment_15d },
             { pricing_mode: 'equipment_30d', rate: equipmentPricing.equipment_30d },
+          ],
+        })
+      } else if (payload.type === 'truck' && truckPricing) {
+        await upsertResourcePricing({
+          resourceId: id,
+          pricing: [
+            { pricing_mode: 'fixed', rate: truckPricing.fixed },
+            { pricing_mode: 'km', rate: truckPricing.km },
           ],
         })
       } else if (payload.billing_type && typeof payload.rate === 'number') {

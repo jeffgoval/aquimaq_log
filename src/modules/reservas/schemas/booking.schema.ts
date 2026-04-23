@@ -4,7 +4,7 @@ import dayjs from '@/shared/lib/dayjs'
 export const createBookingSchema = z.object({
   client_id: z.string().min(1, 'Selecione um cliente'),
   resource_id: z.string().min(1, 'Selecione um recurso'),
-  pricing_mode: z.enum(['hourly', 'daily', 'fixed', 'equipment_15d', 'equipment_30d']).optional(),
+  pricing_mode: z.enum(['hourly', 'daily', 'fixed', 'km', 'equipment_15d', 'equipment_30d']).optional(),
   start_date: z.string().min(1, 'Data inicial é obrigatória'),
   end_date: z.string().min(1, 'Data final é obrigatória'),
   notes: z.string().optional(),
