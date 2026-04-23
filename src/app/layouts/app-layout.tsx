@@ -5,10 +5,8 @@ import { Sidebar } from './components/sidebar'
 import { MobileHeader } from './components/mobile-header'
 import { MobileBottomNav } from './components/mobile-bottom-nav'
 import { AppLoadingState } from '@/shared/components/app/app-loading-state'
-import { usePrefetchLists } from '@/app/hooks/use-prefetch-lists'
 
 export const AppLayout = () => {
-  usePrefetchLists()
   return (
     <div className="relative flex h-screen w-full max-w-full min-w-0 flex-col overflow-hidden bg-background lg:flex-row">
       {/* Sidebar Desktop — Oculta em mobile */}
