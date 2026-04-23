@@ -38,6 +38,20 @@ export type MachineCostWithTractor = Tables<'machine_costs'> & {
 
 export type ClientRevenueRow = Views<'v_client_revenue'>
 
+/** Linha de `fn_resource_profitability_range` — equipamentos (log_resources). */
+export type ResourceProfitabilityRow = {
+  resource_id: string
+  resource_name: string
+  resource_type: string
+  resource_status: string
+  billing_type: string
+  services_count: number
+  total_usage: number
+  total_revenue: number
+  machine_cost: number
+  net_margin: number
+}
+
 /** Linha de `fn_truck_profitability_range` (alinhada ao retorno da RPC). */
 export type TruckProfitabilityRow = {
   truck_id: string

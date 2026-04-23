@@ -4,10 +4,12 @@ import {
   useTruckProfitability,
   useClientRevenue,
   useFleetSpendByCategory,
+  useResourceProfitability,
 } from '../hooks/use-profitability-queries'
-import { ProfitabilityToolbar, type ProfitabilityFleetTab, type ProfitabilityTab } from '../components/profitability-toolbar'
-import { ProfitabilityOwnerPanel } from '../components/profitability-owner-panel'
-import { ProfitabilityProPanel } from '../components/profitability-pro-panel'
+import { ProfitabilityToolbar, type ProfitabilityTab } from '../components/profitability-toolbar'
+import { ProfitabilityOverviewPanel } from '../components/profitability-owner-panel'
+import { ProfitabilityTractorPanel, ProfitabilityTruckPanel } from '../components/profitability-equipment-panel'
+import { ProfitabilityResourcesPanel } from '../components/profitability-resources-panel'
 import { AppPageHeader } from '@/shared/components/app/app-page-header'
 import { AppLoadingState } from '@/shared/components/app/app-loading-state'
 import { AppErrorState } from '@/shared/components/app/app-error-state'
@@ -34,8 +36,7 @@ function exportFilenameSlug(range: { from: string | null; to: string | null }, p
 }
 
 export function ProfitabilityPage() {
-  const [fleetTab, setFleetTab] = useState<ProfitabilityFleetTab>('tractor')
-  const [tab, setTab] = useState<ProfitabilityTab>('owner')
+  const [tab, setTab] = useState<ProfitabilityTab>('overview')
   const [preset, setPreset] = useState<PeriodPreset>('all')
   const [customFrom, setCustomFrom] = useState('')
   const [customTo, setCustomTo] = useState('')
@@ -49,6 +50,7 @@ export function ProfitabilityPage() {
   const truckQ = useTruckProfitability(range)
   const clientQ = useClientRevenue(range)
   const fleetQ = useFleetSpendByCategory(range)
+  const resourceQ = useResourceProfitability(range)
 
   const isLoading = tractorQ.isLoading || truckQ.isLoading || clientQ.isLoading
   const blockingError = tractorQ.error ?? truckQ.error ?? clientQ.error
@@ -61,6 +63,7 @@ export function ProfitabilityPage() {
     void truckQ.refetch()
     void clientQ.refetch()
     void fleetQ.refetch()
+    void resourceQ.refetch()
   }
 
   return (
@@ -69,12 +72,10 @@ export function ProfitabilityPage() {
         backTo={ROUTES.DASHBOARD}
         backLabel="Voltar ao início"
         title="Rentabilidade"
-        description="Visão de gestão para tomar decisões no dia a dia. Use “Detalhes” para entender de onde vêm os números e exportar."
+        description="Visão de gestão financeira para decisões no dia a dia."
       />
 
       <ProfitabilityToolbar
-        fleetTab={fleetTab}
-        onFleetTab={setFleetTab}
         tab={tab}
         onTab={setTab}
         preset={preset}
@@ -93,26 +94,39 @@ export function ProfitabilityPage() {
 
       {!isLoading && !blockingError && (
         <>
-          {tab === 'owner' ? (
-            <ProfitabilityOwnerPanel
-              fleetTab={fleetTab}
+          {tab === 'overview' && (
+            <ProfitabilityOverviewPanel
               tractors={tractorQ.data ?? []}
               trucks={truckQ.data ?? []}
               clients={clientQ.data ?? []}
-              fleetSpend={fleetQ.data}
-              fleetSpendLoading={fleetQ.isLoading}
-              fleetSpendError={fleetQ.isError}
-            />
-          ) : (
-            <ProfitabilityProPanel
-              fleetTab={fleetTab}
-              tractors={tractorQ.data ?? []}
-              trucks={truckQ.data ?? []}
-              clients={clientQ.data ?? []}
+              resources={resourceQ.data ?? []}
               fleetSpend={fleetQ.data}
               fleetSpendLoading={fleetQ.isLoading}
               fleetSpendError={fleetQ.isError}
               exportSlug={exportSlug}
+              range={range}
+            />
+          )}
+          {tab === 'tractors' && (
+            <ProfitabilityTractorPanel
+              tractors={tractorQ.data ?? []}
+              exportSlug={exportSlug}
+              range={range}
+            />
+          )}
+          {tab === 'trucks' && (
+            <ProfitabilityTruckPanel
+              trucks={truckQ.data ?? []}
+              exportSlug={exportSlug}
+              range={range}
+            />
+          )}
+          {tab === 'equipment' && (
+            <ProfitabilityResourcesPanel
+              resources={resourceQ.data ?? []}
+              isLoading={resourceQ.isLoading}
+              isError={resourceQ.isError}
+              range={range}
             />
           )}
         </>

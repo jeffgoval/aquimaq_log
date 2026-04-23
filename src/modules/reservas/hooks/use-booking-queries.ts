@@ -114,7 +114,7 @@ export function useConvertBooking() {
     mutationFn: async ({ bookingId, operatorId }: { bookingId: string, operatorId?: string | null }) => {
       const { data, error } = await supabase.rpc('log_convert_booking_to_service', {
         p_booking_id: bookingId,
-        p_operator_id: operatorId ?? undefined
+        p_operator_id: (operatorId ?? '') as string
       })
       if (error) throw error
       return data

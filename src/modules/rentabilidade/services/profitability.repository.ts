@@ -1,6 +1,6 @@
 import type { PostgrestError } from '@supabase/supabase-js'
 import { supabase } from '@/integrations/supabase/client'
-import type { Views, ClientRevenueRow, TruckProfitabilityRow } from '@/integrations/supabase/db-types'
+import type { Views, ClientRevenueRow, TruckProfitabilityRow, ResourceProfitabilityRow } from '@/integrations/supabase/db-types'
 
 /** Intervalo inclusive; null em from/to = sem limite nesse lado (visão acumulada). */
 export type ProfitabilityDateRange = { from: string | null; to: string | null }
@@ -51,6 +51,15 @@ export const profitabilityRepository = {
     if (error) throwProfitabilityRpcError(error)
     const rows = (data ?? []) as ClientRevenueRow[]
     return [...rows].sort((a, b) => Number(b.total_billed ?? 0) - Number(a.total_billed ?? 0))
+  },
+
+  async getResourceProfitability(range?: ProfitabilityDateRange): Promise<ResourceProfitabilityRow[]> {
+    const { data, error } = await supabase.rpc('fn_resource_profitability_range', {
+      p_start: range?.from ?? undefined,
+      p_end: range?.to ?? undefined,
+    })
+    if (error) throwProfitabilityRpcError(error)
+    return (data ?? []) as ResourceProfitabilityRow[]
   },
 
   async getFleetSpendByCategory(range?: ProfitabilityDateRange): Promise<Views<'v_fleet_spend_by_category'>> {

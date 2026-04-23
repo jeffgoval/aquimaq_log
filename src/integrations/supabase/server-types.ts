@@ -460,6 +460,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "machine_costs_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "log_resources"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "machine_costs_service_id_fkey"
             columns: ["service_id"]
             isOneToOne: false
@@ -492,13 +499,6 @@ export type Database = {
             columns: ["truck_id"]
             isOneToOne: false
             referencedRelation: "trucks"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "machine_costs_resource_id_fkey"
-            columns: ["resource_id"]
-            isOneToOne: false
-            referencedRelation: "log_resources"
             referencedColumns: ["id"]
           },
         ]
@@ -1323,6 +1323,21 @@ export type Database = {
           spend_operator: number
         }[]
       }
+      fn_resource_profitability_range: {
+        Args: { p_end?: string; p_start?: string }
+        Returns: {
+          billing_type: string
+          machine_cost: number
+          net_margin: number
+          resource_id: string
+          resource_name: string
+          resource_status: string
+          resource_type: string
+          services_count: number
+          total_revenue: number
+          total_usage: number
+        }[]
+      }
       fn_tractor_profitability_range: {
         Args: { p_end?: string; p_start?: string }
         Returns: {
@@ -1375,7 +1390,7 @@ export type Database = {
         Returns: undefined
       }
       log_convert_booking_to_service: {
-        Args: { p_booking_id: string; p_operator_id?: string | null }
+        Args: { p_booking_id: string; p_operator_id: string }
         Returns: string
       }
       mark_overdue_receivables: { Args: never; Returns: undefined }

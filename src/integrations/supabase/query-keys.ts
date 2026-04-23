@@ -30,6 +30,8 @@ export const queryKeys = {
     ['profitability', 'clients', from, to] as const,
   profitabilityFleetSpend: (from: string | null, to: string | null) =>
     ['profitability', 'fleet-spend-by-category', from, to] as const,
+  profitabilityResources: (from: string | null, to: string | null) =>
+    ['profitability', 'resources', from, to] as const,
   financialLedger: ['financial-ledger'] as const,
   documents: ['documents'] as const,
   domainEvents: ['domain-events'] as const,

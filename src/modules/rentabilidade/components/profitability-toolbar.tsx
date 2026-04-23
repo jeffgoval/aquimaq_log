@@ -5,14 +5,17 @@ import { PERIOD_PRESET_LABELS } from '../lib/profitability-period'
 
 const PERIOD_PRESET_ORDER = Object.keys(PERIOD_PRESET_LABELS) as PeriodPreset[]
 
-export type ProfitabilityTab = 'owner' | 'pro'
+export type ProfitabilityTab = 'overview' | 'tractors' | 'trucks' | 'equipment'
 
-/** Qual frota está em análise (tratores vs guinchos). */
-export type ProfitabilityFleetTab = 'tractor' | 'truck'
+const TAB_LABELS: Record<ProfitabilityTab, string> = {
+  overview:  'Resumo',
+  tractors:  'Tratores',
+  trucks:    'Guinchos',
+  equipment: 'Equipamentos',
+}
+const TAB_ORDER: ProfitabilityTab[] = ['overview', 'tractors', 'trucks', 'equipment']
 
 interface Props {
-  fleetTab: ProfitabilityFleetTab
-  onFleetTab: (t: ProfitabilityFleetTab) => void
   tab: ProfitabilityTab
   onTab: (t: ProfitabilityTab) => void
   preset: PeriodPreset
@@ -25,8 +28,6 @@ interface Props {
 }
 
 export const ProfitabilityToolbar = ({
-  fleetTab,
-  onFleetTab,
   tab,
   onTab,
   preset,
@@ -42,49 +43,21 @@ export const ProfitabilityToolbar = ({
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between lg:justify-start lg:gap-3">
           <div className="flex w-full max-w-full rounded-lg border border-border bg-muted/30 p-0.5 sm:w-auto">
-            <button
-              type="button"
-              onClick={() => onFleetTab('tractor')}
-              className={cn(
-                'flex-1 sm:flex-none rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
-                fleetTab === 'tractor' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground',
-              )}
-            >
-              Tratores
-            </button>
-            <button
-              type="button"
-              onClick={() => onFleetTab('truck')}
-              className={cn(
-                'flex-1 sm:flex-none rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
-                fleetTab === 'truck' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground',
-              )}
-            >
-              Guinchos
-            </button>
-          </div>
-
-          <div className="flex w-full max-w-full rounded-lg border border-border bg-muted/30 p-0.5 sm:w-auto">
-            <button
-              type="button"
-              onClick={() => onTab('owner')}
-              className={cn(
-                'flex-1 sm:flex-none rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
-                tab === 'owner' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground',
-              )}
-            >
-              Resumo
-            </button>
-            <button
-              type="button"
-              onClick={() => onTab('pro')}
-              className={cn(
-                'flex-1 sm:flex-none rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
-                tab === 'pro' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground',
-              )}
-            >
-              Detalhes
-            </button>
+            {TAB_ORDER.map((t) => (
+              <button
+                key={t}
+                type="button"
+                onClick={() => onTab(t)}
+                className={cn(
+                  'flex-1 sm:flex-none rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
+                  tab === t
+                    ? 'bg-background shadow-sm text-foreground'
+                    : 'text-muted-foreground hover:text-foreground',
+                )}
+              >
+                {TAB_LABELS[t]}
+              </button>
+            ))}
           </div>
         </div>
 
