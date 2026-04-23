@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { AppPageHeader } from '@/shared/components/app/app-page-header'
 import { AppButton } from '@/shared/components/app/app-button'
 import { AppTable, AppTableCell, AppTableRow } from '@/shared/components/app/app-table'
@@ -6,7 +6,6 @@ import {
   usePendingBookings,
   useNoShowBookings,
   useNoShowBookingsCount,
-  useRestoreBookingFromNoShow,
   useServices,
   useRecentFinishedServices,
   useConvertBooking,
@@ -20,7 +19,12 @@ import { TZ_APP } from '@/app/config/constants'
 import { toast } from 'sonner'
 import { getActionsByResourceType } from '../constants/resource-actions'
 import { cn } from '@/shared/lib/cn'
-import { isBookingPickupWindowExpired } from '../lib/booking-pickup-rules'
+import {
+  BOOKING_PICKUP_GRACE_MINUTES_AFTER_START,
+  isBookingPickupBeforeWindow,
+  isBookingPickupMissedGraceWindow,
+  isBookingPickupWindowExpired,
+} from '../lib/booking-pickup-rules'
 
 function billingLabel(type: string | null | undefined) {
   if (type === 'hourly') return 'Por hora'
@@ -31,12 +35,16 @@ function billingLabel(type: string | null | undefined) {
 }
 
 export function ReservasListPage() {
+  const [, setNowTick] = useState(0)
+  useEffect(() => {
+    const id = setInterval(() => { setNowTick(n => n + 1) }, 10_000)
+    return () => clearInterval(id)
+  }, [])
+
   const pendingBookings = usePendingBookings()
   const noShowCount = useNoShowBookingsCount()
   const [showNoShows, setShowNoShows] = useState(false)
   const noShowBookings = useNoShowBookings(showNoShows)
-  const restoreNoShow = useRestoreBookingFromNoShow()
-
   const activeServices = useServices()
   const recentFinishedServices = useRecentFinishedServices()
   const profiles = useProfiles()
@@ -47,7 +55,22 @@ export function ReservasListPage() {
 
   const [selectedOperators, setSelectedOperators] = useState<Record<string, string>>({})
 
-  const handleConvert = async (bookingId: string, resourceType: string | undefined, endDateIso: string) => {
+  const handleConvert = async (
+    bookingId: string,
+    resourceType: string | undefined,
+    startDateIso: string,
+    endDateIso: string,
+  ) => {
+    if (isBookingPickupBeforeWindow(startDateIso)) {
+      toast.error(`A retirada só pode iniciar a partir de ${dayjs(startDateIso).tz(TZ_APP).format('DD/MM/YYYY HH:mm')}.`)
+      return
+    }
+    if (isBookingPickupMissedGraceWindow(startDateIso)) {
+      toast.error(
+        `Prazo de retirada expirado: é necessário iniciar no horário de início ou até ${BOOKING_PICKUP_GRACE_MINUTES_AFTER_START} min depois (${dayjs(startDateIso).tz(TZ_APP).format('DD/MM HH:mm')}). A reserva caduca e o equipamento pode ser alugado a outro cliente.`,
+      )
+      return
+    }
     if (isBookingPickupWindowExpired(endDateIso)) {
       toast.error('O período desta reserva já terminou. Atualize a página: o registo passará para no-show e o equipamento fica livre para nova reserva.')
       return
@@ -104,7 +127,24 @@ export function ReservasListPage() {
                 >
                   {pendingBookings.data?.map(booking => {
                     const bookingActions = getActionsByResourceType(booking.resource?.type)
+                    const pickupTooEarly = isBookingPickupBeforeWindow(booking.start_date)
+                    const pickupMissedGrace = isBookingPickupMissedGraceWindow(booking.start_date)
                     const pickupExpired = isBookingPickupWindowExpired(booking.end_date)
+                    const pickupBlocked = pickupTooEarly || pickupMissedGrace || pickupExpired
+                    const pickupTitle = pickupTooEarly
+                      ? 'Ainda não é o horário de início desta reserva.'
+                      : pickupMissedGrace
+                        ? `Não foi iniciada a retirada até ${BOOKING_PICKUP_GRACE_MINUTES_AFTER_START} min após o início; a reserva caduca.`
+                        : pickupExpired
+                          ? 'O fim do período da reserva já passou; não é possível iniciar retirada aqui.'
+                          : undefined
+                    const pickupLabel = pickupTooEarly
+                      ? 'Aguardar início'
+                      : pickupMissedGrace
+                        ? 'Retirada expirada'
+                        : pickupExpired
+                          ? 'Período encerrado'
+                          : 'Iniciar Retirada'
                     return (
                       <AppTableRow key={booking.id}>
                         <AppTableCell className="font-medium">{booking.client?.name}</AppTableCell>
@@ -130,19 +170,19 @@ export function ReservasListPage() {
                         </AppTableCell>
                         <AppTableCell align="right">
                           <AppButton
-                            variant="primary"
+                            variant={pickupBlocked ? 'secondary' : 'primary'}
                             size="sm"
-                            title={pickupExpired ? 'O fim do período da reserva já passou; não é possível iniciar retirada aqui.' : undefined}
-                            onClick={() => { void handleConvert(booking.id, booking.resource?.type, booking.end_date) }}
+                            title={pickupTitle}
+                            onClick={() => { void handleConvert(booking.id, booking.resource?.type, booking.start_date, booking.end_date) }}
                             loading={convertBooking.isPending && convertBooking.variables?.bookingId === booking.id}
                             disabled={
                               convertBooking.isPending
-                              || pickupExpired
+                              || pickupBlocked
                               || (bookingActions.requiresOperatorOnPickup && !selectedOperators[booking.id])
                             }
                           >
                             <ArrowRight className="w-4 h-4 mr-2" />
-                            {pickupExpired ? 'Período encerrado' : 'Iniciar Retirada'}
+                            {pickupLabel}
                           </AppButton>
                         </AppTableCell>
                       </AppTableRow>
@@ -155,7 +195,24 @@ export function ReservasListPage() {
               <div className="flex flex-col gap-3 sm:hidden">
                 {pendingBookings.data?.map(booking => {
                   const bookingActions = getActionsByResourceType(booking.resource?.type)
+                  const pickupTooEarly = isBookingPickupBeforeWindow(booking.start_date)
+                  const pickupMissedGrace = isBookingPickupMissedGraceWindow(booking.start_date)
                   const pickupExpired = isBookingPickupWindowExpired(booking.end_date)
+                  const pickupBlocked = pickupTooEarly || pickupMissedGrace || pickupExpired
+                  const pickupTitle = pickupTooEarly
+                    ? 'Ainda não é o horário de início desta reserva.'
+                    : pickupMissedGrace
+                      ? `Não foi iniciada a retirada até ${BOOKING_PICKUP_GRACE_MINUTES_AFTER_START} min após o início; a reserva caduca.`
+                      : pickupExpired
+                        ? 'O fim do período da reserva já passou; não é possível iniciar retirada aqui.'
+                        : undefined
+                  const pickupLabel = pickupTooEarly
+                    ? 'Aguardar início'
+                    : pickupMissedGrace
+                      ? 'Retirada expirada'
+                      : pickupExpired
+                        ? 'Período encerrado'
+                        : 'Iniciar Retirada'
                   return (
                     <div key={booking.id} className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-4 space-y-3">
                       <div className="flex items-start justify-between gap-2">
@@ -186,26 +243,36 @@ export function ReservasListPage() {
                           </select>
                         </div>
                       )}
-                      {pickupExpired && (
+                      {pickupTooEarly && (
+                        <p className="text-xs text-muted-foreground">
+                          Início da reserva: {dayjs(booking.start_date).tz(TZ_APP).format('DD/MM HH:mm')}. A retirada só pode ser registada a partir desse horário, até {BOOKING_PICKUP_GRACE_MINUTES_AFTER_START} min depois; caso contrário a reserva caduca.
+                        </p>
+                      )}
+                      {pickupMissedGrace && (
+                        <p className="text-xs text-amber-800 dark:text-amber-200/90">
+                          Passou o prazo para iniciar retirada após o horário de início. Atualize a lista: no-show e o equipamento pode ser reservado por outro cliente.
+                        </p>
+                      )}
+                      {pickupExpired && !pickupMissedGrace && (
                         <p className="text-xs text-amber-800 dark:text-amber-200/90">
                           O fim deste período já passou. Atualize a lista: a reserva será tratada como no-show e o recurso liberta agenda para novas reservas.
                         </p>
                       )}
                       <AppButton
-                        variant="primary"
+                        variant={pickupBlocked ? 'secondary' : 'primary'}
                         size="sm"
                         className="w-full justify-center"
-                        title={pickupExpired ? 'O fim do período da reserva já passou; não é possível iniciar retirada aqui.' : undefined}
-                        onClick={() => { void handleConvert(booking.id, booking.resource?.type, booking.end_date) }}
+                        title={pickupTitle}
+                        onClick={() => { void handleConvert(booking.id, booking.resource?.type, booking.start_date, booking.end_date) }}
                         loading={convertBooking.isPending && convertBooking.variables?.bookingId === booking.id}
                         disabled={
                           convertBooking.isPending
-                          || pickupExpired
+                          || pickupBlocked
                           || (bookingActions.requiresOperatorOnPickup && !selectedOperators[booking.id])
                         }
                       >
                         <ArrowRight className="w-4 h-4 mr-2" />
-                        {pickupExpired ? 'Período encerrado' : 'Iniciar Retirada'}
+                        {pickupLabel}
                       </AppButton>
                     </div>
                   )
@@ -220,7 +287,7 @@ export function ReservasListPage() {
                 <UserX className="w-5 h-5 text-slate-500 shrink-0 mt-0.5" />
                 <p className="text-sm text-muted-foreground leading-snug">
                   <span className="font-semibold text-foreground tabular-nums">{noShowCount.data}</span>
-                  {' '}reserva(s) com período já encerrado sem retirada (no-show). Registo mantido para auditoria; o recurso não fica bloqueado — novas reservas só consideram estados pendente ou em retirada (convertido).
+                  {' '}reserva(s) em no-show (fim do período sem devolução operacional, ou não iniciada a retirada a tempo após o horário de início). Registo mantido para auditoria; o recurso não fica bloqueado — novas reservas só consideram estados pendente ou em retirada (convertido).
                 </p>
               </div>
               <AppButton
@@ -263,7 +330,6 @@ export function ReservasListPage() {
                         { header: 'Recurso' },
                         { header: 'Período' },
                         { header: 'Estado' },
-                        { header: 'Ação', align: 'right' },
                       ]}
                     >
                       {noShowBookings.data.map(booking => (
@@ -277,17 +343,6 @@ export function ReservasListPage() {
                             <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300">
                               No-show
                             </span>
-                          </AppTableCell>
-                          <AppTableCell align="right">
-                            <AppButton
-                              variant="secondary"
-                              size="sm"
-                              onClick={() => { void restoreNoShow.mutateAsync(booking.id).catch(() => {}) }}
-                              loading={restoreNoShow.isPending && restoreNoShow.variables === booking.id}
-                              disabled={restoreNoShow.isPending}
-                            >
-                              Voltar a pendente
-                            </AppButton>
                           </AppTableCell>
                         </AppTableRow>
                       ))}
@@ -309,16 +364,6 @@ export function ReservasListPage() {
                           <Clock className="w-3.5 h-3.5" />
                           {dayjs(booking.start_date).tz(TZ_APP).format('DD/MM HH:mm')} – {dayjs(booking.end_date).tz(TZ_APP).format('DD/MM HH:mm')}
                         </p>
-                        <AppButton
-                          variant="secondary"
-                          size="sm"
-                          className="w-full justify-center"
-                          onClick={() => { void restoreNoShow.mutateAsync(booking.id).catch(() => {}) }}
-                          loading={restoreNoShow.isPending && restoreNoShow.variables === booking.id}
-                          disabled={restoreNoShow.isPending}
-                        >
-                          Voltar a pendente
-                        </AppButton>
                       </div>
                     ))}
                   </div>

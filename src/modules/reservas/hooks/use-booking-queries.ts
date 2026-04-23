@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/integrations/supabase/client'
 import { toast } from 'sonner'
+import { getBookingRulesNowIso } from '../lib/booking-pickup-rules'
 import {
   getLogResourcePricingRemoteState,
   isLogResourcePricingUnavailable,
@@ -173,10 +174,16 @@ export function usePendingBookings() {
   const qc = useQueryClient()
   return useQuery({
     queryKey: [...queryKeys.bookings, 'pending'],
+    // Lista depende do relógio (no-show, fim de slot) e costuma ser editada fora do app — evita dados “congelados” 5 min.
+    staleTime: 0,
+    refetchOnWindowFocus: true,
+    refetchOnMount: 'always',
+    refetchInterval: 15_000,
     queryFn: async () => {
       const { error: archiveError } = await supabase.rpc('log_archive_expired_pending_bookings')
       if (archiveError) throw archiveError
 
+      const nowIso = getBookingRulesNowIso()
       const { data, error } = await supabase
         .from('log_bookings')
         .select(`
@@ -186,6 +193,7 @@ export function usePendingBookings() {
         `)
         .eq('status', 'pending')
         .is('deleted_at', null)
+        .gte('end_date', nowIso)
         .order('start_date', { ascending: true })
       if (error) throw error
       void qc.invalidateQueries({ queryKey: [...queryKeys.bookings, 'no_show'] })
@@ -228,34 +236,6 @@ export function useNoShowBookings(enabled: boolean) {
       if (error) throw error
       return data
     },
-  })
-}
-
-export function useRestoreBookingFromNoShow() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: async (bookingId: string) => {
-      const { data, error } = await supabase
-        .from('log_bookings')
-        .update({
-          status: 'pending',
-          reopened_from_no_show_at: new Date().toISOString(),
-        })
-        .eq('id', bookingId)
-        .eq('status', 'no_show')
-        .select('id')
-        .maybeSingle()
-      if (error) throw error
-      if (!data) {
-        throw new Error('Reserva não encontrada ou já não está como no-show.')
-      }
-      return data
-    },
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: queryKeys.bookings })
-      toast.success('Reserva reativada como pendente.')
-    },
-    onError: (e: Error) => toast.error(parseSupabaseError(e)),
   })
 }
 
