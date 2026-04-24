@@ -122,7 +122,7 @@ export const MachineCostDetailPanel = ({ cost, onClose, onCostUpdated }: Machine
         </div>
 
         <div className="flex-1 overflow-y-auto px-4 py-4 space-y-5">
-          <div className="grid grid-cols-2 gap-3 text-sm">
+          <div className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
             <div>
               <p className="typo-caption">Valor</p>
               <p className="font-semibold mt-1">
@@ -147,7 +147,7 @@ export const MachineCostDetailPanel = ({ cost, onClose, onCostUpdated }: Machine
                 ))}
               </select>
             </div>
-            <div className="col-span-2">
+            <div className="sm:col-span-2">
               <p className="typo-caption">Fornecedor</p>
               <p className="font-medium mt-1">{cost.suppliers?.name || cost.supplier_name || '—'}</p>
             </div>

@@ -110,7 +110,7 @@ export const ProfitabilityTruckProCard = ({ t }: Props) => {
                 <span>Análise por km rodado</span>
                 <Info className="h-3.5 w-3.5 text-muted-foreground/70 shrink-0" aria-hidden />
               </p>
-              <div className="grid grid-cols-3 gap-2 text-center">
+              <div className="grid grid-cols-1 gap-2 text-center sm:grid-cols-3">
                 <div>
                   <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Receita/km</p>
                   <p className={cn('text-sm font-bold tabular-nums', minViableRateTextColor(mvr.status))}>

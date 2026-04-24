@@ -215,7 +215,7 @@ export const ProfitabilityTractorPanel = ({ tractors, exportSlug, range }: Tract
             {rateItems.map(({ id, name, mvr }) => (
               <div key={id} className={cn('rounded-lg border p-3', minViableRateBgClass(mvr.status))}>
                 <p className="font-medium text-sm mb-2 truncate">{name}</p>
-                <div className="grid grid-cols-2 gap-x-3 text-xs mb-2">
+                <div className="mb-2 grid grid-cols-1 gap-2 text-xs sm:grid-cols-2 sm:gap-x-3">
                   <div>
                     <p className="text-muted-foreground">Mínima (custo/h)</p>
                     <p className="font-bold tabular-nums">{fmt(mvr.minRate)}</p>
@@ -255,7 +255,7 @@ export const ProfitabilityTractorPanel = ({ tractors, exportSlug, range }: Tract
           <AppEmptyState title="Sem tratores" description="Cadastre tratores e lance serviços no período." />
         ) : (
           <div className="overflow-x-auto rounded-xl border border-border bg-card">
-            <table className="w-full text-sm">
+            <table className="w-full min-w-[900px] text-sm">
               <thead>
                 <tr className="border-b border-border bg-muted/30 text-left">
                   <th className="p-3 font-medium">Trator</th>
@@ -446,7 +446,7 @@ export const ProfitabilityTruckPanel = ({ trucks, exportSlug, range }: TruckProp
             {rateItems.map(({ id, name, mvr }) => (
               <div key={id} className={cn('rounded-lg border p-3', minViableRateBgClass(mvr.status))}>
                 <p className="font-medium text-sm mb-2 truncate">{name}</p>
-                <div className="grid grid-cols-2 gap-x-3 text-xs mb-2">
+                <div className="mb-2 grid grid-cols-1 gap-2 text-xs sm:grid-cols-2 sm:gap-x-3">
                   <div>
                     <p className="text-muted-foreground">Mínima (custo/km)</p>
                     <p className="font-bold tabular-nums">{fmt(mvr.minRate)}</p>
@@ -486,7 +486,7 @@ export const ProfitabilityTruckPanel = ({ trucks, exportSlug, range }: TruckProp
           <AppEmptyState title="Sem guinchos" description="Cadastre caminhões e lance serviços no período." />
         ) : (
           <div className="overflow-x-auto rounded-xl border border-border bg-card">
-            <table className="w-full text-sm">
+            <table className="w-full min-w-[900px] text-sm">
               <thead>
                 <tr className="border-b border-border bg-muted/30 text-left">
                   <th className="p-3 font-medium">Guincho</th>

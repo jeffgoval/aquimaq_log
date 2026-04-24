@@ -213,7 +213,7 @@ export const ProfitabilityOverviewPanel = ({
           </p>
           <div className="rounded-xl border border-border bg-card overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+              <table className="w-full min-w-[920px] text-sm">
                 <thead>
                   <tr className="border-b border-border bg-muted/40">
                     <th className="px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide">Linha DRE</th>
@@ -603,7 +603,7 @@ export const ProfitabilityOverviewPanel = ({
                   <Tractor className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                   <span className="font-medium text-sm truncate">{name}</span>
                 </div>
-                <div className="grid grid-cols-2 gap-x-3 text-xs">
+                <div className="grid grid-cols-1 gap-2 text-xs sm:grid-cols-2 sm:gap-x-3">
                   <div>
                     <p className="text-muted-foreground">Mínima (custo/h)</p>
                     <p className="font-semibold text-foreground tabular-nums">{fmt(mvr.minRate)}</p>
@@ -628,7 +628,7 @@ export const ProfitabilityOverviewPanel = ({
                   <Truck className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                   <span className="font-medium text-sm truncate">{name}</span>
                 </div>
-                <div className="grid grid-cols-2 gap-x-3 text-xs">
+                <div className="grid grid-cols-1 gap-2 text-xs sm:grid-cols-2 sm:gap-x-3">
                   <div>
                     <p className="text-muted-foreground">Mínima (custo/km)</p>
                     <p className="font-semibold text-foreground tabular-nums">{fmt(mvr.minRate)}</p>
@@ -684,7 +684,7 @@ export const ProfitabilityOverviewPanel = ({
         ) : (
           <div className="rounded-xl border border-border bg-card overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+              <table className="w-full min-w-[980px] text-sm">
                 <thead>
                   <tr className="border-b border-border bg-muted/40 text-left">
                     <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wide">Cliente</th>

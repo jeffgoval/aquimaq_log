@@ -156,7 +156,7 @@ export const ProfitabilityTractorProCard = ({ t, availableHours }: Props) => {
                 <span>Análise por hora trabalhada</span>
                 <Info className="h-3.5 w-3.5 text-slate-700 dark:text-zinc-300 shrink-0" aria-hidden />
               </p>
-              <div className="grid grid-cols-3 gap-2 text-center">
+              <div className="grid grid-cols-1 gap-2 text-center sm:grid-cols-3">
                 <div title="Receita por hora: faturamento ÷ horas no período.">
                   <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-800 dark:text-zinc-200">Receita/h</p>
                   <p className="text-sm font-bold tabular-nums">

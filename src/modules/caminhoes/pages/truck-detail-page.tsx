@@ -35,7 +35,7 @@ export function TruckDetailPage() {
       <div className="grid gap-6 md:grid-cols-2">
         <div className="card space-y-4">
           <h2 className="typo-section-title">Dados do Guincho</h2>
-          <dl className="grid grid-cols-2 gap-4 text-sm">
+          <dl className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
             <div>
               <dt className="text-muted-foreground">Placa</dt>
               <dd className="font-semibold mt-1 uppercase">{truck.plate || '—'}</dd>
@@ -63,7 +63,7 @@ export function TruckDetailPage() {
 
         <div className="card space-y-4">
           <h2 className="typo-section-title">Financeiro do Caminhão</h2>
-          <dl className="grid grid-cols-2 gap-4 text-sm">
+          <dl className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
             <div>
               <dt className="text-muted-foreground mb-1">Valor de Compra</dt>
               <dd className="font-medium"><AppMoney value={truck.purchase_value} /></dd>

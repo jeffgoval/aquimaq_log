@@ -31,7 +31,7 @@ export function ClientDetailPage() {
         }
       />
       <AppCard>
-        <dl className="grid grid-cols-2 gap-4 text-sm">
+        <dl className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
           {[
             { label: 'Documento', value: client.document || '—' },
             { label: 'Telefone', value: client.phone || '—' },

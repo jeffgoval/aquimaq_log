@@ -215,7 +215,7 @@ export const ProfitabilityResourcesPanel = ({ resources, isLoading, isError, ran
             {activeResources.length > 0 && (
               <div className="rounded-xl border border-border bg-card overflow-hidden mb-6">
                 <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
+                  <table className="w-full min-w-[960px] text-sm">
                     <thead>
                       <tr className="border-b border-border bg-muted/40 text-left">
                         <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide">Equipamento</th>

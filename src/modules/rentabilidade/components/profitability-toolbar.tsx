@@ -42,14 +42,14 @@ export const ProfitabilityToolbar = ({
     <div className="mb-6 space-y-4 rounded-xl border border-border bg-card p-4">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between lg:justify-start lg:gap-3">
-          <div className="flex w-full max-w-full rounded-lg border border-border bg-muted/30 p-0.5 sm:w-auto">
+          <div className="grid w-full max-w-full grid-cols-2 gap-1 rounded-lg border border-border bg-muted/30 p-0.5 sm:flex sm:w-auto sm:gap-0">
             {TAB_ORDER.map((t) => (
               <button
                 key={t}
                 type="button"
                 onClick={() => onTab(t)}
                 className={cn(
-                  'flex-1 sm:flex-none rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
+                  'flex-1 rounded-md px-2 py-1.5 text-xs font-medium transition-colors sm:flex-none sm:px-3 sm:text-sm',
                   tab === t
                     ? 'bg-background shadow-sm text-foreground'
                     : 'text-muted-foreground hover:text-foreground',
@@ -101,23 +101,23 @@ export const ProfitabilityToolbar = ({
           </div>
         </div>
         {preset === 'custom' && (
-          <div className="flex flex-wrap items-center gap-2">
-            <label className="typo-caption text-muted-foreground flex items-center gap-2">
+          <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-2 lg:w-auto lg:grid-cols-1 xl:grid-cols-2">
+            <label className="typo-caption text-muted-foreground flex items-center justify-between gap-2">
               De
               <input
                 type="date"
                 value={customFrom}
                 onChange={(e) => onCustomFrom(e.target.value)}
-                className="rounded-md border border-input bg-background px-2 py-1 text-sm"
+                className="w-[170px] rounded-md border border-input bg-background px-2 py-1 text-sm"
               />
             </label>
-            <label className="typo-caption text-muted-foreground flex items-center gap-2">
+            <label className="typo-caption text-muted-foreground flex items-center justify-between gap-2">
               Até
               <input
                 type="date"
                 value={customTo}
                 onChange={(e) => onCustomTo(e.target.value)}
-                className="rounded-md border border-input bg-background px-2 py-1 text-sm"
+                className="w-[170px] rounded-md border border-input bg-background px-2 py-1 text-sm"
               />
             </label>
           </div>
